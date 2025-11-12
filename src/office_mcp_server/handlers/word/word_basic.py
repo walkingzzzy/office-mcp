@@ -1,7 +1,7 @@
 """Word 基础操作模块."""
 
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 from docx import Document
 from docx.enum.text import WD_ALIGN_PARAGRAPH

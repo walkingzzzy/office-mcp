@@ -10,7 +10,7 @@ from fastmcp import FastMCP
 from loguru import logger
 
 from office_mcp_server.config import config
-from office_mcp_server.tools.word_tools import register_word_tools
+from office_mcp_server.tools.word import register_word_tools  # 使用模块化版本
 from office_mcp_server.tools.excel import register_excel_tools  # 使用模块化版本
 from office_mcp_server.tools.ppt_tools import register_ppt_tools
 

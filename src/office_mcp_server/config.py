@@ -22,6 +22,12 @@ class ServerConfig(BaseModel):
     log_level: str = Field(default="INFO", description="日志级别")
     max_file_size: int = Field(default=100 * 1024 * 1024, description="最大文件大小(字节)")
 
+    # 日志配置
+    log_to_file: bool = Field(default=True, description="是否输出日志到文件")
+    log_rotation: str = Field(default="10 MB", description="日志轮转大小")
+    log_retention: str = Field(default="7 days", description="日志保留时间")
+    log_compression: str = Field(default="zip", description="日志压缩格式")
+
 
 class PathConfig(BaseModel):
     """路径配置."""
@@ -33,12 +39,15 @@ class PathConfig(BaseModel):
     template_dir: Path = Field(
         default_factory=lambda: Path("templates"), description="模板文件目录"
     )
+    logs_dir: Path = Field(
+        default_factory=lambda: Path("logs"), description="日志文件目录"
+    )
 
     def __init__(self, **data):
         """初始化路径配置."""
         super().__init__(**data)
         # 确保目录存在
-        for directory in [self.temp_dir, self.output_dir, self.template_dir]:
+        for directory in [self.temp_dir, self.output_dir, self.template_dir, self.logs_dir]:
             directory.mkdir(parents=True, exist_ok=True)
 
 
@@ -88,11 +97,16 @@ class Config(BaseModel):
                 version=os.getenv("SERVER_VERSION", "1.0.0"),
                 log_level=os.getenv("LOG_LEVEL", "INFO"),
                 max_file_size=int(os.getenv("MAX_FILE_SIZE", str(100 * 1024 * 1024))),
+                log_to_file=os.getenv("LOG_TO_FILE", "true").lower() == "true",
+                log_rotation=os.getenv("LOG_ROTATION", "10 MB"),
+                log_retention=os.getenv("LOG_RETENTION", "7 days"),
+                log_compression=os.getenv("LOG_COMPRESSION", "zip"),
             ),
             paths=PathConfig(
                 temp_dir=Path(os.getenv("TEMP_DIR", "temp")),
                 output_dir=Path(os.getenv("OUTPUT_DIR", "output")),
                 template_dir=Path(os.getenv("TEMPLATE_DIR", "templates")),
+                logs_dir=Path(os.getenv("LOGS_DIR", "logs")),
             ),
             word=WordConfig(
                 default_font=os.getenv("WORD_DEFAULT_FONT", "宋体"),

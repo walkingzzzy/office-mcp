@@ -1,0 +1,402 @@
+.excel-diff-viewer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.diff-header {
+  padding: 16px;
+  border-bottom: 1px solid #e1e5e9;
+  background: #f8f9fa;
+}
+
+.diff-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.view-controls,
+.filter-controls,
+.display-controls,
+.action-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.view-controls label,
+.display-controls label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.filter-controls select {
+  padding: 4px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.accept-all-btn,
+.reject-all-btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.accept-all-btn {
+  background: #10b981;
+  color: white;
+}
+
+.accept-all-btn:hover {
+  background: #059669;
+}
+
+.reject-all-btn {
+  background: #ef4444;
+  color: white;
+}
+
+.reject-all-btn:hover {
+  background: #dc2626;
+}
+
+.diff-stats {
+  display: flex;
+  gap: 16px;
+}
+
+.stat {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.stat.insert {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.stat.delete {
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.stat.modify {
+  background: #fefce8;
+  color: #a16207;
+}
+
+.diff-content {
+  flex: 1;
+  overflow: auto;
+  padding: 16px;
+}
+
+.side-by-side-view {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  height: 100%;
+}
+
+.excel-table-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.excel-table-container h3 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.table-wrapper {
+  flex: 1;
+  overflow: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+}
+
+.excel-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  background: white;
+}
+
+.excel-table th {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  padding: 8px;
+  text-align: center;
+  font-weight: 600;
+  color: #374151;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.excel-table .row-header {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  padding: 8px;
+  text-align: center;
+  font-weight: 600;
+  color: #374151;
+  position: sticky;
+  left: 0;
+  z-index: 5;
+  min-width: 40px;
+}
+
+.excel-cell {
+  border: 1px solid #e5e7eb;
+  padding: 0;
+  position: relative;
+  min-width: 80px;
+  height: 32px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.excel-cell:hover {
+  background: #f3f4f6;
+}
+
+.cell-content {
+  padding: 8px;
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  word-break: break-word;
+}
+
+.cell-insert {
+  background: #dcfce7;
+  border-color: #16a34a;
+}
+
+.cell-delete {
+  background: #fef2f2;
+  border-color: #dc2626;
+}
+
+.cell-modify {
+  background: #fefce8;
+  border-color: #ca8a04;
+}
+
+.cell-format {
+  background: #dbeafe;
+  border-color: #2563eb;
+}
+
+.excel-cell.selected {
+  box-shadow: 0 0 0 2px #3b82f6;
+  z-index: 1;
+}
+
+.cell-actions {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  display: none;
+  gap: 2px;
+}
+
+.excel-cell:hover .cell-actions {
+  display: flex;
+}
+
+.accept-btn,
+.reject-btn {
+  width: 20px;
+  height: 20px;
+  border: none;
+  border-radius: 3px;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.accept-btn {
+  background: #10b981;
+  color: white;
+}
+
+.accept-btn:hover {
+  background: #059669;
+}
+
+.reject-btn {
+  background: #ef4444;
+  color: white;
+}
+
+.reject-btn:hover {
+  background: #dc2626;
+}
+
+.unified-view {
+  height: 100%;
+}
+
+.unified-cell {
+  padding: 4px 8px;
+}
+
+.deleted-content {
+  color: #dc2626;
+  text-decoration: line-through;
+  background: #fef2f2;
+  padding: 2px 4px;
+  border-radius: 3px;
+  margin-bottom: 2px;
+}
+
+.added-content {
+  color: #16a34a;
+  background: #dcfce7;
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
+.change-details {
+  border-top: 1px solid #e5e7eb;
+  padding: 16px;
+  background: #f9fafb;
+}
+
+.change-info h4 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  color: #374151;
+}
+
+.change-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.change-type {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.change-type.insert {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.change-type.delete {
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.change-type.modify {
+  background: #fefce8;
+  color: #a16207;
+}
+
+.change-type.format {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.change-time {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.change-description {
+  margin-bottom: 12px;
+  padding: 8px;
+  background: white;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #374151;
+}
+
+.change-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.change-actions .accept-btn,
+.change-actions .reject-btn {
+  width: auto;
+  height: auto;
+  padding: 8px 16px;
+  font-size: 14px;
+}
+
+/* 滚动条样式 */
+.table-wrapper::-webkit-scrollbar,
+.diff-content::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.table-wrapper::-webkit-scrollbar-track,
+.diff-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb,
+.diff-content::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb:hover,
+.diff-content::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .side-by-side-view {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .diff-controls {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .excel-cell {
+    min-width: 60px;
+  }
+
+  .cell-content {
+    padding: 4px;
+    font-size: 12px;
+  }
+}

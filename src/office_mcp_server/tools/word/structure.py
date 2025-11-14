@@ -17,6 +17,7 @@ def register_structure_tools(mcp: FastMCP, word_handler: WordHandler) -> None:
         title: str = "目录",
         max_level: int = 3,
         hyperlink: bool = True,
+        insert_position: Optional[int] = None,
     ) -> dict[str, Any]:
         """生成 Word 文档目录.
 
@@ -25,12 +26,13 @@ def register_structure_tools(mcp: FastMCP, word_handler: WordHandler) -> None:
             title: 目录标题 (默认 '目录')
             max_level: 最大标题级别 (1-9, 默认 3)
             hyperlink: 是否包含超链接样式 (默认 True)
+            insert_position: 插入位置（段落索引，None表示在文档开头）
 
         Returns:
             dict: 操作结果
         """
-        logger.info(f"MCP工具调用: generate_word_table_of_contents(filename={filename})")
-        return word_handler.generate_table_of_contents(filename, title, max_level, hyperlink)
+        logger.info(f"MCP工具调用: generate_word_table_of_contents(filename={filename}, insert_position={insert_position})")
+        return word_handler.generate_table_of_contents(filename, title, max_level, hyperlink, insert_position)
 
     @mcp.tool()
     def add_word_comment(

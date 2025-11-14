@@ -1,0 +1,397 @@
+.chat-history {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.chat-history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border-bottom: 1px solid #e1e5e9;
+  background: #f8f9fa;
+  border-radius: 8px 8px 0 0;
+}
+
+.chat-history-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #323130;
+}
+
+.history-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.action-button {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: #f3f2f1;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.action-button:hover {
+  background: #e1dfdd;
+  transform: translateY(-1px);
+}
+
+.action-button.new-session:hover {
+  background: #e8f5e9;
+}
+
+.action-button.export:hover {
+  background: #e3f2fd;
+}
+
+.action-button.import:hover {
+  background: #fff3e0;
+}
+
+.action-button.clear:hover {
+  background: #ffebee;
+}
+
+.search-container {
+  padding: 16px;
+  border-bottom: 1px solid #e1e5e9;
+}
+
+.search-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 20px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.search-input:focus {
+  border-color: #0078d4;
+  box-shadow: 0 0 0 2px rgba(0, 120, 212, 0.1);
+}
+
+.sessions-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: #6b7280;
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.empty-state p {
+  margin: 8px 0;
+  font-size: 14px;
+}
+
+.start-chat-button {
+  margin-top: 16px;
+  padding: 8px 16px;
+  background: #0078d4;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.start-chat-button:hover {
+  background: #106ebe;
+}
+
+.session-item {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  margin-bottom: 4px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+}
+
+.session-item:hover {
+  background: #f8f9fa;
+  border-color: #e1e5e9;
+}
+
+.session-item.active {
+  background: #e8f4fd;
+  border-color: #0078d4;
+}
+
+.session-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.session-title {
+  font-weight: 500;
+  font-size: 14px;
+  color: #323130;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.session-title-input {
+  width: 100%;
+  padding: 4px 8px;
+  border: 1px solid #0078d4;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  outline: none;
+}
+
+.session-preview {
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+
+.session-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.session-date {
+  font-weight: 500;
+}
+
+.session-count::before {
+  content: '•';
+  margin-right: 4px;
+}
+
+.session-actions {
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.session-item:hover .session-actions {
+  opacity: 1;
+}
+
+.session-action {
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  transition: background-color 0.2s;
+}
+
+.session-action:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.session-action.edit:hover {
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.session-action.delete:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.confirm-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.confirm-content {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  max-width: 400px;
+  width: 90%;
+}
+
+.confirm-content h4 {
+  margin: 0 0 12px 0;
+  font-size: 18px;
+  color: #323130;
+}
+
+.confirm-content p {
+  margin: 0 0 20px 0;
+  font-size: 14px;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.confirm-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.confirm-button.cancel {
+  background: #f3f2f1;
+  color: #323130;
+}
+
+.confirm-button.cancel:hover {
+  background: #e1dfdd;
+}
+
+.confirm-button.confirm {
+  background: #dc3545;
+  color: white;
+}
+
+.confirm-button.confirm:hover {
+  background: #c82333;
+}
+
+/* 滚动条样式 */
+.sessions-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sessions-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.sessions-list::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.sessions-list::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* 响应式设计 */
+@media (max-width: 480px) {
+  .chat-history-header {
+    padding: 12px;
+  }
+
+  .search-container {
+    padding: 12px;
+  }
+
+  .session-item {
+    padding: 10px;
+  }
+
+  .session-title {
+    font-size: 13px;
+  }
+
+  .session-preview {
+    font-size: 11px;
+  }
+
+  .session-meta {
+    font-size: 10px;
+  }
+
+  .action-button {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
+
+  .confirm-content {
+    padding: 20px;
+    margin: 16px;
+  }
+}
+
+/* 动画效果 */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.session-item {
+  animation: slideIn 0.2s ease-out;
+}
+
+.confirm-dialog {
+  animation: fadeIn 0.2s ease-out;
+}
+
+.confirm-content {
+  animation: slideIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

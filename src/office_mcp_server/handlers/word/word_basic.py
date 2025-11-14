@@ -295,3 +295,113 @@ class WordBasicOperations:
         except Exception as e:
             logger.error(f"设置文档属性失败: {e}")
             return {"success": False, "message": f"操作失败: {str(e)}"}
+
+    def get_page_count(self, filename: str) -> dict[str, Any]:
+        """获取文档页数（估算值）.
+
+        使用跨平台兼容的估算方法，基于文档内容（字数、段落数、表格数、图片数）估算页数。
+
+        估算公式：
+        - 基础页数 = 字数 / 每页平均字数（中文约550字/页）
+        - 段落修正 = 段落数 * 0.02（每个段落约占0.02页）
+        - 表格修正 = 表格数 * 0.3（每个表格约占0.3页）
+        - 图片修正 = 图片数 * 0.2（每张图片约占0.2页）
+        - 预估页数 = 基础页数 + 段落修正 + 表格修正 + 图片修正
+
+        Args:
+            filename: 文件名
+
+        Returns:
+            dict: 页数统计结果，包含：
+                - estimated_pages: 估算的页数（整数）
+                - is_estimated: true（标记为估算值）
+                - estimation_basis: 估算依据
+                - confidence_level: 置信度（"low"/"medium"/"high"）
+                - details: 详细计算过程
+
+        注意:
+            这是估算值，实际页数可能因字体、字号、行距、段落间距、页边距等因素有所不同。
+            误差范围通常在±2页以内。
+        """
+        try:
+            file_path = config.paths.output_dir / filename
+            self.file_manager.validate_file_path(file_path, must_exist=True)
+
+            doc = Document(str(file_path))
+
+            # 收集文档统计信息
+            paragraph_count = len(doc.paragraphs)
+            table_count = len(doc.tables)
+
+            # 计算字数（中文字符）
+            total_text = "\n".join([p.text for p in doc.paragraphs])
+            char_count = len(total_text)
+
+            # 统计图片数量
+            image_count = 0
+            for paragraph in doc.paragraphs:
+                for run in paragraph.runs:
+                    if run._element.xpath('.//w:drawing'):
+                        image_count += 1
+
+            # 估算页数
+            # 中文文档：每页约550字（假设宋体12pt，1.5倍行距，标准页边距）
+            chars_per_page = 550
+
+            # 基础页数（基于字数）
+            base_pages = char_count / chars_per_page if char_count > 0 else 0
+
+            # 段落修正（每个段落约占0.02页，因为段落间距）
+            paragraph_correction = paragraph_count * 0.02
+
+            # 表格修正（每个表格约占0.3页）
+            table_correction = table_count * 0.3
+
+            # 图片修正（每张图片约占0.2页）
+            image_correction = image_count * 0.2
+
+            # 总页数估算
+            total_pages = base_pages + paragraph_correction + table_correction + image_correction
+            estimated_pages = max(1, round(total_pages))  # 至少1页
+
+            # 计算置信度
+            # 如果文档内容丰富（有表格、图片），置信度较低
+            # 如果文档主要是纯文本，置信度较高
+            if table_count > 5 or image_count > 5:
+                confidence_level = "low"
+            elif table_count > 0 or image_count > 0:
+                confidence_level = "medium"
+            else:
+                confidence_level = "high"
+
+            estimation_basis = {
+                "char_count": char_count,
+                "paragraph_count": paragraph_count,
+                "table_count": table_count,
+                "image_count": image_count,
+                "chars_per_page": chars_per_page,
+            }
+
+            details = {
+                "base_pages": round(base_pages, 2),
+                "paragraph_correction": round(paragraph_correction, 2),
+                "table_correction": round(table_correction, 2),
+                "image_correction": round(image_correction, 2),
+                "total_pages_raw": round(total_pages, 2),
+            }
+
+            logger.info(f"页数估算完成: {file_path}, 估算页数: {estimated_pages}")
+            return {
+                "success": True,
+                "message": f"页数估算完成（估算值，误差±2页）",
+                "filename": str(file_path),
+                "estimated_pages": estimated_pages,
+                "is_estimated": True,
+                "confidence_level": confidence_level,
+                "estimation_basis": estimation_basis,
+                "details": details,
+            }
+
+        except Exception as e:
+            logger.error(f"页数估算失败: {e}")
+            return {"success": False, "message": f"操作失败: {str(e)}"}

@@ -115,8 +115,17 @@ class WordAdvancedOperations:
         title: str = "目录",
         max_level: int = 3,
         hyperlink: bool = True,
+        insert_position: Optional[int] = None,
     ) -> dict[str, Any]:
-        """生成Word文档目录."""
+        """生成Word文档目录.
+
+        Args:
+            filename: 文件名
+            title: 目录标题
+            max_level: 最大标题级别
+            hyperlink: 是否包含超链接样式
+            insert_position: 插入位置（段落索引，None表示在文档开头）
+        """
         try:
             file_path = config.paths.output_dir / filename
             self.file_manager.validate_file_path(file_path, must_exist=True)
@@ -147,14 +156,26 @@ class WordAdvancedOperations:
                     "message": "文档中没有找到标题，无法生成目录"
                 }
 
-            # 在文档开头插入目录
-            toc_title = doc.paragraphs[0].insert_paragraph_before(title)
+            # 确定插入位置
+            if insert_position is None:
+                insert_position = 0
+            elif insert_position < 0 or insert_position >= len(doc.paragraphs):
+                raise ValueError(f"插入位置 {insert_position} 超出范围 (0-{len(doc.paragraphs)-1})")
+
+            # 在指定位置插入目录
+            insert_para = doc.paragraphs[insert_position]
+
+            # 先插入目录标题
+            toc_title = insert_para.insert_paragraph_before(title)
             toc_title.style = 'Heading 1'
             toc_title.paragraph_format.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
-            # 插入目录项
+            # 插入目录项（使用XML操作确保正序）
+            # 策略：先在文档末尾创建所有目录项段落，然后使用XML移动到正确位置
+            toc_paragraphs = []
             for heading in headings:
-                toc_para = doc.paragraphs[0].insert_paragraph_before()
+                # 在文档末尾创建段落
+                toc_para = doc.add_paragraph()
 
                 # 设置缩进
                 indent = (heading['level'] - 1) * 0.5
@@ -174,18 +195,32 @@ class WordAdvancedOperations:
                 page_run = toc_para.add_run('...')
                 page_run.font.size = Pt(12 - heading['level'])
 
+                toc_paragraphs.append(toc_para)
+
+            # 使用XML操作将目录项移动到目录标题之后
+            toc_title_element = toc_title._element
+            for toc_para in toc_paragraphs:
+                para_element = toc_para._element
+                # 从当前位置移除
+                para_element.getparent().remove(para_element)
+                # 插入到目录标题之后
+                toc_title_element.addnext(para_element)
+                # 更新插入点为刚插入的段落，这样下一个会插入到它之后
+                toc_title_element = para_element
+
             # 添加空行分隔
-            doc.paragraphs[0].insert_paragraph_before()
+            insert_para.insert_paragraph_before()
 
             doc.save(str(file_path))
 
-            logger.info(f"目录生成成功: {file_path}")
+            logger.info(f"目录生成成功: {file_path}, 插入位置: {insert_position}")
             return {
                 "success": True,
                 "message": f"目录生成成功，包含 {len(headings)} 个标题",
                 "filename": str(file_path),
                 "heading_count": len(headings),
                 "max_level": max_level,
+                "insert_position": insert_position,
             }
 
         except Exception as e:

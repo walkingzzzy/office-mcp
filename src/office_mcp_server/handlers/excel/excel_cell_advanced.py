@@ -1,6 +1,7 @@
 """Excel 单元格高级操作模块."""
 
 from typing import Any, Literal
+import re
 
 from openpyxl import load_workbook
 from openpyxl.utils import get_column_letter, column_index_from_string
@@ -43,9 +44,12 @@ class ExcelCellAdvancedOperations:
 
             ws = wb[sheet_name]
 
-            # 解析单元格位置
-            from openpyxl.utils import coordinate_from_string
-            col_letter, row = coordinate_from_string(cell)
+            # 解析单元格位置 (如 'B2' -> 列字母='B', 行号=2)
+            match = re.match(r'^([A-Z]+)(\d+)$', cell.upper())
+            if not match:
+                raise ValueError(f"无效的单元格格式: {cell}")
+            col_letter = match.group(1)
+            row = int(match.group(2))
             col_idx = column_index_from_string(col_letter)
 
             if shift == "down":
@@ -100,9 +104,12 @@ class ExcelCellAdvancedOperations:
 
             ws = wb[sheet_name]
 
-            # 解析单元格位置
-            from openpyxl.utils import coordinate_from_string
-            col_letter, row = coordinate_from_string(cell)
+            # 解析单元格位置 (如 'B2' -> 列字母='B', 行号=2)
+            match = re.match(r'^([A-Z]+)(\d+)$', cell.upper())
+            if not match:
+                raise ValueError(f"无效的单元格格式: {cell}")
+            col_letter = match.group(1)
+            row = int(match.group(2))
             col_idx = column_index_from_string(col_letter)
 
             if shift == "up":
@@ -160,9 +167,15 @@ class ExcelCellAdvancedOperations:
             ws = wb[sheet_name]
 
             # 解析单元格位置
-            from openpyxl.utils import coordinate_from_string
-            start_col_letter, start_row = coordinate_from_string(start_cell)
-            end_col_letter, end_row = coordinate_from_string(end_cell)
+            start_match = re.match(r'^([A-Z]+)(\d+)$', start_cell.upper())
+            end_match = re.match(r'^([A-Z]+)(\d+)$', end_cell.upper())
+            if not start_match or not end_match:
+                raise ValueError(f"无效的单元格格式: {start_cell} 或 {end_cell}")
+
+            start_col_letter = start_match.group(1)
+            start_row = int(start_match.group(2))
+            end_col_letter = end_match.group(1)
+            end_row = int(end_match.group(2))
 
             start_col_idx = column_index_from_string(start_col_letter)
             end_col_idx = column_index_from_string(end_col_letter)
@@ -224,9 +237,15 @@ class ExcelCellAdvancedOperations:
             ws = wb[sheet_name]
 
             # 解析单元格位置
-            from openpyxl.utils import coordinate_from_string
-            start_col_letter, start_row = coordinate_from_string(start_cell)
-            end_col_letter, end_row = coordinate_from_string(end_cell)
+            start_match = re.match(r'^([A-Z]+)(\d+)$', start_cell.upper())
+            end_match = re.match(r'^([A-Z]+)(\d+)$', end_cell.upper())
+            if not start_match or not end_match:
+                raise ValueError(f"无效的单元格格式: {start_cell} 或 {end_cell}")
+
+            start_col_letter = start_match.group(1)
+            start_row = int(start_match.group(2))
+            end_col_letter = end_match.group(1)
+            end_row = int(end_match.group(2))
 
             start_col_idx = column_index_from_string(start_col_letter)
             end_col_idx = column_index_from_string(end_col_letter)

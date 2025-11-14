@@ -162,6 +162,8 @@ class ExcelChartOperations:
     ) -> dict[str, Any]:
         """格式化图表.
 
+        注意：chart_index 从 0 开始，表示工作表中的第几个图表
+
         Args:
             filename: 文件名
             sheet_name: 工作表名称

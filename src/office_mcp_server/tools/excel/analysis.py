@@ -26,12 +26,19 @@ def register_analysis_tools(mcp: FastMCP, excel_handler: ExcelHandler) -> None:
     def excel_correlation_analysis(
         filename: str,
         sheet_name: str,
-        data_range: str,
-        output_cell: Optional[str] = None,
+        data_range1: str,
+        data_range2: str,
     ) -> dict[str, Any]:
-        """Excel 相关性分析."""
+        """Excel 相关性分析 - 计算两组数据的相关系数.
+
+        Args:
+            filename: 文件名
+            sheet_name: 工作表名称
+            data_range1: 第一组数据范围 (如 'A1:A10')
+            data_range2: 第二组数据范围 (如 'B1:B10')
+        """
         logger.info(f"MCP工具调用: excel_correlation_analysis(filename={filename})")
-        return excel_handler.correlation_analysis(filename, sheet_name, data_range, output_cell)
+        return excel_handler.correlation_analysis(filename, sheet_name, data_range1, data_range2)
 
     @mcp.tool()
     def excel_goal_seek(

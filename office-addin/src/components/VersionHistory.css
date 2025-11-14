@@ -1,0 +1,270 @@
+.version-history {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid #e0e0e0;
+  background: #f8f9fa;
+}
+
+.history-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.compare-btn {
+  padding: 6px 12px;
+  background: #2196f3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.compare-btn:hover {
+  background: #1976d2;
+}
+
+.versions-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: #999;
+}
+
+.empty-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.version-item {
+  margin-bottom: 8px;
+  padding: 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.version-item:hover {
+  border-color: #2196f3;
+  box-shadow: 0 2px 4px rgba(33, 150, 243, 0.1);
+}
+
+.version-item.selected {
+  border-color: #2196f3;
+  background: #f3f9ff;
+}
+
+.version-item.current {
+  border-color: #4caf50;
+  background: #f1f8e9;
+}
+
+.version-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.version-icon {
+  font-size: 20px;
+  width: 24px;
+  text-align: center;
+}
+
+.version-info {
+  flex: 1;
+}
+
+.version-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.current-badge {
+  padding: 2px 6px;
+  background: #4caf50;
+  color: white;
+  font-size: 10px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.version-time {
+  font-size: 12px;
+  color: #666;
+}
+
+.restore-btn {
+  padding: 4px 8px;
+  background: #fff;
+  color: #2196f3;
+  border: 1px solid #2196f3;
+  border-radius: 4px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.restore-btn:hover {
+  background: #2196f3;
+  color: white;
+}
+
+.version-stats {
+  display: flex;
+  gap: 16px;
+  padding-top: 8px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+}
+
+.stat-label {
+  color: #666;
+}
+
+.stat-value {
+  font-weight: 600;
+  color: #333;
+}
+
+.stat-value.accepted {
+  color: #4caf50;
+}
+
+.stat-value.rejected {
+  color: #f44336;
+}
+
+/* 确认对话框 */
+.confirm-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.confirm-dialog {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  max-width: 400px;
+  width: 90%;
+}
+
+.dialog-header {
+  padding: 20px 20px 0;
+}
+
+.dialog-header h4 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+}
+
+.dialog-content {
+  padding: 16px 20px;
+}
+
+.dialog-content p {
+  margin: 0 0 8px;
+  color: #666;
+}
+
+.warning {
+  color: #f44336 !important;
+  font-weight: 500;
+}
+
+.dialog-actions {
+  display: flex;
+  gap: 8px;
+  padding: 0 20px 20px;
+  justify-content: flex-end;
+}
+
+.cancel-btn {
+  padding: 8px 16px;
+  background: #fff;
+  color: #666;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancel-btn:hover {
+  background: #f5f5f5;
+}
+
+.confirm-btn {
+  padding: 8px 16px;
+  background: #f44336;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.confirm-btn:hover {
+  background: #d32f2f;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .version-stats {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .version-main {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .restore-btn {
+    align-self: flex-end;
+  }
+}

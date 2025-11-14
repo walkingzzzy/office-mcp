@@ -164,3 +164,43 @@ def register_basic_tools(mcp: FastMCP, word_handler: WordHandler) -> None:
         """
         logger.info(f"MCP工具调用: get_word_document_info(filename={filename})")
         return word_handler.get_document_info(filename)
+
+    @mcp.tool()
+    def get_word_page_count(filename: str) -> dict[str, Any]:
+        """获取 Word 文档页数（估算值）.
+
+        使用跨平台兼容的估算方法，基于文档内容（字数、段落数、表格数、图片数）估算页数。
+
+        估算公式：
+        - 基础页数 = 字数 / 每页平均字数（中文约550字/页）
+        - 段落修正 = 段落数 * 0.02（每个段落约占0.02页）
+        - 表格修正 = 表格数 * 0.3（每个表格约占0.3页）
+        - 图片修正 = 图片数 * 0.2（每张图片约占0.2页）
+        - 预估页数 = 基础页数 + 段落修正 + 表格修正 + 图片修正
+
+        Args:
+            filename: 文件名
+
+        Returns:
+            dict: 页数统计结果，包含：
+                - estimated_pages: 估算的页数（整数）
+                - is_estimated: true（标记为估算值）
+                - confidence_level: 置信度（"low"/"medium"/"high"）
+                - estimation_basis: 估算依据（字数、段落数、表格数、图片数）
+                - details: 详细计算过程
+
+        注意:
+            这是估算值，实际页数可能因字体、字号、行距、段落间距、页边距等因素有所不同。
+            误差范围通常在±2页以内。
+
+        使用场景:
+            - 验证文档优化效果（优化前后页数对比）
+            - 评估文档长度
+            - 预估打印成本
+            - 检查文档是否符合页数要求
+
+        提示:
+            如果需要精确页数，建议在Windows系统上使用Word应用程序打开文档查看。
+        """
+        logger.info(f"MCP工具调用: get_word_page_count(filename={filename})")
+        return word_handler.get_page_count(filename)

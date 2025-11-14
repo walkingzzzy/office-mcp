@@ -1,0 +1,25 @@
+.taskpane {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: #ffffff;
+}
+
+.taskpane-header {
+  background: linear-gradient(135deg, #0078d4 0%, #106ebe 100%);
+  color: white;
+  padding: 16px 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.taskpane-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.taskpane-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}

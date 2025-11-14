@@ -213,17 +213,27 @@ class ExcelPrintOperations:
 
             ws = wb[sheet_name]
 
+            # 使用 defined_names 设置打印标题
+            from openpyxl.workbook.defined_name import DefinedName
+
+            # 删除现有的打印标题定义
+            if '_xlnm.Print_Titles' in wb.defined_names:
+                del wb.defined_names['_xlnm.Print_Titles']
+
             title_parts = []
             if rows:
-                title_parts.append(f"{sheet_name}!${rows}")
+                title_parts.append(f"${rows}")
             if cols:
-                title_parts.append(f"{sheet_name}!${cols}")
+                title_parts.append(f"${cols}")
 
             if title_parts:
-                ws.print_titles = ",".join(title_parts)
+                # 创建打印标题定义
+                value = f"'{sheet_name}'!" + ",".join(title_parts)
+                defined_name = DefinedName('_xlnm.Print_Titles', attr_text=value)
+                defined_name.localSheetId = wb.sheetnames.index(sheet_name)
+                wb.defined_names.add(defined_name)
                 message = f"打印标题已设置"
             else:
-                ws.print_titles = None
                 message = "打印标题已清除"
 
             wb.save(str(file_path))
@@ -247,18 +257,21 @@ class ExcelPrintOperations:
         self,
         filename: str,
         sheet_name: str,
-        break_type: str,
-        position: int,
+        cell: str,
+        break_type: str = "row",
     ) -> dict[str, Any]:
         """插入分页符.
 
         Args:
             filename: 文件名
             sheet_name: 工作表名称
-            break_type: 分页符类型 ('row'行分页符, 'col'列分页符)
-            position: 分页符位置 (行号或列号)
+            cell: 起始单元格 (如 'B2')
+            break_type: 分页符类型 ('row'行分页符, 'col'列分页符, 默认 'row')
         """
         try:
+            import re
+            from openpyxl.utils import column_index_from_string
+
             file_path = config.paths.output_dir / filename
             self.file_manager.validate_file_path(file_path, must_exist=True)
 
@@ -269,12 +282,20 @@ class ExcelPrintOperations:
 
             ws = wb[sheet_name]
 
+            # 解析单元格位置
+            match = re.match(r'^([A-Z]+)(\d+)$', cell.upper())
+            if not match:
+                raise ValueError(f"无效的单元格格式: {cell}")
+            col_letter = match.group(1)
+            row = int(match.group(2))
+            col_idx = column_index_from_string(col_letter)
+
             if break_type == 'row':
-                ws.row_breaks.append(Break(id=position))
-                message = f"在第 {position} 行插入分页符"
+                ws.row_breaks.append(Break(id=row))
+                message = f"在第 {row} 行插入分页符"
             elif break_type == 'col':
-                ws.col_breaks.append(Break(id=position))
-                message = f"在第 {position} 列插入分页符"
+                ws.col_breaks.append(Break(id=col_idx))
+                message = f"在第 {col_idx} 列插入分页符"
             else:
                 raise ValueError(f"不支持的分页符类型: {break_type}")
 

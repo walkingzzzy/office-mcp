@@ -241,7 +241,17 @@ class ExcelAnalysisOperations:
                 if result_value is None:
                     raise ValueError(f"目标单元格 {target_cell} 没有公式或值")
 
-                diff = abs(float(result_value) - target_value)
+                # 检查是否为公式字符串
+                if isinstance(result_value, str) and result_value.startswith('='):
+                    raise ValueError(f"目标单元格 {target_cell} 包含公式，openpyxl无法自动计算。请使用Excel应用程序或先计算公式值。")
+
+                # 转换为浮点数
+                try:
+                    result_float = float(result_value)
+                except (ValueError, TypeError):
+                    raise ValueError(f"目标单元格 {target_cell} 的值 '{result_value}' 无法转换为数字")
+
+                diff = abs(result_float - target_value)
 
                 if diff < tolerance:
                     wb.save(str(file_path))

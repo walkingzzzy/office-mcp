@@ -411,6 +411,7 @@ class WordStructureOperations:
         data: list[list[str]],
         has_header: bool = True,
         table_style: str = "Table Grid",
+        insert_position: Optional[int] = None,
     ) -> dict[str, Any]:
         """从数据导入创建表格.
 
@@ -419,6 +420,7 @@ class WordStructureOperations:
             data: 表格数据（二维列表）
             has_header: 第一行是否为表头
             table_style: 表格样式
+            insert_position: 插入位置（段落索引，None表示在文档末尾）
 
         Returns:
             dict: 操作结果
@@ -436,7 +438,29 @@ class WordStructureOperations:
             cols = len(data[0])
 
             # 创建表格
-            table = doc.add_table(rows=rows, cols=cols)
+            if insert_position is None:
+                # 在文档末尾添加表格
+                table = doc.add_table(rows=rows, cols=cols)
+            else:
+                # 在指定位置插入表格
+                if insert_position < 0 or insert_position >= len(doc.paragraphs):
+                    raise ValueError(f"插入位置 {insert_position} 超出范围 (0-{len(doc.paragraphs)-1})")
+
+                # 在指定段落之前插入一个新段落，然后在该段落后添加表格
+                insert_para = doc.paragraphs[insert_position]
+                new_para = insert_para.insert_paragraph_before()
+
+                # 由于python-docx的限制，我们需要先在末尾创建表格，然后移动它
+                # 这里使用一个技巧：在指定位置插入表格的XML元素
+                table = doc.add_table(rows=rows, cols=cols)
+
+                # 获取表格的XML元素
+                tbl_element = table._element
+                # 从当前位置移除
+                tbl_element.getparent().remove(tbl_element)
+                # 插入到指定位置
+                new_para._element.addnext(tbl_element)
+
             table.style = table_style
 
             # 填充数据
@@ -454,13 +478,14 @@ class WordStructureOperations:
 
             doc.save(str(file_path))
 
-            logger.info(f"表格数据导入成功: {file_path}, {rows}x{cols}")
+            logger.info(f"表格数据导入成功: {file_path}, {rows}x{cols}, 插入位置: {insert_position}")
             return {
                 "success": True,
                 "message": f"成功导入 {rows}x{cols} 表格",
                 "filename": str(file_path),
                 "rows": rows,
-                "cols": cols
+                "cols": cols,
+                "insert_position": insert_position,
             }
 
         except Exception as e:

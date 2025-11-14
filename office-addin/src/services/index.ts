@@ -1,0 +1,11 @@
+export { default as WordAPI } from './WordAPI';
+export { default as ExcelAPI } from './ExcelAPI';
+export { default as PowerPointAPI } from './PowerPointAPI';
+export { default as DocumentAdapter } from './DocumentAdapter';
+export { default as WordAdapter } from './WordAdapter';
+export { default as ChangeManager } from './ChangeManager';
+export { default as HighlightManager } from './HighlightManager';
+export { default as HttpClient } from './HttpClient';
+export { default as WebSocketClient } from './WebSocketClient';
+export { default as MessageStreamProcessor } from './MessageStreamProcessor';
+export { default as ChatHistoryManager } from './ChatHistoryManager';

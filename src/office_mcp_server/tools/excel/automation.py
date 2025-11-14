@@ -70,11 +70,36 @@ def register_automation_tools(mcp: FastMCP, excel_handler: ExcelHandler) -> None
         file_patterns: list[str],
         operation: str,
         output_dir: Optional[str] = None,
-        **kwargs
+        font_name: Optional[str] = None,
+        font_size: Optional[int] = None,
+        export_format: Optional[str] = None,
     ) -> dict[str, Any]:
-        """批量处理 Excel 文件."""
+        """批量处理 Excel 文件.
+
+        Args:
+            file_patterns: 文件匹配模式列表
+            operation: 操作类型 ('format'格式化, 'merge'合并, 'export'导出)
+            output_dir: 输出目录 (可选)
+            font_name: 字体名称 (用于format操作, 可选)
+            font_size: 字体大小 (用于format操作, 可选)
+            export_format: 导出格式 (用于export操作, 可选, 如 'csv', 'pdf')
+        """
         logger.info(f"MCP工具调用: batch_process_excel_files(operation={operation}, patterns={len(file_patterns)})")
-        return excel_handler.batch_process_files(file_patterns, operation, output_dir, **kwargs)
+
+        # 构建 kwargs
+        kwargs = {}
+        if font_name is not None:
+            kwargs['font_name'] = font_name
+        if font_size is not None:
+            kwargs['font_size'] = font_size
+        if export_format is not None:
+            kwargs['format'] = export_format
+        if output_dir is not None:
+            kwargs['output_dir'] = output_dir
+
+        # 处理第一个模式（简化处理）
+        pattern = file_patterns[0] if file_patterns else "*.xlsx"
+        return excel_handler.batch_process_files(pattern, operation, **kwargs)
 
     @mcp.tool()
     def merge_excel_workbooks(

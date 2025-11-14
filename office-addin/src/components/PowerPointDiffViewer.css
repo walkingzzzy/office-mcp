@@ -1,0 +1,415 @@
+.ppt-diff-viewer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.diff-header {
+  padding: 16px;
+  border-bottom: 1px solid #e1e5e9;
+  background: #f8f9fa;
+}
+
+.diff-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.view-controls,
+.filter-controls,
+.action-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.view-controls label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.filter-controls select {
+  padding: 4px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.accept-all-btn,
+.reject-all-btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.accept-all-btn {
+  background: #10b981;
+  color: white;
+}
+
+.accept-all-btn:hover {
+  background: #059669;
+}
+
+.reject-all-btn {
+  background: #ef4444;
+  color: white;
+}
+
+.reject-all-btn:hover {
+  background: #dc2626;
+}
+
+.diff-stats {
+  display: flex;
+  gap: 16px;
+}
+
+.stat {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.stat.insert {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.stat.delete {
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.stat.modify {
+  background: #fefce8;
+  color: #a16207;
+}
+
+.slide-navigation {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e5e7eb;
+  overflow-x: auto;
+}
+
+.slide-nav-btn {
+  min-width: 40px;
+  height: 32px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.slide-nav-btn:hover {
+  background: #f3f4f6;
+}
+
+.slide-nav-btn.active {
+  background: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+}
+
+.diff-content {
+  flex: 1;
+  overflow: auto;
+  padding: 16px;
+}
+
+.side-by-side-view {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  height: 100%;
+}
+
+.slide-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.slide-container h4 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.slide-preview {
+  flex: 1;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+  background: white;
+}
+
+.slide-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.slide-placeholder {
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+  background: #f9fafb;
+  position: relative;
+}
+
+.shapes-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.shape {
+  position: absolute;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+}
+
+.shape:hover {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.shape-text {
+  font-size: 12px;
+  text-align: center;
+  word-break: break-word;
+  overflow: hidden;
+}
+
+.shape-insert {
+  background: #dcfce7;
+  border-color: #16a34a;
+}
+
+.shape-delete {
+  background: #fef2f2;
+  border-color: #dc2626;
+}
+
+.shape-modify {
+  background: #fefce8;
+  border-color: #ca8a04;
+}
+
+.shape-format {
+  background: #dbeafe;
+  border-color: #2563eb;
+}
+
+.shape-actions {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  display: none;
+  gap: 2px;
+}
+
+.shape:hover .shape-actions {
+  display: flex;
+}
+
+.accept-btn,
+.reject-btn {
+  width: 20px;
+  height: 20px;
+  border: none;
+  border-radius: 3px;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.accept-btn {
+  background: #10b981;
+  color: white;
+}
+
+.accept-btn:hover {
+  background: #059669;
+}
+
+.reject-btn {
+  background: #ef4444;
+  color: white;
+}
+
+.reject-btn:hover {
+  background: #dc2626;
+}
+
+.unified-slide {
+  height: 100%;
+}
+
+.unified-slide h4 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.slide-preview.unified {
+  min-height: 500px;
+}
+
+.deleted-content {
+  color: #dc2626;
+  text-decoration: line-through;
+  background: #fef2f2;
+  padding: 2px 4px;
+  border-radius: 3px;
+  margin-bottom: 2px;
+  font-size: 11px;
+}
+
+.added-content {
+  color: #16a34a;
+  background: #dcfce7;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-size: 11px;
+}
+
+.change-details {
+  border-top: 1px solid #e5e7eb;
+  padding: 16px;
+  background: #f9fafb;
+}
+
+.change-info h4 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  color: #374151;
+}
+
+.change-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.change-type {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.change-type.insert {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.change-type.delete {
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.change-type.modify {
+  background: #fefce8;
+  color: #a16207;
+}
+
+.change-type.format {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.change-time {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.change-description {
+  margin-bottom: 12px;
+  padding: 8px;
+  background: white;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #374151;
+}
+
+.change-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.change-actions .accept-btn,
+.change-actions .reject-btn {
+  width: auto;
+  height: auto;
+  padding: 8px 16px;
+  font-size: 14px;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .side-by-side-view {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .diff-controls {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .slide-navigation {
+    padding: 8px 12px;
+  }
+
+  .slide-nav-btn {
+    min-width: 32px;
+    height: 28px;
+    font-size: 12px;
+  }
+
+  .slide-placeholder {
+    min-height: 300px;
+  }
+
+  .shape {
+    min-width: 40px;
+    min-height: 30px;
+  }
+
+  .shape-text {
+    font-size: 10px;
+  }
+}

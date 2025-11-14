@@ -450,6 +450,10 @@ class ExcelRowColOperations:
             width: 列宽 (字符单位)
         """
         try:
+            # 验证列索引
+            if col_index < 1:
+                raise ValueError(f"Invalid column index {col_index}. Column index must be >= 1 (A=1, B=2, ...)")
+
             file_path = config.paths.output_dir / filename
             self.file_manager.validate_file_path(file_path, must_exist=True)
 

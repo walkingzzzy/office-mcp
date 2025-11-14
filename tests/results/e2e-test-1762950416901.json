@@ -1,0 +1,46 @@
+{
+  "totalTests": 7,
+  "passedTests": 6,
+  "failedTests": 1,
+  "tests": [
+    {
+      "name": "健康检查",
+      "status": "passed",
+      "duration": 18
+    },
+    {
+      "name": "获取服务器信息",
+      "status": "failed",
+      "duration": 17,
+      "error": "Request failed with status code 500"
+    },
+    {
+      "name": "获取工具列表",
+      "status": "passed",
+      "duration": 23
+    },
+    {
+      "name": "调用MCP工具",
+      "status": "passed",
+      "duration": 16
+    },
+    {
+      "name": "响应时间测试",
+      "status": "passed",
+      "duration": 83
+    },
+    {
+      "name": "错误处理",
+      "status": "passed",
+      "duration": 8
+    },
+    {
+      "name": "404处理",
+      "status": "passed",
+      "duration": 6
+    }
+  ],
+  "startTime": 1762950416691,
+  "endTime": 1762950416901,
+  "duration": 210
+}

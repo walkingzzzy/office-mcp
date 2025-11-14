@@ -23,7 +23,7 @@ class DataMasking:
         filename: str,
         sheet_name: str,
         cell_range: str,
-        mask_type: Literal["phone", "email", "id_card", "credit_card", "name", "custom"],
+        mask_type: Literal["phone", "email", "id_card", "credit_card", "name", "custom", "partial"],
         mask_char: str = "*",
         keep_first: int = 0,
         keep_last: int = 0,
@@ -144,8 +144,8 @@ class DataMasking:
                 return value[0] + mask_char * (len(value) - 1)
             return value
 
-        elif mask_type == "custom":
-            # 自定义脱敏
+        elif mask_type == "partial" or mask_type == "custom":
+            # 部分脱敏或自定义脱敏
             if keep_first + keep_last >= len(value):
                 return value
 

@@ -1,0 +1,258 @@
+.change-item {
+  background: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  padding: 16px;
+  margin-bottom: 12px;
+  transition: all 0.2s;
+}
+
+.change-item:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-color: #bdbdbd;
+}
+
+/* 根据类型设置左边框颜色 */
+.change-item-insert {
+  border-left: 4px solid #4CAF50;
+}
+
+.change-item-delete {
+  border-left: 4px solid #F44336;
+}
+
+.change-item-modify {
+  border-left: 4px solid #FFC107;
+}
+
+.change-item-format {
+  border-left: 4px solid #2196F3;
+}
+
+/* 根据状态设置透明度 */
+.change-item-accepted {
+  opacity: 0.7;
+  background: #f8f9fa;
+}
+
+.change-item-rejected {
+  opacity: 0.5;
+  background: #f8f9fa;
+}
+
+/* Header */
+.change-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.change-type {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.type-icon {
+  font-size: 16px;
+}
+
+.type-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+}
+
+.change-status {
+  display: flex;
+  align-items: center;
+}
+
+.status-badge {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.status-pending {
+  background-color: #FFF3E0;
+  color: #E65100;
+}
+
+.status-accepted {
+  background-color: #E8F5E9;
+  color: #2E7D32;
+}
+
+.status-rejected {
+  background-color: #FFEBEE;
+  color: #C62828;
+}
+
+/* Content */
+.change-item-content {
+  margin-bottom: 12px;
+}
+
+.change-description {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 8px;
+  font-style: italic;
+}
+
+.change-text {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.text-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.text-label {
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  color: #666;
+  letter-spacing: 0.5px;
+}
+
+.text-content {
+  color: #333;
+  word-break: break-word;
+  white-space: pre-wrap;
+  line-height: 1.5;
+}
+
+.text-original {
+  background-color: #FFF3E0;
+}
+
+.text-new {
+  background-color: #E8F5E9;
+}
+
+.text-format {
+  background-color: #E3F2FD;
+}
+
+.strikethrough {
+  text-decoration: line-through;
+  color: #999;
+}
+
+.change-position {
+  font-size: 11px;
+  color: #999;
+  margin-top: 8px;
+}
+
+/* Footer */
+.change-item-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.change-timestamp {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #999;
+}
+
+.timestamp-icon {
+  font-size: 14px;
+}
+
+.change-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.action-button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.action-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.action-view {
+  background: #f5f5f5;
+  color: #666;
+}
+
+.action-view:hover:not(:disabled) {
+  background: #e0e0e0;
+  color: #333;
+}
+
+.action-reject {
+  background: #FFEBEE;
+  color: #C62828;
+}
+
+.action-reject:hover:not(:disabled) {
+  background: #FFCDD2;
+  color: #B71C1C;
+}
+
+.action-accept {
+  background: #4CAF50;
+  color: #ffffff;
+}
+
+.action-accept:hover:not(:disabled) {
+  background: #388E3C;
+}
+
+/* 响应式设计 */
+@media (max-width: 480px) {
+  .change-item {
+    padding: 12px;
+  }
+
+  .change-item-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .change-item-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .change-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .action-button {
+    flex: 1;
+  }
+}

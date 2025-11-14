@@ -211,7 +211,7 @@ def register_table_tools(mcp: FastMCP, word_handler: WordHandler) -> None:
         return word_handler.sort_table(filename, table_index, column_index, reverse, has_header)
 
     @mcp.tool()
-    def import_word_table_data(filename: str, data: list[list[str]], has_header: bool = True, table_style: str = "Table Grid") -> dict[str, Any]:
+    def import_word_table_data(filename: str, data: list[list[str]], has_header: bool = True, table_style: str = "Table Grid", insert_position: Optional[int] = None) -> dict[str, Any]:
         """从数据导入创建 Word 表格.
 
         Args:
@@ -219,9 +219,10 @@ def register_table_tools(mcp: FastMCP, word_handler: WordHandler) -> None:
             data: 二维数组数据
             has_header: 第一行是否为表头 (默认 True)
             table_style: 表格样式 (默认 'Table Grid')
+            insert_position: 插入位置（段落索引，None表示在文档末尾）
 
         Returns:
             dict: 操作结果
         """
-        logger.info(f"MCP工具调用: import_word_table_data(filename={filename})")
-        return word_handler.import_table_data(filename, data, has_header, table_style)
+        logger.info(f"MCP工具调用: import_word_table_data(filename={filename}, insert_position={insert_position})")
+        return word_handler.import_table_data(filename, data, has_header, table_style, insert_position)

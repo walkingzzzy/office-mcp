@@ -4,6 +4,7 @@ from typing import Any, Optional, Union
 
 from loguru import logger
 
+from office_mcp_server.config import config
 from office_mcp_server.handlers.excel.excel_basic import ExcelBasicOperations
 from office_mcp_server.handlers.excel.excel_format import ExcelFormatOperations
 from office_mcp_server.handlers.excel.excel_data import ExcelDataOperations
@@ -538,9 +539,9 @@ class ExcelHandler:
         """设置打印标题."""
         return self.print_ops.set_print_titles(filename, sheet_name, rows, cols)
 
-    def insert_page_break(self, filename: str, sheet_name: str, break_type: str, position: int) -> dict[str, Any]:
+    def insert_page_break(self, filename: str, sheet_name: str, cell: str, break_type: str = "row") -> dict[str, Any]:
         """插入分页符."""
-        return self.print_ops.insert_page_break(filename, sheet_name, break_type, position)
+        return self.print_ops.insert_page_break(filename, sheet_name, cell, break_type)
 
     def delete_page_break(self, filename: str, sheet_name: str, break_type: str, position: int) -> dict[str, Any]:
         """删除分页符."""
@@ -560,8 +561,9 @@ class ExcelHandler:
         return self.batch_ops.merge_workbooks(source_files, output_file, merge_mode)
 
     # ========== 数据分析操作 ==========
-    def descriptive_statistics(self, filename: str, sheet_name: str, data_range: str) -> dict[str, Any]:
+    def descriptive_statistics(self, filename: str, sheet_name: str, data_range: str, output_cell: Optional[str] = None) -> dict[str, Any]:
         """描述性统计."""
+        # 注意：当前实现不使用 output_cell 参数，但保留以保持接口一致性
         return self.analysis_ops.descriptive_statistics(filename, sheet_name, data_range)
 
     def correlation_analysis(self, filename: str, sheet_name: str, data_range1: str, data_range2: str) -> dict[str, Any]:
@@ -588,8 +590,15 @@ class ExcelHandler:
         """删除批注."""
         return self.collaboration_ops.delete_comment(filename, sheet_name, cell)
 
-    def list_all_comments(self, filename: str, sheet_name: str) -> dict[str, Any]:
+    def list_all_comments(self, filename: str, sheet_name: Optional[str] = None) -> dict[str, Any]:
         """列出所有批注."""
+        # 如果没有指定工作表，使用第一个工作表
+        if sheet_name is None:
+            from openpyxl import load_workbook
+            file_path = config.paths.output_dir / filename
+            wb = load_workbook(str(file_path))
+            sheet_name = wb.sheetnames[0]
+            wb.close()
         return self.collaboration_ops.list_all_comments(filename, sheet_name)
 
     # ========== 安全功能操作 ==========
@@ -645,8 +654,9 @@ class ExcelHandler:
         return self.analysis_ops.chi_square_test(filename, sheet_name, observed_range)
 
     def trend_analysis(self, filename: str, sheet_name: str, data_range: str,
-                       periods_ahead: int = 5) -> dict[str, Any]:
+                       periods_ahead: int = 5, output_cell: Optional[str] = None) -> dict[str, Any]:
         """趋势分析."""
+        # 注意：当前实现不使用 output_cell 参数，但保留以保持接口一致性
         return self.analysis_ops.trend_analysis(filename, sheet_name, data_range, periods_ahead)
 
     def moving_average(self, filename: str, sheet_name: str, data_range: str, window: int = 3,

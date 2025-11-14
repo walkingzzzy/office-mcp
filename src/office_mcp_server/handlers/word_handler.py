@@ -15,6 +15,12 @@ from office_mcp_server.handlers.word.word_content_extraction import WordContentE
 from office_mcp_server.handlers.word.word_enhanced import WordEnhancedOperations
 from office_mcp_server.handlers.word.word_image import WordImageOperations
 from office_mcp_server.handlers.word.word_style_management import WordStyleManagement
+from office_mcp_server.handlers.word.word_format_inspector import WordFormatInspector
+from office_mcp_server.handlers.word.word_batch_format import WordBatchFormatOperations
+from office_mcp_server.handlers.word.word_page_setup import WordPageSetupOperations
+from office_mcp_server.handlers.word.word_auto_format import WordAutoFormatOperations
+from office_mcp_server.handlers.word.word_cleanup import WordCleanupOperations
+from office_mcp_server.handlers.word.word_template import WordTemplateOperations
 
 
 class WordHandler:
@@ -36,7 +42,13 @@ class WordHandler:
         self.enhanced_ops = WordEnhancedOperations()
         self.image_ops = WordImageOperations()
         self.style_mgmt = WordStyleManagement()
-        logger.info("Word 处理器初始化完成 - 已加载所有功能模块")
+        self.format_inspector = WordFormatInspector()
+        self.batch_format_ops = WordBatchFormatOperations()
+        self.page_setup_ops = WordPageSetupOperations()
+        self.auto_format_ops = WordAutoFormatOperations()
+        self.cleanup_ops = WordCleanupOperations()
+        self.template_ops = WordTemplateOperations()
+        logger.info("Word 处理器初始化完成 - 已加载所有功能模块（包含批量格式化、页面设置、智能格式化、文档清理、教育场景模板）")
 
     # ========== 基础操作 ==========
     def create_document(
@@ -70,6 +82,10 @@ class WordHandler:
     def get_document_info(self, filename: str) -> dict[str, Any]:
         """获取文档信息."""
         return self.basic_ops.get_document_info(filename)
+
+    def get_page_count(self, filename: str) -> dict[str, Any]:
+        """获取文档页数（估算值）."""
+        return self.basic_ops.get_page_count(filename)
 
     # ========== 格式化操作 ==========
     def format_text(
@@ -182,10 +198,11 @@ class WordHandler:
         title: str = "目录",
         max_level: int = 3,
         hyperlink: bool = True,
+        insert_position: Optional[int] = None,
     ) -> dict[str, Any]:
         """生成目录."""
         return self.advanced_ops.generate_table_of_contents(
-            filename, title, max_level, hyperlink
+            filename, title, max_level, hyperlink, insert_position
         )
 
     def export_document(
@@ -400,6 +417,13 @@ class WordHandler:
         """获取文档统计信息."""
         return self.content_extraction_ops.get_document_statistics(filename)
 
+    def get_statistics(
+        self,
+        filename: str,
+    ) -> dict[str, Any]:
+        """获取文档统计信息（别名方法）."""
+        return self.get_document_statistics(filename)
+
     # ========== 批量操作 ==========
     def batch_replace_text(
         self,
@@ -461,9 +485,9 @@ class WordHandler:
         """对表格排序."""
         return self.structure_ops.sort_table(filename, table_index, column_index, reverse, has_header)
 
-    def import_table_data(self, filename: str, data: list[list[str]], has_header: bool = True, table_style: str = "Table Grid") -> dict[str, Any]:
+    def import_table_data(self, filename: str, data: list[list[str]], has_header: bool = True, table_style: str = "Table Grid", insert_position: Optional[int] = None) -> dict[str, Any]:
         """从数据导入创建表格."""
-        return self.structure_ops.import_table_data(filename, data, has_header, table_style)
+        return self.structure_ops.import_table_data(filename, data, has_header, table_style, insert_position)
 
     # 图片增强
     def insert_image_from_url(self, filename: str, image_url: str, width_inches: Optional[float] = None, height_inches: Optional[float] = None, alignment: str = "left") -> dict[str, Any]:
@@ -506,6 +530,10 @@ class WordHandler:
         """添加奇偶页不同的页眉页脚."""
         return self.advanced_ops.add_header_footer_different_odd_even(filename, odd_header, even_header, odd_footer, even_footer)
 
+    def add_header_footer_odd_even(self, filename: str, odd_header: Optional[str] = None, even_header: Optional[str] = None, odd_footer: Optional[str] = None, even_footer: Optional[str] = None) -> dict[str, Any]:
+        """添加奇偶页不同的页眉页脚（别名方法）."""
+        return self.add_header_footer_different_odd_even(filename, odd_header, even_header, odd_footer, even_footer)
+
     def insert_datetime_field(self, filename: str, paragraph_index: int, format_string: str = "yyyy-MM-dd", field_type: str = "date") -> dict[str, Any]:
         """插入日期时间域."""
         return self.advanced_ops.insert_datetime_field(filename, paragraph_index, format_string, field_type)
@@ -522,4 +550,157 @@ class WordHandler:
     def batch_insert_content(self, filenames: List[str], content: str, position: str = "end", paragraph_index: Optional[int] = None) -> dict[str, Any]:
         """批量插入内容."""
         return self.enhanced_ops.batch_insert_content(filenames, content, position, paragraph_index)
+
+    # ========== 格式检查 ==========
+    def get_paragraph_format(self, filename: str, paragraph_index: int) -> dict[str, Any]:
+        """获取段落格式信息."""
+        return self.format_inspector.get_paragraph_format(filename, paragraph_index)
+
+    def check_document_formatting(self, filename: str, check_items: Optional[list[str]] = None) -> dict[str, Any]:
+        """检查文档格式一致性."""
+        return self.format_inspector.check_document_formatting(filename, check_items)
+
+    def get_table_format(self, filename: str, table_index: int) -> dict[str, Any]:
+        """获取表格格式信息."""
+        return self.format_inspector.get_table_format(filename, table_index)
+
+    # ========== 批量格式化 ==========
+    def batch_format_text(
+        self,
+        filename: str,
+        paragraph_indices: list[int],
+        font_name: Optional[str] = None,
+        font_size: Optional[int] = None,
+        bold: bool = False,
+        italic: bool = False,
+        color: Optional[str] = None,
+        underline: Optional[str] = None,
+    ) -> dict[str, Any]:
+        """批量格式化文本."""
+        return self.batch_format_ops.batch_format_text(
+            filename, paragraph_indices, font_name, font_size, bold, italic, color, underline
+        )
+
+    def batch_format_paragraph(
+        self,
+        filename: str,
+        paragraph_indices: list[int],
+        alignment: Optional[str] = None,
+        line_spacing: Optional[float] = None,
+        space_before: Optional[float] = None,
+        space_after: Optional[float] = None,
+        left_indent: Optional[float] = None,
+        right_indent: Optional[float] = None,
+        first_line_indent: Optional[float] = None,
+    ) -> dict[str, Any]:
+        """批量格式化段落."""
+        return self.batch_format_ops.batch_format_paragraph(
+            filename, paragraph_indices, alignment, line_spacing, space_before, space_after,
+            left_indent, right_indent, first_line_indent
+        )
+
+    def batch_format_combined(
+        self,
+        filename: str,
+        paragraph_indices: list[int],
+        font_name: Optional[str] = None,
+        font_size: Optional[int] = None,
+        bold: bool = False,
+        italic: bool = False,
+        color: Optional[str] = None,
+        alignment: Optional[str] = None,
+        line_spacing: Optional[float] = None,
+        space_before: Optional[float] = None,
+        space_after: Optional[float] = None,
+        first_line_indent: Optional[float] = None,
+    ) -> dict[str, Any]:
+        """批量格式化文本和段落（组合操作）."""
+        return self.batch_format_ops.batch_format_combined(
+            filename, paragraph_indices, font_name, font_size, bold, italic, color,
+            alignment, line_spacing, space_before, space_after, first_line_indent
+        )
+
+    # ========== 页面设置 ==========
+    def set_page_setup(
+        self,
+        filename: str,
+        orientation: str = "portrait",
+        paper_size: str = "A4",
+        left_margin: float = 1.0,
+        right_margin: float = 1.0,
+        top_margin: float = 1.0,
+        bottom_margin: float = 1.0,
+    ) -> dict[str, Any]:
+        """设置页面属性."""
+        return self.page_setup_ops.set_page_setup(
+            filename, orientation, paper_size, left_margin, right_margin, top_margin, bottom_margin
+        )
+
+    def set_page_margins(
+        self,
+        filename: str,
+        left: float = 1.0,
+        right: float = 1.0,
+        top: float = 1.0,
+        bottom: float = 1.0,
+        gutter: float = 0.0,
+        header: float = 0.5,
+        footer: float = 0.5,
+    ) -> dict[str, Any]:
+        """设置页边距."""
+        return self.page_setup_ops.set_page_margins(
+            filename, left, right, top, bottom, gutter, header, footer
+        )
+
+    # ========== 智能格式化 ==========
+    def auto_format_document(
+        self,
+        filename: str,
+        format_preset: str = "professional",
+    ) -> dict[str, Any]:
+        """智能自动格式化文档."""
+        return self.auto_format_ops.auto_format_document(filename, format_preset)
+
+    # ========== 文档清理 ==========
+    def delete_empty_paragraphs(
+        self,
+        filename: str,
+    ) -> dict[str, Any]:
+        """删除所有空段落."""
+        return self.cleanup_ops.delete_empty_paragraphs(filename)
+
+    def delete_paragraphs_by_indices(
+        self,
+        filename: str,
+        paragraph_indices: list[int],
+    ) -> dict[str, Any]:
+        """按索引批量删除段落."""
+        return self.cleanup_ops.delete_paragraphs_by_indices(filename, paragraph_indices)
+
+    def analyze_page_waste(
+        self,
+        filename: str,
+    ) -> dict[str, Any]:
+        """分析页面浪费情况."""
+        return self.cleanup_ops.analyze_page_waste(filename)
+
+    def suggest_compression_strategy(
+        self,
+        filename: str,
+    ) -> dict[str, Any]:
+        """智能推荐文档压缩策略."""
+        return self.cleanup_ops.suggest_compression_strategy(filename)
+
+    # ========== 教育场景模板 ==========
+    def list_templates(self) -> dict[str, Any]:
+        """列出所有可用的教育场景模板."""
+        return self.template_ops.list_templates()
+
+    def apply_template(
+        self,
+        filename: str,
+        template_name: str,
+    ) -> dict[str, Any]:
+        """应用教育场景模板到文档."""
+        return self.template_ops.apply_template(filename, template_name)
 

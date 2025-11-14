@@ -269,10 +269,11 @@ class PowerPointHandler:
 
     # ========== 页眉页脚 ==========
     def set_header_footer(
-        self, filename: str, show_date: bool = False, show_slide_number: bool = True,
-        footer_text: Optional[str] = None, apply_to_all: bool = True
+        self, filename: str, header_text: Optional[str] = None, footer_text: Optional[str] = None,
+        show_date: bool = False, show_slide_number: bool = True, apply_to_all: bool = True
     ) -> dict[str, Any]:
         """设置页眉页脚."""
+        # 注意：header_text 参数保留以保持接口一致性，但当前实现不使用
         return self.advanced_features_ops.set_header_footer(
             filename, show_date, show_slide_number, footer_text, apply_to_all
         )

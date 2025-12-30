@@ -14,6 +14,7 @@ import { agentPromptManager, type OfficeAppType } from '../../../../services/ai/
 import type { BatchConfirmCallback, ConfirmRequestCallback, FormattingFunction, ProgressCallback } from '../../../../services/ai/types'
 import type { UndoManager } from '../../../../services/UndoManager'
 import { WordService } from '../../../../services/WordService'
+import { documentContextCache, selectionContextCache } from '../../../../services/cache'
 import type { ChatMessage, ChatMode, ToolDefinition } from '../../../../types/ai'
 import { type MainTextMessageBlock, type Message, type MessageBlock, MessageBlockStatus, MessageBlockType } from '../../../../types/messageBlock'
 import Logger from '../../../../utils/logger'
@@ -734,6 +735,12 @@ export function useFunctionCalling(
         )
       }
 
+      // 🎯 P1 优化：工具执行后使缓存失效
+      documentContextCache.invalidateDocument()
+      documentContextCache.invalidateSelection()
+      selectionContextCache.invalidate()
+      logger.debug('[CACHE] Invalidated document and selection caches after tool execution')
+
       logger.info('[PREVIEW] Confirmed tools executed successfully')
     } catch (error) {
       logger.error('[PREVIEW] Failed to execute confirmed tools', { error })
@@ -846,6 +853,14 @@ export function useFunctionCalling(
         cancelled: result.cancelled,
         recordedCount: result.recordedOperations?.length
       })
+
+      // 🎯 P1 优化：任务计划执行后使缓存失效（仅在非记录模式下）
+      if (!recordOnly) {
+        documentContextCache.invalidateDocument()
+        documentContextCache.invalidateSelection()
+        selectionContextCache.invalidate()
+        logger.debug('[CACHE] Invalidated document and selection caches after task plan execution')
+      }
 
       // 如果是记录模式，调用记录完成回调
       if (recordOnly && result.recordedOperations) {

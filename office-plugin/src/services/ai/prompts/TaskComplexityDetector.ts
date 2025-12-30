@@ -3,10 +3,13 @@
  * 
  * 自动分析用户请求的复杂度，判断是否需要创建任务列表
  * 类似 Cursor、Windsurf 的自动任务规划触发机制
+ * 
+ * @updated 2025-12-30 - P0 优化：添加缓存支持，避免重复计算
  */
 
 import Logger from '../../../utils/logger'
 import type { ReviewResult } from '../conversation/ReviewContextExtractor'
+import { analysisCache } from '../../cache/AnalysisCache'
 
 const logger = new Logger('TaskComplexityDetector')
 
@@ -507,6 +510,16 @@ function isQueryOnlyIntent(userInput: string): boolean {
  * 检测任务复杂度
  */
 export function detectTaskComplexity(userInput: string): ComplexityResult {
+  // 🆕 P0 优化：先检查缓存
+  const cachedResult = analysisCache.getComplexity(userInput)
+  if (cachedResult) {
+    logger.debug('[COMPLEXITY] 使用缓存的复杂度检测结果', {
+      input: userInput.substring(0, 30),
+      complexity: cachedResult.complexity
+    })
+    return cachedResult
+  }
+
   const input = userInput.toLowerCase().trim()
   const indicators: string[] = []
   let complexityScore = 0
@@ -516,25 +529,31 @@ export function detectTaskComplexity(userInput: string): ComplexityResult {
     logger.info('[COMPLEXITY] Detected query-only intent, skipping planning', {
       input: userInput.substring(0, 50)
     })
-    return {
+    const result: ComplexityResult = {
       complexity: 'simple',
       needsPlanning: false,
       indicators: ['纯查询意图（不需要执行操作）'],
       confidence: 0.95,
       isQueryOnly: true
     }
+    // 缓存结果
+    analysisCache.setComplexity(userInput, result)
+    return result
   }
   
   // 1. 检查是否匹配简单任务模式
   for (const pattern of SIMPLE_TASK_PATTERNS) {
     if (pattern.test(userInput)) {
       logger.debug('[COMPLEXITY] Matched simple task pattern', { pattern: pattern.toString() })
-      return {
+      const result: ComplexityResult = {
         complexity: 'simple',
         needsPlanning: false,
         indicators: ['匹配简单任务模式'],
         confidence: 0.9
       }
+      // 缓存结果
+      analysisCache.setComplexity(userInput, result)
+      return result
     }
   }
   
@@ -721,6 +740,9 @@ export function detectTaskComplexity(userInput: string): ComplexityResult {
     complexityScore,
     result
   })
+  
+  // 🆕 P0 优化：缓存结果
+  analysisCache.setComplexity(userInput, result)
   
   return result
 }

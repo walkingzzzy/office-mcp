@@ -83,41 +83,65 @@ export class OpenAIAdapter implements AIProviderAdapter {
     logger.info('发送 OpenAI 流式请求', { model: request.model, url, baseUrl })
 
     const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), 60000) // 60秒超时
+    const timeoutId = setTimeout(() => controller.abort(), 120000) // 120秒超时（流式请求需要更长时间）
 
     let response: Response
-    try {
-      response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${config.apiKey}`
-        },
-        body: JSON.stringify({
-          ...request,
-          stream: true
-        }),
-        signal: controller.signal
-      })
-    } catch (fetchError) {
-      clearTimeout(timeoutId)
-      const err = fetchError as Error
-      logger.error('OpenAI fetch 失败', { 
-        url,
-        error: err.message, 
-        cause: err.cause,
-        stack: err.stack?.substring(0, 500)
-      })
-      throw new Error(`网络请求失败: ${err.message}`)
+    let lastError: Error | null = null
+    const maxRetries = 2
+    
+    // 🎯 添加重试机制，处理网络不稳定的情况
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        if (attempt > 0) {
+          logger.info('重试流式请求', { attempt, maxRetries })
+          await new Promise(resolve => setTimeout(resolve, 1000 * attempt)) // 递增延迟
+        }
+        
+        response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${config.apiKey}`,
+            'Connection': 'keep-alive'
+          },
+          body: JSON.stringify({
+            ...request,
+            stream: true
+          }),
+          signal: controller.signal,
+          // @ts-ignore - Node.js fetch 支持的额外选项
+          keepalive: true
+        })
+        lastError = null
+        break // 成功则跳出重试循环
+      } catch (fetchError) {
+        lastError = fetchError as Error
+        const isConnectTimeout = lastError.cause && 
+          (lastError.cause as { code?: string }).code === 'UND_ERR_CONNECT_TIMEOUT'
+        
+        if (!isConnectTimeout || attempt === maxRetries) {
+          clearTimeout(timeoutId)
+          logger.error('OpenAI fetch 失败', { 
+            url,
+            error: lastError.message, 
+            cause: lastError.cause,
+            attempt,
+            stack: lastError.stack?.substring(0, 500)
+          })
+          throw new Error(`网络请求失败: ${lastError.message}`)
+        }
+        
+        logger.warn('连接超时，准备重试', { attempt, maxRetries })
+      }
     }
 
-    if (!response.ok) {
-      const error = await response.text()
-      logger.error('OpenAI 流式请求失败', { status: response.status, error })
-      throw new Error(`OpenAI API 错误: ${response.status} - ${error}`)
+    if (!response!.ok) {
+      const error = await response!.text()
+      logger.error('OpenAI 流式请求失败', { status: response!.status, error })
+      throw new Error(`OpenAI API 错误: ${response!.status} - ${error}`)
     }
 
-    const reader = response.body?.getReader()
+    const reader = response!.body?.getReader()
     if (!reader) {
       throw new Error('无法获取响应流')
     }

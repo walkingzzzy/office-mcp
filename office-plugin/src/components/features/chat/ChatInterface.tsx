@@ -17,6 +17,7 @@ import { AttachmentStore } from '../../../services/AttachmentStore'
 import { binaryDocumentAdapter, type DocumentData } from '../../../services/BinaryDocumentAdapter'
 import { UndoManager } from '../../../services/UndoManager'
 import { wordService } from '../../../services/WordService'
+import { documentContextCache } from '../../../services/cache'
 import { useConversationStore } from '../../../store/conversationStore'
 import { useAppStore, type PendingPlan } from '../../../store/appStore'
 import type { ChatMessage, ChatMode } from '../../../types/ai'
@@ -463,6 +464,28 @@ export const ChatInterface: FC<ChatInterfaceProps> = ({ selectedModelId: propMod
     return queryKeywords.test(input) && uploadKeywords.test(input)
   }
 
+  /**
+   * 🆕 检测是否是简单问候或闲聊（不需要文档上下文）
+   * 这类输入应该直接回复，不需要读取文档内容
+   */
+  const isSimpleGreetingOrChat = (input: string): boolean => {
+    const trimmedInput = input.trim().toLowerCase()
+    
+    const greetingPatterns = [
+      // 中文问候
+      /^(你好|您好|嗨|哈喽|早上好|下午好|晚上好|早安|晚安)$/,
+      /^(hi|hello|hey|good morning|good afternoon|good evening)$/i,
+      // 简单闲聊
+      /^(在吗|你在吗|在不在|你是谁|你叫什么|你会什么|能做什么)$/,
+      /^(谢谢|感谢|多谢|thank|thanks)$/i,
+      /^(再见|拜拜|bye|goodbye)$/i,
+      // 带问候语的短句（最多5个字符的后缀）
+      /^(你好|您好|嗨).{0,5}$/
+    ]
+    
+    return greetingPatterns.some(p => p.test(trimmedInput))
+  }
+
   const prepareUserPrompt = async (currentInput: string, hasUploadedDocuments: boolean = false) => {
     let documentContext = ''
     let hasDocument = false
@@ -482,21 +505,44 @@ export const ChatInterface: FC<ChatInterfaceProps> = ({ selectedModelId: propMod
     // 🔧 关键修复：如果用户在询问上传的文件，跳过读取当前 Word 文档
     const skipCurrentDocument = isAskingAboutUploadedFile(currentInput, hasUploadedDocuments)
     
+    // 🆕 修复：如果是简单问候/闲聊，也跳过读取文档
+    const isSimpleChat = isSimpleGreetingOrChat(currentInput)
+    
     if (skipCurrentDocument) {
       logger.info('[prepareUserPrompt] 检测到用户询问上传文件，跳过读取当前 Word 文档', {
         input: currentInput,
         hasUploadedDocuments
       })
     }
+    
+    if (isSimpleChat) {
+      logger.info('[prepareUserPrompt] 检测到简单问候/闲聊，跳过读取文档', {
+        input: currentInput
+      })
+      // 简单问候直接返回，不需要文档上下文
+      return { 
+        finalUserInput: currentInput, 
+        userIntent: UserIntent.QUERY, 
+        hasDocument: false, 
+        isSelectionMode: false, 
+        skipCurrentDocument: true 
+      }
+    }
 
     if (currentOfficeApp === 'word' && !skipCurrentDocument) {
       try {
+        // 🎯 P1 优化：使用文档内容缓存
         const hasSelection = await wordService.hasSelection()
         if (hasSelection) {
-          const selection = await wordService.readSelection()
-          documentContext = selection.text
+          // 选区内容使用缓存
+          const selectionResult = await documentContextCache.getSelectionContent(wordService)
+          documentContext = selectionResult.text
           hasDocument = documentContext.trim().length > 0
           isSelectionMode = true
+          
+          if (selectionResult.fromCache) {
+            logger.debug('[prepareUserPrompt] 使用缓存的选区内容')
+          }
 
           const trimmed = trimContext(documentContext, MAX_SELECTION_CONTEXT_CHARS)
           if (trimmed.truncated) {
@@ -507,14 +553,19 @@ export const ChatInterface: FC<ChatInterfaceProps> = ({ selectedModelId: propMod
             truncationInfo = { originalLength: trimmed.originalLength }
           }
         } else {
-          const docContent = await wordService.readDocument()
-          documentContext = docContent.text
+          // 文档内容使用缓存
+          const docResult = await documentContextCache.getDocumentContent(wordService)
+          documentContext = docResult.text
           hasDocument = documentContext.trim().length > 0
+          
+          if (docResult.fromCache) {
+            logger.debug('[prepareUserPrompt] 使用缓存的文档内容')
+          }
 
           const trimmed = trimContext(
             documentContext,
             MAX_DOCUMENT_CONTEXT_CHARS,
-            docContent.paragraphs as WordParagraph[]
+            docResult.paragraphs as WordParagraph[]
           )
 
           if (trimmed.truncated) {

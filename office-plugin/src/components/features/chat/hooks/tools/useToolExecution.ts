@@ -16,6 +16,7 @@ import { toolDefinitionCache } from '../../../../../services/ai/ToolDefinitionCa
 import { IntentExtractor, PromptBuilder, PromptSelector } from '../../../../../services/ai/prompts'
 import { ResponseAnalyzer } from '../../../../../services/ai/ResponseAnalyzer'
 import { getSelectionContextForApp, type OfficeAppType } from '../../../../../services/ai/SelectionContextProvider'
+import { selectionContextCache } from '../../../../../services/cache'
 import { getAdapter, adapterRegistry } from '../../../../../services/adapters'
 import { StreamToolCallAccumulator } from '../../../../../services/ai/StreamToolCallAccumulator'
 import { ToolSelector } from '../../../../../services/ai/ToolSelector'
@@ -363,17 +364,30 @@ export function useToolExecution(
       }
 
       // 🆕 使用统一的选区上下文获取函数，支持 Word/Excel/PowerPoint
+      // 🎯 P1 优化：使用选区上下文缓存
       let selectionContext: SelectionContext
       try {
-        // 根据应用类型获取对应的选区上下文
-        selectionContext = await getSelectionContextForApp(
-          currentOfficeApp as OfficeAppType,
-          config.wordService
-        )
-        logger.info('[TOOL SELECTION] Selection context retrieved for app', { 
-          currentOfficeApp,
-          selectionContext 
-        })
+        // 先检查缓存
+        const cachedContext = selectionContextCache.get(currentOfficeApp as OfficeAppType)
+        if (cachedContext) {
+          selectionContext = cachedContext
+          logger.info('[TOOL SELECTION] Using cached selection context', { 
+            currentOfficeApp,
+            selectionContext 
+          })
+        } else {
+          // 缓存未命中，从 Office.js API 获取
+          selectionContext = await getSelectionContextForApp(
+            currentOfficeApp as OfficeAppType,
+            config.wordService
+          )
+          // 设置缓存
+          selectionContextCache.set(currentOfficeApp as OfficeAppType, selectionContext)
+          logger.info('[TOOL SELECTION] Selection context retrieved and cached', { 
+            currentOfficeApp,
+            selectionContext 
+          })
+        }
       } catch (error) {
         logger.error('[TOOL SELECTION] Failed to get selection context', { error, currentOfficeApp })
         // 失败时返回默认上下文，保持 documentType 与 currentOfficeApp 一致

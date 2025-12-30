@@ -1,0 +1,45 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+
+    /* Linting */
+    "strict": false,
+    "noUnusedLocals": false,  // ⚠️ 暂不启用：需要清理大量未使用的变量
+    "noUnusedParameters": false,  // ⚠️ 暂不启用：需要清理大量未使用的参数
+    "noFallthroughCasesInSwitch": true,  // ✅ 已启用
+    "strictNullChecks": false,  // ⚠️ 暂不启用：需要修复大量空值检查错误
+    "strictPropertyInitialization": false,
+    "noImplicitAny": true,  // ✅ 已启用：禁止隐式 any 类型
+    "strictFunctionTypes": false,
+
+    /* Office.js */
+    "types": ["office-js"],
+
+    /* Path aliases */
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@shared/*": ["../shared/*"]
+    }
+  },
+  "include": ["src"],
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/__tests__/**",
+    "src/test-*.ts"
+  ],
+  "references": [{ "path": "./tsconfig.node.json" }]
+}

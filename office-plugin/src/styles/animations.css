@@ -1,0 +1,792 @@
+/*
+ * 武汉问津动画系统
+ * 与主应用 (office-local-bridge) 视觉统一
+ * 更新时间: 2025-12-20
+ */
+
+/* ============ 与主应用一致的核心动画 ============ */
+
+/* 脉冲环动画（状态指示器）- 与主应用一致 */
+@keyframes pulse-ring {
+  0% {
+    transform: scale(1);
+    opacity: 0.4;
+  }
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+/* 淡入上移动画 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 浮动动画（与主应用一致）*/
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+/* 柔和脉冲（背景装饰）*/
+@keyframes pulse-soft {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* 渐变位移（背景动画）*/
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* 打字指示器 */
+@keyframes typing {
+  0%, 60%, 100% {
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+}
+
+/* Logo 脉冲光晕 */
+@keyframes logo-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(30, 64, 120, 0.3), 0 0 40px rgba(30, 64, 120, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(30, 64, 120, 0.5), 0 0 60px rgba(30, 64, 120, 0.2);
+  }
+}
+
+/* 消息滑入（新版）*/
+@keyframes message-slide-in {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* AI 思考动画 */
+@keyframes ai-thinking {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* 完成弹跳 */
+@keyframes complete-bounce {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* 闪烁效果 */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* 向上淡入 */
+@keyframes fade-up {
+  0% {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 渐入放大 */
+@keyframes scale-in {
+  0% {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ============ 动画工具类 ============ */
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-float-slow {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-float-delay {
+  animation: float 8s ease-in-out 2s infinite;
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.animate-pulse-ring {
+  animation: pulse-ring 2s ease-out infinite;
+}
+
+/* 微妙脉冲动画 - 用于提示需要配置的元素 */
+@keyframes pulse-subtle {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 2.5s ease-in-out infinite;
+}
+
+/* 状态指示器动画 - 与主应用一致 */
+.status-running {
+  position: relative;
+}
+
+.status-running::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: inherit;
+  opacity: 0.4;
+  animation: pulse-ring 2s ease-out infinite;
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 4s ease-in-out infinite;
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient-shift 8s ease infinite;
+}
+
+.animate-logo-glow {
+  animation: logo-glow 3s ease-in-out infinite;
+}
+
+.animate-message-in {
+  animation: message-slide-in 0.3s ease-out forwards;
+}
+
+.animate-ai-thinking {
+  animation: ai-thinking 1.5s ease-in-out infinite;
+}
+
+.animate-complete-bounce {
+  animation: complete-bounce 0.5s ease-out;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+.animate-fade-up {
+  animation: fade-up 0.4s ease-out forwards;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.5s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+/* 打字指示器点 */
+.typing-dot {
+  animation: typing 1.4s infinite;
+}
+
+.typing-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+/* ============ 玻璃拟态效果 ============ */
+.glass {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 8px 32px rgba(15, 23, 42, 0.08);
+}
+
+/* 强化玻璃效果 - 用于卡片、输入区 */
+.glass-strong {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 252, 0.85) 100%);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow:
+    0 10px 40px rgba(15, 23, 42, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+/* 轻量玻璃效果 - 用于按钮、标签 */
+.glass-light {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* 顶栏玻璃效果 */
+.glass-header {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+/* 暗色模式 */
+[theme-mode='dark'] .glass,
+.dark .glass {
+  background: rgba(30, 35, 50, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+[theme-mode='dark'] .glass-strong,
+.dark .glass-strong {
+  background: linear-gradient(135deg, rgba(30, 35, 50, 0.95) 0%, rgba(20, 25, 40, 0.9) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+[theme-mode='dark'] .glass-light,
+.dark .glass-light {
+  background: rgba(30, 35, 50, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+[theme-mode='dark'] .glass-header,
+.dark .glass-header {
+  background: linear-gradient(180deg, rgba(20, 25, 40, 0.98) 0%, rgba(20, 25, 40, 0.92) 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* ============ 自定义滚动条 ============ */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--muted);
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+}
+
+/* ============ 原有动画（保持兼容）============ */
+
+/* ============ 消息滑入动画 ============ */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ============ 淡入动画 ============ */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ============ 脉冲动画（连接状态指示器）============ */
+@keyframes pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 185, 107, 0.5);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(0, 185, 107, 0);
+  }
+}
+
+/* ============ 旋转加载动画 ============ */
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ============ 向下滑入动画（模态框）============ */
+@keyframes moveDownIn {
+  from {
+    transform: translate3d(0, -100%, 0);
+    opacity: 0;
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+}
+
+/* ============ 向上滑入动画 ============ */
+@keyframes moveUpIn {
+  from {
+    transform: translate3d(0, 100%, 0);
+    opacity: 0;
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+}
+
+/* ============ 跳动动画（思考指示器）============ */
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+/* ============ 定位高亮动画 ============ */
+@keyframes locateHighlight {
+  0%,
+  100% {
+    background-color: transparent;
+  }
+  10%,
+  70% {
+    background-color: var(--color-primary-mute);
+  }
+}
+
+/* ============ 缩放弹出动画 ============ */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ============ 抖动动画（错误提示）============ */
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-4px);
+  }
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(4px);
+  }
+}
+
+
+/* ============ 微交互动画 ============ */
+
+/* 发送成功动画 - 短暂缩放和颜色变化 */
+@keyframes send-success {
+  0% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(0.9);
+  }
+  60% {
+    transform: scale(1.15);
+    box-shadow: 0 0 20px rgba(var(--color-primary-rgb), 0.5);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: none;
+  }
+}
+
+.animate-send-success {
+  animation: send-success 0.4s ease-out;
+}
+
+/* 文件上传成功动画 */
+@keyframes upload-success {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) translateY(10px);
+  }
+  50% {
+    transform: scale(1.05) translateY(-2px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-upload-success {
+  animation: upload-success 0.35s ease-out;
+}
+
+/* 选中/取消选中过渡动画 */
+@keyframes check-bounce {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-check-bounce {
+  animation: check-bounce 0.25s ease-out;
+}
+
+/* 涟漪效果动画 */
+@keyframes ripple {
+  0% {
+    transform: scale(0);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
+
+.animate-ripple {
+  position: relative;
+  overflow: hidden;
+}
+
+.animate-ripple::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(var(--color-primary-rgb), 0.3) 0%, transparent 70%);
+  transform: translate(-50%, -50%) scale(0);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.animate-ripple:active::after {
+  animation: ripple 0.5s ease-out;
+}
+
+/* 新建对话成功动画 */
+@keyframes conversation-created {
+  0% {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  60% {
+    transform: translateX(5px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-conversation-created {
+  animation: conversation-created 0.4s ease-out;
+}
+
+/* 卡片点击淡出效果 */
+@keyframes card-click {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(0.97);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-card-click {
+  animation: card-click 0.2s ease-out;
+}
+
+/* 工具提示弹出动画 */
+@keyframes tooltip-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.9) translateY(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-tooltip-pop {
+  animation: tooltip-pop 0.15s ease-out;
+}
+
+/* 弹窗进入动画 */
+@keyframes popup-enter {
+  0% {
+    opacity: 0;
+    transform: scale(0.95) translateY(-8px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-popup-enter {
+  animation: popup-enter 0.2s ease-out;
+}
+
+/* 滑入动画 - 从右侧 */
+@keyframes slide-in-right {
+  0% {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.3s ease-out;
+}
+
+
+/* ========== 与主应用统一的增强样式 ========== */
+
+/* 增强按钮效果 - 与主应用一致 */
+.btn-enhanced {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-enhanced:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(var(--color-primary-rgb), 0.25);
+}
+
+.btn-enhanced:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 15px rgba(var(--color-primary-rgb), 0.2);
+}
+
+/* 浅色模式按钮增强 */
+.light .btn-enhanced:hover {
+  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.2);
+}
+
+/* 卡片悬停增强 - 与主应用一致 */
+.card-hover-enhanced {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover-enhanced:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(var(--color-primary-rgb), 0.2);
+}
+
+.light .card-hover-enhanced:hover {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+}
+
+.dark .card-hover-enhanced:hover {
+  box-shadow: 0 12px 40px rgba(var(--color-primary-rgb), 0.3);
+}
+
+/* 输入框聚焦增强 - 与主应用一致 */
+.input-enhanced:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb), 0.5),
+              0 0 20px rgba(var(--color-primary-rgb), 0.2);
+}
+
+.light .input-enhanced:focus {
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.4),
+              0 0 15px rgba(99, 102, 241, 0.15);
+}
+
+/* 空状态容器 - 与主应用一致 */
+.empty-state-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  text-align: center;
+}
+
+.empty-state-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(var(--color-primary-rgb), 0.15), rgba(var(--color-accent-rgb), 0.1));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  animation: float 3s ease-in-out infinite;
+}
+
+.light .empty-state-icon {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(20, 184, 166, 0.08));
+}
+
+/* 主题阴影效果 - 与主应用一致 */
+.shadow-theme-glow {
+  box-shadow: 0 0 20px rgba(var(--color-primary-rgb), 0.3);
+}
+
+.light .shadow-theme-glow {
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.15);
+}
+
+.shadow-theme-glow-lg {
+  box-shadow: 0 0 40px rgba(var(--color-primary-rgb), 0.4);
+}
+
+/* 骨架屏加载 - 与主应用一致 */
+.skeleton-enhanced {
+  background: linear-gradient(
+    90deg,
+    rgba(var(--color-surface-rgb), 0.8) 0%,
+    rgba(var(--color-surface-rgb), 0.4) 50%,
+    rgba(var(--color-surface-rgb), 0.8) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.light .skeleton-enhanced {
+  background: linear-gradient(
+    90deg,
+    #e2e8f0 0%,
+    #f1f5f9 50%,
+    #e2e8f0 100%
+  );
+  background-size: 200% 100%;
+}
+
+/* 响应式优化 - 与主应用一致 */
+@media (max-width: 768px) {
+  .card-hover-enhanced:hover {
+    transform: none;
+  }
+
+  .btn-enhanced:hover {
+    transform: none;
+  }
+}

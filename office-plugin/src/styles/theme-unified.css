@@ -1,0 +1,269 @@
+/**
+ * 统一主题样式 - 与主应用 (office-local-bridge) 视觉一致
+ * 浅色模式适配版本
+ * 创建时间: 2025-12-20
+ */
+
+/* ============ 玻璃态效果 ============ */
+.glass {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid rgba(var(--color-primary-rgb), 0.1);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05),
+              0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  transition: all 0.3s ease;
+}
+
+.glass:hover {
+  border-color: rgba(var(--color-primary-rgb), 0.2);
+  box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.08);
+}
+
+.glass-header {
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(var(--color-primary-rgb), 0.08);
+}
+
+.glass-light {
+  background: rgba(var(--color-bg-secondary-rgb), 0.8);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+/* 降级方案 - 不支持 backdrop-filter 的浏览器 */
+@supports not (backdrop-filter: blur(12px)) {
+  .glass {
+    background: rgba(255, 255, 255, 0.98);
+  }
+  .glass-header {
+    background: rgba(255, 255, 255, 0.99);
+  }
+  .glass-light {
+    background: rgba(241, 245, 249, 0.95);
+  }
+}
+
+
+/* ============ 渐变效果 ============ */
+.gradient-text {
+  background: linear-gradient(135deg, 
+    rgb(var(--color-primary-rgb)) 0%, 
+    rgb(var(--color-accent-rgb)) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-border {
+  position: relative;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: var(--border-radius-xl);
+}
+
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--border-radius-xl);
+  padding: 1px;
+  background: linear-gradient(135deg, 
+    rgba(var(--color-primary-rgb), 0.5), 
+    rgba(var(--color-accent-rgb), 0.5)
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.gradient-bg {
+  background: linear-gradient(135deg, 
+    rgb(var(--color-primary-rgb)), 
+    rgb(var(--color-accent-rgb))
+  );
+}
+
+/* ============ 发光效果 ============ */
+.glow-effect {
+  position: relative;
+}
+
+.glow-effect::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  background: linear-gradient(135deg, 
+    rgba(var(--color-primary-rgb), 0.2), 
+    rgba(var(--color-accent-rgb), 0.2)
+  );
+  border-radius: inherit;
+  filter: blur(15px);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+}
+
+.glow-effect:hover::after {
+  opacity: 1;
+}
+
+.glow-dot {
+  position: relative;
+}
+
+.glow-dot::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: inherit;
+  opacity: 0.4;
+  animation: pulse-ring 2s ease-out infinite;
+}
+
+/* ============ 主题色工具类 ============ */
+.text-theme-primary {
+  color: rgb(var(--color-primary-rgb));
+}
+
+.text-theme-accent {
+  color: rgb(var(--color-accent-rgb));
+}
+
+.text-theme {
+  color: rgb(var(--color-text-rgb));
+}
+
+.text-theme-secondary {
+  color: rgb(var(--color-text-secondary-rgb));
+}
+
+.text-theme-muted {
+  color: rgb(var(--color-text-muted-rgb));
+}
+
+.bg-theme-primary {
+  background-color: rgb(var(--color-primary-rgb));
+}
+
+.bg-theme-accent {
+  background-color: rgb(var(--color-accent-rgb));
+}
+
+.bg-theme-primary-soft {
+  background-color: rgba(var(--color-primary-rgb), 0.1);
+}
+
+.bg-theme-accent-soft {
+  background-color: rgba(var(--color-accent-rgb), 0.1);
+}
+
+.bg-theme-surface {
+  background-color: rgb(var(--color-surface-rgb));
+}
+
+.border-theme-primary {
+  border-color: rgba(var(--color-primary-rgb), 0.3);
+}
+
+.border-theme-accent {
+  border-color: rgba(var(--color-accent-rgb), 0.3);
+}
+
+/* ============ 阴影效果 ============ */
+.shadow-theme-glow {
+  box-shadow: 0 4px 20px rgba(var(--color-primary-rgb), 0.15);
+}
+
+.shadow-theme-glow-lg {
+  box-shadow: 0 8px 30px rgba(var(--color-primary-rgb), 0.2);
+}
+
+.shadow-theme-glow-xl {
+  box-shadow: 0 12px 40px rgba(var(--color-primary-rgb), 0.25);
+}
+
+.shadow-theme-accent {
+  box-shadow: 0 4px 20px rgba(var(--color-accent-rgb), 0.2);
+}
+
+/* ============ 卡片效果 ============ */
+.card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(var(--color-primary-rgb), 0.12);
+}
+
+/* ============ 按钮效果 ============ */
+.btn-theme-primary {
+  background: linear-gradient(135deg, 
+    rgb(var(--color-primary-rgb)), 
+    rgba(var(--color-primary-rgb), 0.85)
+  );
+  color: white;
+  box-shadow: 0 4px 15px rgba(var(--color-primary-rgb), 0.3);
+  border: 1px solid rgba(var(--color-primary-rgb), 0.3);
+  transition: all 0.3s ease;
+}
+
+.btn-theme-primary:hover {
+  box-shadow: 0 6px 20px rgba(var(--color-primary-rgb), 0.4);
+  transform: translateY(-1px);
+}
+
+.btn-theme-primary:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 15px rgba(var(--color-primary-rgb), 0.3);
+}
+
+.btn-theme-cyber {
+  background: linear-gradient(135deg, 
+    rgb(var(--color-primary-rgb)), 
+    rgb(var(--color-accent-rgb))
+  );
+  color: white;
+  box-shadow: 0 4px 15px rgba(var(--color-accent-rgb), 0.3);
+  border: 1px solid rgba(var(--color-accent-rgb), 0.3);
+  transition: all 0.3s ease;
+}
+
+.btn-theme-cyber:hover {
+  box-shadow: 0 6px 20px rgba(var(--color-accent-rgb), 0.4);
+  transform: translateY(-1px);
+}
+
+/* ============ 输入框效果 ============ */
+.input-theme {
+  background: rgba(var(--color-surface-rgb), 0.8);
+  border: 1px solid rgba(var(--color-border-rgb), 0.5);
+  color: rgb(var(--color-text-rgb));
+  transition: all 0.2s ease;
+}
+
+.input-theme:focus {
+  border-color: rgba(var(--color-primary-rgb), 0.5);
+  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.1);
+  outline: none;
+}
+
+/* ============ 状态指示器 ============ */
+.status-online {
+  background-color: rgb(var(--color-accent-rgb));
+}
+
+.status-offline {
+  background-color: rgb(var(--color-text-muted-rgb));
+}
+
+.status-loading {
+  background-color: #f59e0b;
+}

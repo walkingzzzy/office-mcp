@@ -1,0 +1,26 @@
+{
+  "server": {
+    "port": 3000,
+    "host": "localhost",
+    "timeout": 30000,
+    "name": "word-mcp-server",
+    "version": "1.0.0"
+  },
+  "ipc": {
+    "apiBaseUrl": "http://localhost:3001",
+    "timeout": 30000,
+    "maxRetries": 3,
+    "retryDelay": 1000
+  },
+  "logging": {
+    "level": "debug",
+    "enableConsole": true,
+    "enableFile": false
+  },
+  "performance": {
+    "enableCache": true,
+    "cacheTTL": 300000,
+    "maxConcurrentOperations": 10,
+    "operationTimeout": 30000
+  }
+}

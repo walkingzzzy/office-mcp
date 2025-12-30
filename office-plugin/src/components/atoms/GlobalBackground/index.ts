@@ -1,0 +1,1 @@
+export { GlobalBackground } from './GlobalBackground'

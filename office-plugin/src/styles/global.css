@@ -1,0 +1,85 @@
+/**
+ * 全局样式
+ */
+
+/* Personality Menu 空间预留 */
+.compact-header {
+  padding-right: 12px; /* Windows 默认 */
+}
+
+/* macOS 平台 (Personality Menu: 34x32px) */
+.platform-mac .compact-header {
+  padding-right: 50px;
+}
+
+/* Outlook 不显示 Personality Menu */
+.host-outlook .compact-header {
+  padding-right: 12px;
+}
+
+/* Office Taskpane 容器 */
+.taskpane-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  min-width: 320px; /* Microsoft Office Add-in 官方规范：最小任务窗格宽度 */
+  overflow: hidden;
+}
+
+/**
+ * 🔧 修复 Office WebView2 闪屏问题
+ * Portal 容器优化 - 将 Portal 元素（Tooltip、Dialog 等）隔离到单独的渲染层
+ * 使用 CSS containment 减少 Portal 元素变化对主视图的重绘影响
+ */
+#portal-root {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  z-index: 1000000; /* 确保 Portal 元素在最上层 */
+  /* CSS Containment: 告诉浏览器此元素的渲染与其他元素独立 */
+  contain: layout style;
+  /* 创建新的层叠上下文，减少重绘传播 */
+  isolation: isolate;
+  /* 启用 GPU 加速，将 Portal 元素放到独立的合成层 */
+  will-change: contents;
+}
+
+/* ========== 滚动条样式 - 与主应用统一 ========== */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(241, 245, 249, 0.5);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(99, 102, 241, 0.6) 0%, rgba(99, 102, 241, 0.4) 100%);
+  border-radius: 3px;
+  transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(99, 102, 241, 0.8) 0%, rgba(20, 184, 166, 0.7) 100%);
+}
+
+/* 深色模式滚动条 */
+.dark ::-webkit-scrollbar-track,
+.fui-FluentProvider[data-theme='dark'] ::-webkit-scrollbar-track {
+  background: rgba(30, 41, 59, 0.5);
+}
+
+.dark ::-webkit-scrollbar-thumb,
+.fui-FluentProvider[data-theme='dark'] ::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(99, 102, 241, 0.8) 0%, rgba(99, 102, 241, 0.6) 100%);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover,
+.fui-FluentProvider[data-theme='dark'] ::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(99, 102, 241, 1) 0%, rgba(20, 184, 166, 0.8) 100%);
+}

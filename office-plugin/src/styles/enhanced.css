@@ -1,0 +1,154 @@
+/**
+ * 增强视觉效果样式
+ * 基于设计文档 REFACTOR_DESIGN.md
+ * 
+ * 仅包含动画关键帧和CSS变量
+ * 组件样式使用 Tailwind classes 内联定义
+ */
+
+/* ========== 动画关键帧 ========== */
+
+/* 脉冲动画 */
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 111, 238, 0.4); }
+  50% { box-shadow: 0 0 0 10px rgba(0, 111, 238, 0); }
+}
+
+/* 呼吸灯动画 */
+@keyframes breathe {
+  0%, 100% { 
+    box-shadow: 0 0 0 0 rgba(23, 201, 100, 0.4);
+    transform: scale(1);
+  }
+  50% { 
+    box-shadow: 0 0 0 6px rgba(23, 201, 100, 0);
+    transform: scale(1.1);
+  }
+}
+
+/* 面板滑入 */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 面板滑出 */
+@keyframes slideDown {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+/* 标签进入 */
+@keyframes tagIn {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* 标签退出 */
+@keyframes tagOut {
+  to {
+    opacity: 0;
+    transform: scale(0.8) translateX(-10px);
+  }
+}
+
+/* 渐入上移 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 加载滑动 */
+@keyframes loadingSlide {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* 骨架屏加载 */
+@keyframes skeletonLoading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* 打字机光标 */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* 悬浮效果 */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+/* ========== CSS 变量 ========== */
+
+:root {
+  --color-primary: #006FEE;
+  --color-success: #17C964;
+  --color-warning: #F5A524;
+  --color-danger: #F31260;
+  --color-knowledge: #047857;
+  --color-mcp: #C2410C;
+  --color-model: #6D28D9;
+}
+
+/* ========== 标签渐变样式（纯CSS） ========== */
+
+.tag-knowledge {
+  background: linear-gradient(135deg, #ECFDF5, #D1FAE5);
+  border: 1px solid #A7F3D0;
+  color: #047857;
+}
+
+.tag-mcp {
+  background: linear-gradient(135deg, #FFF7ED, #FFEDD5);
+  border: 1px solid #FED7AA;
+  color: #C2410C;
+}
+
+.tag-model {
+  background: linear-gradient(135deg, #F5F3FF, #EDE9FE);
+  border: 1px solid #C4B5FD;
+  color: #6D28D9;
+}
+
+.tag-file {
+  background: linear-gradient(135deg, #F9FAFB, #F3F4F6);
+  border: 1px solid #E5E7EB;
+  color: #374151;
+}
+
+/* ========== 骨架屏加载（纯CSS） ========== */
+
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeletonLoading 1.5s infinite;
+  border-radius: 4px;
+}

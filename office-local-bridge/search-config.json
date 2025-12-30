@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "provider": "duckduckgo",
+  "apiKey": "",
+  "maxResults": 5,
+  "searchDepth": "basic",
+  "includeImages": false,
+  "includeDomains": [],
+  "excludeDomains": [],
+  "region": "auto",
+  "language": "zh-CN",
+  "searxngInstanceUrl": ""
+}

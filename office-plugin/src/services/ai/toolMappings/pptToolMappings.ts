@@ -1,0 +1,181 @@
+/**
+ * PowerPoint 工具关键词映射
+ * 
+ * 用于将用户输入的关键词映射到对应的 MCP 工具
+ * ⚠️ 注意：所有工具名必须与 MCP Server (office_mcp_server_js) 中的定义一致
+ */
+
+export const PPT_TOOL_MAPPINGS: Record<string, string[]> = {
+  // ==================== 幻灯片管理 ====================
+  '幻灯片': ['ppt_add_slide', 'ppt_delete_slide', 'ppt_duplicate_slide'],
+  '新建幻灯片': ['ppt_add_slide'],
+  '添加幻灯片': ['ppt_add_slide'],
+  '删除幻灯片': ['ppt_delete_slide'],
+  '复制幻灯片': ['ppt_duplicate_slide'],
+  '移动幻灯片': ['ppt_move_slide'],
+  '隐藏幻灯片': ['ppt_hide_slide'],
+  '显示幻灯片': ['ppt_unhide_slide'],
+  '跳转幻灯片': ['ppt_navigate_to_slide'],
+  '跳转到': ['ppt_navigate_to_slide'],
+  '页数': ['ppt_get_slide_count'],
+  '总页数': ['ppt_get_slide_count'],
+  'slide': ['ppt_add_slide', 'ppt_delete_slide'],
+  'new slide': ['ppt_add_slide'],
+
+  // ==================== 形状和文本 ====================
+  '文本框': ['ppt_add_text_box', 'ppt_set_text_format'],
+  '形状': ['ppt_add_shape', 'ppt_delete_shape', 'ppt_move_shape'],
+  '矩形': ['ppt_add_shape'],
+  '圆形': ['ppt_add_shape'],
+  '箭头': ['ppt_add_shape'],
+  '线条': ['ppt_add_shape'],
+  '调整大小': ['ppt_resize_shape'],
+  '旋转': ['ppt_rotate_shape'],
+  '组合': ['ppt_group_shapes'],
+  '取消组合': ['ppt_ungroup_shapes'],
+  '填充颜色': ['ppt_set_shape_fill'],
+  '轮廓': ['ppt_set_shape_outline'],
+  'shape': ['ppt_add_shape', 'ppt_delete_shape'],
+  'textbox': ['ppt_add_text_box'],
+  'text box': ['ppt_add_text_box'],
+
+  // ==================== 多媒体 ====================
+  '插入视频': ['ppt_insert_video'],
+  '插入音频': ['ppt_insert_audio'],
+  '视频': ['ppt_insert_video'],
+  '音频': ['ppt_insert_audio'],
+  '音乐': ['ppt_insert_audio'],
+  '背景音乐': ['ppt_insert_audio'],
+  '裁剪图片': ['ppt_crop_image'],
+  '压缩媒体': ['ppt_compress_media'],
+  '图片效果': ['ppt_set_image_effects'],
+  'video': ['ppt_insert_video'],
+  'audio': ['ppt_insert_audio'],
+  'media': ['ppt_insert_video', 'ppt_insert_audio'],
+
+  // ==================== 动画和切换 ====================
+  '动画': ['ppt_add_animation', 'ppt_remove_animation', 'ppt_preview_animation'],
+  '添加动画': ['ppt_add_animation'],
+  '删除动画': ['ppt_remove_animation'],
+  '预览动画': ['ppt_preview_animation'],
+  '动画时间': ['ppt_set_animation_timing'],
+  '动画触发': ['ppt_set_animation_trigger'],
+  '旁白动画': ['ppt_set_animation_and_narration'],
+  '切换': ['ppt_set_slide_transition'],
+  '切换效果': ['ppt_set_slide_transition'],
+  '幻灯片切换': ['ppt_set_slide_transition'],
+  '播放': ['ppt_start_slideshow'],
+  '放映': ['ppt_start_slideshow'],
+  '演示': ['ppt_start_slideshow'],
+  'animation': ['ppt_add_animation', 'ppt_remove_animation'],
+  'transition': ['ppt_set_slide_transition'],
+  'slideshow': ['ppt_start_slideshow'],
+
+  // ==================== 版式和主题 ====================
+  '版式': ['ppt_set_slide_layout', 'ppt_get_custom_layouts'],
+  '布局': ['ppt_set_slide_layout'],
+  '标题幻灯片': ['ppt_add_slide'],
+  '空白幻灯片': ['ppt_add_slide'],
+  '自定义版式': ['ppt_create_custom_layout', 'ppt_apply_custom_layout'],
+  '母版': ['ppt_get_slide_masters', 'ppt_apply_slide_master', 'ppt_copy_slide_master'],
+  '幻灯片母版': ['ppt_get_slide_masters', 'ppt_apply_slide_master'],
+  '复制母版': ['ppt_copy_slide_master'],
+  '删除母版': ['ppt_delete_slide_master'],
+  '重命名母版': ['ppt_rename_slide_master'],
+  '母版布局': ['ppt_get_master_layouts'],
+  '删除版式': ['ppt_delete_custom_layout'],
+  '重命名版式': ['ppt_rename_custom_layout'],
+  '版式详情': ['ppt_get_custom_layout_detail'],
+  '添加占位符': ['ppt_add_placeholder_to_layout'],
+  'layout': ['ppt_set_slide_layout'],
+  'blank': ['ppt_add_slide'],
+  'master': ['ppt_get_slide_masters', 'ppt_apply_slide_master'],
+
+  // ==================== 批注操作 ====================
+  '批注': ['ppt_add_comment', 'ppt_get_comments', 'ppt_delete_comment'],
+  '评论': ['ppt_add_comment', 'ppt_get_comments'],
+  '添加批注': ['ppt_add_comment'],
+  '获取批注': ['ppt_get_comments'],
+  '删除批注': ['ppt_delete_comment'],
+  '回复批注': ['ppt_reply_comment'],
+  '解决批注': ['ppt_resolve_comment'],
+  '删除所有批注': ['ppt_delete_all_comments'],
+  '批注详情': ['ppt_get_comment_detail'],
+  '重新打开批注': ['ppt_reopen_comment'],
+  '删除批注回复': ['ppt_delete_comment_reply'],
+  'comment': ['ppt_add_comment', 'ppt_get_comments', 'ppt_delete_comment'],
+
+  // ==================== 备注操作 ====================
+  '备注': ['ppt_add_slide_notes', 'ppt_get_slide_notes'],
+  '演讲者备注': ['ppt_add_slide_notes'],
+  '添加备注': ['ppt_add_slide_notes'],
+  '获取备注': ['ppt_get_slide_notes'],
+  '获取所有备注': ['ppt_get_all_slide_notes'],
+  '删除备注': ['ppt_delete_slide_notes'],
+  'notes': ['ppt_add_slide_notes', 'ppt_get_slide_notes'],
+  'speaker notes': ['ppt_add_slide_notes'],
+
+  // ==================== 超链接 ====================
+  '超链接': ['ppt_add_hyperlink_to_text', 'ppt_add_hyperlink_to_shape'],
+  '链接': ['ppt_add_hyperlink_to_text', 'ppt_add_hyperlink_to_shape'],
+  '添加链接': ['ppt_add_hyperlink_to_text'],
+  '删除链接': ['ppt_remove_hyperlink'],
+  '获取链接': ['ppt_get_hyperlinks'],
+  '更新链接': ['ppt_update_hyperlink'],
+  'hyperlink': ['ppt_add_hyperlink_to_text', 'ppt_add_hyperlink_to_shape'],
+  'link': ['ppt_add_hyperlink_to_text'],
+
+  // ==================== 导出功能 ====================
+  '导出': ['ppt_export_to_pdf', 'ppt_export_slides_to_images'],
+  '导出PDF': ['ppt_export_to_pdf'],
+  '导出图片': ['ppt_export_slides_to_images'],
+  '导出视频': ['ppt_export_to_video'],
+  '转PDF': ['ppt_export_to_pdf'],
+  'export': ['ppt_export_to_pdf', 'ppt_export_slides_to_images'],
+  'PDF': ['ppt_export_to_pdf'],
+
+  // ==================== 放映设置 ====================
+  '开始放映': ['ppt_start_slideshow'],
+  '结束放映': ['ppt_end_slideshow'],
+  '停止放映': ['ppt_end_slideshow'],
+  '放映设置': ['ppt_get_slideshow_settings'],
+  '放映范围': ['ppt_set_slideshow_range'],
+  '循环放映': ['ppt_set_slideshow_loop'],
+  '演示者视图': ['ppt_set_presenter_view'],
+  '自助终端': ['ppt_set_kiosk_mode'],
+  '分辨率': ['ppt_set_slideshow_resolution'],
+  '显示设置': ['ppt_set_slideshow_display'],
+  '幻灯片计时': ['ppt_set_slide_timing'],
+  '切换方式': ['ppt_set_slide_advance_mode'],
+  '重置放映设置': ['ppt_reset_slideshow_settings'],
+  'start slideshow': ['ppt_start_slideshow'],
+  'end slideshow': ['ppt_end_slideshow'],
+  'presenter view': ['ppt_set_presenter_view'],
+
+  // ==================== 对齐操作 ====================
+  '对齐': ['ppt_align_shapes'],
+  '左对齐': ['ppt_align_shapes'],
+  '右对齐': ['ppt_align_shapes'],
+  '居中对齐': ['ppt_align_shapes'],
+  '顶部对齐': ['ppt_align_shapes'],
+  '底部对齐': ['ppt_align_shapes'],
+  'align': ['ppt_align_shapes'],
+
+  // ==================== 教育工具 ====================
+  '课程': ['ppt_lesson_slides'],
+  '教学': ['ppt_lesson_slides'],
+  '课件': ['ppt_lesson_slides'],
+  '生成课件': ['ppt_lesson_slides'],
+  '练习': ['ppt_exercise_slide'],
+  '练习题': ['ppt_exercise_slide'],
+  'lesson': ['ppt_lesson_slides'],
+  'exercise': ['ppt_exercise_slide'],
+
+  // ==================== 媒体播放设置 ====================
+  '播放设置': ['ppt_set_media_playback'],
+  '自动播放': ['ppt_set_media_playback'],
+  '媒体时间线': ['ppt_set_media_timeline'],
+  '删除媒体': ['ppt_delete_media'],
+  '媒体信息': ['ppt_get_media_info'],
+  'playback': ['ppt_set_media_playback']
+}

@@ -1,0 +1,28 @@
+{
+  "server": {
+    "port": 3000,
+    "host": "localhost",
+    "timeout": 30000,
+    "name": "powerpoint-mcp-server",
+    "version": "1.0.0"
+  },
+  "ipc": {
+    "apiBaseUrl": "http://localhost:3001",
+    "timeout": 30000,
+    "maxRetries": 3,
+    "retryDelay": 1000
+  },
+  "logging": {
+    "level": "info",
+    "enableConsole": true,
+    "enableFile": true,
+    "maxFileSize": "10MB",
+    "maxFiles": 5
+  },
+  "performance": {
+    "enableCache": true,
+    "cacheTTL": 600000,
+    "maxConcurrentOperations": 20,
+    "operationTimeout": 60000
+  }
+}

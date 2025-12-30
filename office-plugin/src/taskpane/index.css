@@ -1,0 +1,463 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ========================================
+   新设计系统 CSS 变量（shadcn/ui 风格，oklch 色彩空间）
+   ======================================== */
+:root {
+  /* 新设计系统变量 - 亮色主题 */
+  --background: oklch(0.98 0.005 230);
+  --foreground: oklch(0.2 0.02 230);
+  --card: oklch(1 0 0 / 0.85);
+  --card-foreground: oklch(0.2 0.02 230);
+  --popover: oklch(1 0 0 / 0.95);
+  --popover-foreground: oklch(0.2 0.02 230);
+  --primary: oklch(0.35 0.12 250);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.95 0.01 230);
+  --secondary-foreground: oklch(0.3 0.02 230);
+  --muted: oklch(0.94 0.008 230);
+  --muted-foreground: oklch(0.5 0.015 230);
+  --accent: oklch(0.45 0.15 250);
+  --accent-foreground: oklch(1 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(0.88 0.01 230);
+  --input: oklch(0.95 0.008 230);
+  --ring: oklch(0.35 0.12 250);
+  --radius: 0.75rem;
+  
+  /* Sidebar 变量 */
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.35 0.12 250);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0.005 230);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.9 0.005 230);
+  --sidebar-ring: oklch(0.5 0.05 250);
+  
+  /* Chart 变量 */
+  --chart-1: oklch(0.35 0.12 250);
+  --chart-2: oklch(0.5 0.118 200);
+  --chart-3: oklch(0.4 0.08 230);
+  --chart-4: oklch(0.7 0.15 80);
+  --chart-5: oklch(0.6 0.12 60);
+
+  /* ========== 保留的原有变量（兼容现有组件）========== */
+  --color-white: #ffffff;
+  --color-white-soft: rgba(255, 255, 255, 0.8);
+  --color-white-mute: rgba(255, 255, 255, 0.94);
+
+  --color-black: #181818;
+  --color-black-soft: #222222;
+  --color-black-mute: #333333;
+
+  --color-gray-1: #515c67;
+  --color-gray-2: #414853;
+  --color-gray-3: #32363f;
+
+  --color-text-1: rgba(255, 255, 245, 0.9);
+  --color-text-2: rgba(235, 235, 245, 0.6);
+  --color-text-3: rgba(235, 235, 245, 0.38);
+
+  --color-background: var(--color-black);
+  --color-background-soft: var(--color-black-soft);
+  --color-background-mute: var(--color-black-mute);
+  --color-background-opacity: rgba(34, 34, 34, 0.7);
+
+  --color-primary: #00b96b;
+  --color-primary-soft: #00b96b99;
+  --color-primary-mute: #00b96b33;
+
+  --color-text: var(--color-text-1);
+  --color-text-secondary: rgba(235, 235, 245, 0.7);
+  --color-icon: #ffffff99;
+  --color-icon-white: #ffffff;
+  --color-border: #ffffff19;
+  --color-border-soft: #ffffff10;
+  --color-border-mute: #ffffff05;
+  --color-error: #ff4d50;
+  --color-link: #338cff;
+  --color-code-background: #323232;
+  --color-inline-code-background: #323232;
+  --color-inline-code-text: rgb(218, 97, 92);
+  --color-hover: rgba(40, 40, 40, 1);
+  --color-active: rgba(55, 55, 55, 1);
+
+  --chat-background: transparent;
+  --chat-background-user: rgba(255, 255, 255, 0.08);
+  --chat-background-assistant: transparent;
+
+  --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell',
+    'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+}
+
+/* Tailwind v4 主题内联配置 */
+@theme inline {
+  --font-sans: "Geist", "Geist Fallback", system-ui, sans-serif;
+  --font-mono: "Geist Mono", "Geist Mono Fallback", monospace;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+/* 深色主题 - 新设计系统变量 */
+[theme-mode='dark'], .dark {
+  --background: oklch(0.12 0.015 230);
+  --foreground: oklch(0.95 0.01 230);
+  --card: oklch(0.18 0.015 230 / 0.85);
+  --card-foreground: oklch(0.95 0.01 230);
+  --popover: oklch(0.15 0.015 230 / 0.95);
+  --popover-foreground: oklch(0.95 0.01 230);
+  --primary: oklch(0.55 0.15 250);
+  --primary-foreground: oklch(0.1 0.01 230);
+  --secondary: oklch(0.22 0.015 230);
+  --secondary-foreground: oklch(0.9 0.01 230);
+  --muted: oklch(0.25 0.015 230);
+  --muted-foreground: oklch(0.65 0.01 230);
+  --accent: oklch(0.5 0.12 250);
+  --accent-foreground: oklch(0.95 0.01 230);
+  --destructive: oklch(0.5 0.2 25);
+  --destructive-foreground: oklch(0.95 0.01 230);
+  --border: oklch(0.28 0.015 230);
+  --input: oklch(0.25 0.015 230);
+  --ring: oklch(0.55 0.15 250);
+  
+  /* Sidebar 深色 */
+  --sidebar: oklch(0.15 0.015 230);
+  --sidebar-foreground: oklch(0.95 0.01 230);
+  --sidebar-primary: oklch(0.55 0.15 250);
+  --sidebar-primary-foreground: oklch(0.95 0.01 230);
+  --sidebar-accent: oklch(0.22 0.015 230);
+  --sidebar-accent-foreground: oklch(0.95 0.01 230);
+  --sidebar-border: oklch(0.28 0.015 230);
+  --sidebar-ring: oklch(0.5 0.05 250);
+  
+  /* Chart 深色 */
+  --chart-1: oklch(0.55 0.15 250);
+  --chart-2: oklch(0.6 0.12 200);
+  --chart-3: oklch(0.7 0.1 60);
+  --chart-4: oklch(0.55 0.2 300);
+  --chart-5: oklch(0.6 0.22 20);
+}
+
+/* 亮色主题 - 保留原有变量（兼容现有组件）*/
+[theme-mode='light'] {
+  --color-white: #ffffff;
+  --color-white-soft: rgba(0, 0, 0, 0.04);
+  --color-white-mute: #eee;
+
+  --color-black: #1b1b1f;
+  --color-black-soft: #262626;
+  --color-black-mute: #363636;
+
+  --color-text-1: rgba(0, 0, 0, 1);
+  --color-text-2: rgba(0, 0, 0, 0.6);
+  --color-text-3: rgba(0, 0, 0, 0.38);
+
+  --color-background: var(--color-white);
+  --color-background-soft: var(--color-white-soft);
+  --color-background-mute: var(--color-white-mute);
+  --color-background-opacity: rgba(243, 243, 243, 1);
+
+  --color-text: var(--color-text-1);
+  --color-text-secondary: rgba(0, 0, 0, 0.7);
+  --color-icon: #00000099;
+  --color-border: #00000019;
+  --color-border-soft: #00000010;
+  --color-border-mute: #00000005;
+  --color-code-background: #f5f5f5;
+  --color-inline-code-background: #f5f5f5;
+  --color-inline-code-text: rgb(218, 97, 92);
+  --color-hover: rgba(245, 245, 245, 1);
+  --color-active: rgba(230, 230, 230, 1);
+
+  --chat-background-user: rgba(0, 0, 0, 0.06);
+}
+
+/* Tailwind base 层样式 */
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* 基础样式 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: var(--font-family);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  color: #000000; /* 使用黑色文本，匹配 FluentUI 亮色主题 */
+  background-color: #ffffff; /* 使用白色背景，匹配 FluentUI 亮色主题 */
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+#root {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* 选择文本样式 */
+::selection {
+  background-color: var(--color-primary-soft);
+  color: var(--color-text);
+}
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-background-soft);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-icon);
+}
+
+/* 用户选择样式 */
+input,
+textarea,
+[contenteditable='true'],
+.markdown,
+.selectable,
+pre,
+code {
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+  user-select: text !important;
+}
+
+/* 链接样式 */
+a {
+  color: var(--color-link);
+  text-decoration: none;
+  -webkit-user-drag: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* 代码样式 */
+code {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  background-color: var(--color-inline-code-background);
+  color: var(--color-inline-code-text);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+pre code {
+  background-color: transparent;
+  padding: 0;
+}
+
+/* ========================================
+   响应式布局规则
+   适配 Office 任务窗格的不同尺寸
+   ======================================== */
+
+/* 全局响应式容器 */
+* {
+  box-sizing: border-box;
+}
+
+/* 防止内容溢出 */
+body,
+#root {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+/* 图片响应式 */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* 表格响应式 */
+table {
+  width: 100%;
+  overflow-x: auto;
+  display: block;
+}
+
+/* 代码块响应式 */
+pre {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+/* 超宽屏幕 (> 600px) - 标准 Office 任务窗格 */
+@media (min-width: 600px) {
+  .messages-container {
+    padding: 16px;
+  }
+
+  .message-bubble {
+    font-size: 14px;
+  }
+}
+
+/* 中等屏幕 (400px - 600px) - 缩小的任务窗格 */
+@media (max-width: 600px) and (min-width: 400px) {
+  body {
+    font-size: 13px;
+  }
+
+  .messages-container {
+    padding: 12px;
+  }
+
+  .message-bubble {
+    font-size: 13px;
+  }
+}
+
+/* 窄屏 (320px - 400px) - 最小任务窗格 */
+@media (max-width: 400px) {
+  body {
+    font-size: 12px;
+  }
+
+  h1 {
+    font-size: 18px;
+  }
+
+  h2 {
+    font-size: 16px;
+  }
+
+  h3 {
+    font-size: 14px;
+  }
+
+  button {
+    font-size: 12px;
+  }
+}
+
+/* 极窄屏 (< 320px) - 极限情况 */
+@media (max-width: 320px) {
+  body {
+    font-size: 11px;
+  }
+
+  .messages-container {
+    padding: 4px;
+  }
+
+  .message-bubble {
+    font-size: 12px;
+    padding: 6px 8px;
+  }
+}
+
+/* Flexbox 工具类增强 */
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.flex-1 {
+  flex: 1 1 0%;
+  min-width: 0; /* 防止 flex 子元素溢出 */
+  min-height: 0;
+}
+
+.flex-shrink-0 {
+  flex-shrink: 0;
+}
+
+.overflow-hidden {
+  overflow: hidden;
+}
+
+.overflow-auto {
+  overflow: auto;
+}
+
+/* 间距工具类 */
+.gap-2 {
+  gap: 0.5rem;
+}
+
+.gap-4 {
+  gap: 1rem;
+}
+
+/* 响应式间距 */
+@media (max-width: 400px) {
+  .gap-2 {
+    gap: 0.25rem;
+  }
+
+  .gap-4 {
+    gap: 0.5rem;
+  }
+}

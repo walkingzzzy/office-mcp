@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>武汉问津 AI 助手</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="/assets/icon-32.png">
+
+  <!-- Office.js 库 - 使用本地文件 -->
+  <script src="/libs/office.js" onerror="handleOfficeJsLoadError()"></script>
+
+  <script>
+    console.log('📄 HTML 已加载')
+    console.log('🌐 User Agent:', navigator.userAgent)
+
+    function handleOfficeJsLoadError() {
+      console.error('❌ Office.js 本地文件加载失败')
+      const root = document.getElementById('root')
+      if (root) {
+        root.innerHTML = `
+          <div style="padding: 20px; color: red; font-family: system-ui;">
+            <h3>⚠️ Office.js 加载失败</h3>
+            <p>本地 Office.js 文件未找到，请确保：</p>
+            <ul style="text-align: left; margin: 10px 0;">
+              <li>已运行 <code>yarn dev</code> 启动开发服务器</li>
+              <li>Vite 配置正确复制了 office.js 文件</li>
+              <li>在 Office 应用中打开此插件</li>
+            </ul>
+            <p style="font-size: 12px; color: #666;">当前路径: ${window.location.href}</p>
+          </div>
+        `
+      }
+    }
+  </script>
+</head>
+
+<body>
+  <div id="root">
+    <div style="padding: 20px; text-align: center; color: #666;">
+      <p>正在加载武汉问津 AI 助手...</p>
+      <p style="font-size: 12px;">如果长时间未加载，请按 F12 查看控制台</p>
+    </div>
+  </div>
+  <!-- Portal 容器：用于 Fluent UI 的 Dropdown 等组件渲染弹出层 -->
+  <div id="portal-root"></div>
+  <script type="module" src="./index.tsx"></script>
+</body>
+
+</html>

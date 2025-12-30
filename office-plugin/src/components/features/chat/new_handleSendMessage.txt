@@ -1,0 +1,136 @@
+  const handleSendMessage = async () => {
+    if (!inputText.trim() || isLoading || !connected || !selectedModelId) return
+
+    const currentInput = inputText
+    const currentFiles = [...attachedFiles] // 保存当前附件
+    const userMessageId = Date.now().toString()
+
+    // 创建用户消息（使用消息块系统）
+    const userTextBlock: MainTextMessageBlock = {
+      id: `${userMessageId}-block-0`,
+      messageId: userMessageId,
+      type: MessageBlockType.MAIN_TEXT,
+      createdAt: new Date().toISOString(),
+      status: MessageBlockStatus.SUCCESS,
+      content: currentInput
+    }
+
+    const userMessage: Message = {
+      id: userMessageId,
+      role: 'user',
+      blocks: [userTextBlock],
+      createdAt: new Date().toISOString(),
+    }
+
+    setMessages((prev) => [...prev, userMessage])
+    setInputText('')
+    setAttachedFiles([]) // 清空附件列表
+    setIsLoading(true)
+
+    // 保存用户消息到对话历史
+    if (currentConversationId) {
+      addMessageToStore(currentConversationId, userMessage)
+      logger.info('Saved user message to conversation', { conversationId: currentConversationId })
+    }
+
+    try {
+      // 读取文档上下文
+      const contextResult = await readDocumentContext(currentOfficeApp)
+      const { hasDocument, isSelectionMode } = contextResult
+
+      // 构建带上下文的提示词
+      const { finalUserInput, userIntent } = buildPromptWithContext(currentInput, contextResult)
+
+      // 构建消息历史（将消息块转换为简单格式供 API 使用）
+      const chatMessages: ChatMessage[] = messages.map((m) => ({
+        role: m.role as 'user' | 'assistant',
+        content: m.blocks
+          .filter(b => b.type === MessageBlockType.MAIN_TEXT)
+          .map(b => (b as MainTextMessageBlock).content)
+          .join('\n')
+      }))
+
+      // 转换附件为 FileMetadata 格式
+      const fileMetadata = currentFiles.map(file => ({
+        id: file.fileId,
+        name: file.fileName,
+        origin_name: file.fileName,
+        path: '', // 后端会根据 ID 查找文件路径
+        ext: file.ext,
+        type: file.type,
+        size: file.size,
+        created_at: new Date().toISOString(),
+        count: 1
+      }))
+
+      // 添加当前用户消息（包含附件和文档上下文）
+      const userChatMessage: ChatMessage = {
+        role: 'user',
+        content: finalUserInput,
+        files: fileMetadata.length > 0 ? fileMetadata : undefined
+      }
+      chatMessages.push(userChatMessage)
+
+      // 如果有附件，记录日志
+      if (fileMetadata.length > 0) {
+        logger.info('Sending message with files', {
+          fileCount: fileMetadata.length,
+          files: fileMetadata.map(f => ({ id: f.id, name: f.name, type: f.type, size: f.size }))
+        })
+      }
+
+      // 设置 Word 编辑上下文（用于后续编辑面板）
+      const aiMessageId = (Date.now() + 1).toString()
+      setWordEditSelectionContext((prev) => ({
+        ...prev,
+        [aiMessageId]: isSelectionMode
+      }))
+
+      // 发送流式消息
+      await sendStreamingMessage({
+        chatMessages,
+        isSelectionMode,
+        currentOfficeApp,
+        hasDocument,
+        userIntent,
+        onWordEditRequested: (messageId, isSelection) => {
+          openWordEditPanel(messageId)
+        }
+      })
+
+    } catch (error: any) {
+      if (error.name === 'AbortError') {
+        logger.info('Request cancelled by user')
+      } else {
+        logger.error('AI request failed', { error })
+
+        // 创建错误消息
+        const errorMessageId = (Date.now() + 2).toString()
+        const errorBlock: MessageBlock = {
+          id: `${errorMessageId}-block-0`,
+          messageId: errorMessageId,
+          type: MessageBlockType.ERROR,
+          createdAt: new Date().toISOString(),
+          status: MessageBlockStatus.ERROR,
+          content: error.message || '未知错误',
+          error: {
+            message: error.message || '未知错误',
+            code: error.code,
+            type: error.type || 'unknown_error'
+          }
+        }
+
+        const errorMessage: Message = {
+          id: errorMessageId,
+          role: 'assistant',
+          blocks: [errorBlock],
+          createdAt: new Date().toISOString(),
+          error: true
+        }
+
+        setMessages((prev) => [...prev, errorMessage])
+      }
+    } finally {
+      setIsLoading(false)
+    }
+  }

@@ -1,0 +1,32 @@
+{
+  "port": 3001,
+  "host": "localhost",
+  "logLevel": "info",
+  "mcpRequestTimeout": 30000,
+  "mcpServers": [
+    {
+      "id": "word-mcp-server",
+      "name": "Word MCP Server",
+      "command": "node",
+      "args": ["../word-mcp-server/dist/server.js"],
+      "cwd": "../word-mcp-server",
+      "enabled": true
+    },
+    {
+      "id": "excel-mcp-server",
+      "name": "Excel MCP Server",
+      "command": "node",
+      "args": ["../excel-mcp-server/dist/server.js"],
+      "cwd": "../excel-mcp-server",
+      "enabled": true
+    },
+    {
+      "id": "powerpoint-mcp-server",
+      "name": "PowerPoint MCP Server",
+      "command": "node",
+      "args": ["../powerpoint-mcp-server/dist/server.js"],
+      "cwd": "../powerpoint-mcp-server",
+      "enabled": true
+    }
+  ]
+}

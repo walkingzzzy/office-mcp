@@ -1,0 +1,214 @@
+/*
+ * 武汉问津设计系统 - Office 插件版本
+ * 与主应用 (office-local-bridge) 视觉统一
+ * 更新时间: 2025-12-20
+ */
+
+:root {
+  /* ============ 统一主题色系统（与主应用一致）============ */
+  /* 使用 RGB 格式，支持透明度调整 */
+  --color-primary-rgb: 99, 102, 241;    /* #6366f1 - 靛蓝 */
+  --color-accent-rgb: 20, 184, 166;     /* #14b8a6 - 青色 */
+  --color-glow-rgb: 99, 102, 241;
+  
+  /* ============ 浅色模式背景 ============ */
+  --color-bg-rgb: 248, 250, 252;        /* #f8fafc */
+  --color-bg-secondary-rgb: 241, 245, 249; /* #f1f5f9 */
+  --color-surface-rgb: 255, 255, 255;   /* #ffffff */
+  --color-surface-hover-rgb: 241, 245, 249;
+  
+  /* ============ 文字颜色 ============ */
+  --color-text-rgb: 15, 23, 42;         /* #0f172a */
+  --color-text-secondary-rgb: 71, 85, 105; /* #475569 */
+  --color-text-muted-rgb: 100, 116, 139;   /* #64748b */
+  
+  /* ============ 边框颜色 ============ */
+  --color-border-rgb: 226, 232, 240;    /* #e2e8f0 */
+  
+  /* ============ 玻璃效果参数 ============ */
+  --glass-blur: 12px;
+  --animation-duration: 1;
+
+  /* ============ 品牌色阶系统（保留向后兼容）============ */
+  --brand-50: #eef2ff;
+  --brand-100: #e0e7ff;
+  --brand-200: #c7d2fe;
+  --brand-300: #a5b4fc;
+  --brand-400: #818cf8;
+  --brand-500: #6366f1;  /* 主色 - 与主应用一致 */
+  --brand-600: #4f46e5;
+  --brand-700: #4338ca;
+  --brand-800: #3730a3;
+  --brand-900: #312e81;
+  
+  /* ============ 功能色 ============ */
+  --color-success: #17C964;
+  --color-warning: #F5A524;
+  --color-danger: #F31260;
+  --color-info: var(--brand-500);
+  
+  /* ============ 建议卡片图标色 - 与主应用一致 ============ */
+  --suggestion-icon-1: rgb(var(--color-primary-rgb));  /* 靛蓝 */
+  --suggestion-icon-2: rgb(var(--color-accent-rgb));   /* 青色 */
+  --suggestion-icon-3: #10b981;                        /* emerald-500 */
+  --suggestion-icon-4: #f59e0b;                        /* amber-500 */
+
+  /* ============ 旧品牌色（向后兼容）============ */
+  --color-user-brand: #00C853;
+  --color-ai-brand-start: #6366f1;
+  --color-ai-brand-end: #14b8a6;
+  --color-primary: rgb(var(--color-primary-rgb));
+  --color-primary-soft: rgba(var(--color-primary-rgb), 0.6);
+  --color-primary-mute: rgba(var(--color-primary-rgb), 0.2);
+
+  /* ============ 背景色（浅色主题）============ */
+  --color-background: rgb(var(--color-bg-rgb));
+  --color-background-soft: rgb(var(--color-bg-secondary-rgb));
+  --color-background-mute: #f1f5f9;
+  --color-background-opacity: rgba(255, 255, 255, 0.95);
+
+  /* ============ 文本色（深色文字）============ */
+  --color-text-1: rgb(var(--color-text-rgb));
+  --color-text-2: rgb(var(--color-text-secondary-rgb));
+  --color-text-3: rgb(var(--color-text-muted-rgb));
+  --color-text-placeholder: #94a3b8;
+  --color-text: var(--color-text-1);
+  --color-text-secondary: var(--color-text-2);
+
+  /* ============ 边框（细线条）============ */
+  --color-border: rgb(var(--color-border-rgb));
+  --color-border-soft: #f1f5f9;
+  --color-border-mute: #f8fafc;
+
+  /* ============ 图标（统一灰色）============ */
+  --color-icon: rgb(var(--color-text-muted-rgb));
+  --color-icon-hover: rgb(var(--color-text-secondary-rgb));
+  --color-icon-white: #ffffff;
+
+  /* ============ 状态色 ============ */
+  --color-error: #ef4444;
+  --color-link: rgb(var(--color-primary-rgb));
+  --color-hover: rgba(var(--color-primary-rgb), 0.05);
+  --color-active: rgba(var(--color-primary-rgb), 0.1);
+  --color-status-success: rgb(var(--color-accent-rgb));
+  --color-status-error: var(--color-error);
+  --color-status-warning: #f59e0b;
+
+  /* ============ 聊天专用（优化配色）============ */
+  --chat-background: rgb(var(--color-surface-rgb));
+  --chat-background-user: rgba(var(--color-bg-secondary-rgb), 1);
+  --chat-background-assistant: rgb(var(--color-surface-rgb));
+  --chat-text-user: var(--color-text-1);
+  --chat-text-assistant: var(--color-text-1);
+
+  /* ============ 圆角系统（与主应用一致）============ */
+  --border-radius-sm: 6px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+  --border-radius-xl: 16px;
+  --border-radius-2xl: 20px;
+  --border-radius-full: 9999px;
+  --message-bubble-radius: 12px;
+  --avatar-size: 36px;
+
+  /* ============ 间距系统 - 4px 基准 ============ */
+  --spacing-1: 4px;   /* 极小间距 - gap-1 */
+  --spacing-2: 8px;   /* 小间距 - gap-2 */
+  --spacing-3: 12px;  /* 中小间距 - gap-3 */
+  --spacing-4: 16px;  /* 标准间距 - gap-4 */
+  --spacing-5: 20px;  /* 中间距 - gap-5 */
+  --spacing-6: 24px;  /* 大间距 - gap-6 */
+  --spacing-8: 32px;  /* 超大间距 - gap-8 */
+  --spacing-10: 40px; /* 特大间距 - gap-10 */
+  --spacing-12: 48px; /* 巨大间距 - gap-12 */
+  
+  /* 组件内部间距 */
+  --card-padding: var(--spacing-4);
+  --button-padding-x: var(--spacing-4);
+  --button-padding-y: var(--spacing-2);
+  --input-padding: var(--spacing-3);
+  --modal-padding: var(--spacing-6);
+  
+  /* 消息间距（向后兼容） */
+  --spacing-message-vertical: var(--spacing-5); /* 消息垂直间距 */
+  --spacing-message-horizontal: var(--spacing-5); /* 消息水平间距 */
+  --spacing-avatar-gap: var(--spacing-3); /* 头像与内容间距 */
+  --spacing-section: var(--spacing-4); /* 区块间距 */
+
+  /* ============ 字体层次系统 ============ */
+  /* 字体大小 */
+  --font-size-xs: 0.75rem;   /* 12px - 辅助文字 */
+  --font-size-sm: 0.875rem;  /* 14px - 次要文字 */
+  --font-size-base: 1rem;    /* 16px - 正文 */
+  --font-size-lg: 1.125rem;  /* 18px - 小标题 */
+  --font-size-xl: 1.25rem;   /* 20px - 标题 */
+  --font-size-2xl: 1.5rem;   /* 24px - 大标题 */
+  --font-size-3xl: 1.875rem; /* 30px - 特大标题 */
+  
+  /* 行高 */
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+  
+  /* 字重 */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* ============ 代码样式 ============ */
+  --color-code-background: #f5f5f5;
+  --color-inline-code-background: #f0f0f0;
+  --color-inline-code-text: #d32f2f;
+
+  /* ============ 导航栏 ============ */
+  --navbar-background: #fafafa;
+
+  /* ============ 模态框 ============ */
+  --modal-background: #ffffff;
+
+  /* ============ 列表项 ============ */
+  --color-list-item: #ffffff;
+  --color-list-item-hover: #fafafa;
+
+  /* 向后兼容（保留旧变量名）*/
+  --list-item-border-radius: var(--border-radius-md);
+}
+
+/* ============ 深色主题（保留但默认不启用）============ */
+[data-theme='dark'],
+[theme-mode='dark'] {
+  --color-background: #181818;
+  --color-background-soft: #222222;
+  --color-background-mute: #333333;
+  --color-background-opacity: rgba(34, 34, 34, 0.7);
+
+  --color-text-1: rgba(255, 255, 245, 0.9);
+  --color-text-2: rgba(235, 235, 245, 0.6);
+  --color-text-3: rgba(235, 235, 245, 0.38);
+  --color-text: var(--color-text-1);
+  --color-text-secondary: rgba(235, 235, 245, 0.7);
+
+  --color-border: #ffffff19;
+  --color-border-soft: #ffffff10;
+  --color-border-mute: #ffffff05;
+
+  --color-icon: #ffffff99;
+  --color-icon-hover: #ffffffcc;
+
+  --color-hover: rgba(40, 40, 40, 1);
+  --color-active: rgba(55, 55, 55, 1);
+
+  --chat-background-user: rgba(255, 255, 255, 0.08);
+  --chat-background-assistant: transparent;
+
+  --color-code-background: #323232;
+  --color-inline-code-background: #323232;
+  --color-inline-code-text: rgb(218, 97, 92);
+
+  --navbar-background: #1f1f1f;
+  --modal-background: #111111;
+
+  --color-list-item: rgba(255, 255, 255, 0.1);
+  --color-list-item-hover: rgba(255, 255, 255, 0.05);
+}

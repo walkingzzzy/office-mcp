@@ -189,9 +189,32 @@ function DropdownMenuContent({
       left = Math.min(left, maxLeft)
       left = Math.max(8, left)
 
-      // 直接向上弹出：菜单底部对齐到触发器顶部
-      const bottom = window.innerHeight - triggerRect.top + sideOffset
-      setStyle({ bottom, left, top: 'auto' })
+      // 智能定位：根据可用空间决定向上还是向下弹出
+      const spaceAbove = triggerRect.top
+      const spaceBelow = window.innerHeight - triggerRect.bottom
+      
+      let newStyle: React.CSSProperties
+      
+      // 如果上方空间足够，或者上方空间比下方大，则向上弹出
+      if (spaceAbove >= contentHeight + sideOffset || spaceAbove > spaceBelow) {
+        // 向上弹出：菜单底部对齐到触发器顶部
+        const bottom = window.innerHeight - triggerRect.top + sideOffset
+        // 确保不超出视口顶部（弹窗顶部位置 = viewportHeight - bottom - contentHeight）
+        const popupTop = window.innerHeight - bottom - contentHeight
+        if (popupTop < 8) {
+          // 如果向上弹出会超出顶部，改为向下弹出
+          const top = triggerRect.bottom + sideOffset
+          newStyle = { position: 'fixed', top, left, bottom: 'unset' }
+        } else {
+          newStyle = { position: 'fixed', bottom, left, top: 'unset' }
+        }
+      } else {
+        // 向下弹出：菜单顶部对齐到触发器底部
+        const top = triggerRect.bottom + sideOffset
+        newStyle = { position: 'fixed', top, left, bottom: 'unset' }
+      }
+      
+      setStyle(newStyle)
       
       setIsPositioned(true)
     }
@@ -227,7 +250,7 @@ function DropdownMenuContent({
         data-dropdown-content
         className={cn(
           'fixed z-[9999] min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md',
-          'animate-in fade-in-0 slide-in-from-bottom-2',
+          'animate-in fade-in-0',
           !isPositioned && 'opacity-0 pointer-events-none',
           className,
         )}

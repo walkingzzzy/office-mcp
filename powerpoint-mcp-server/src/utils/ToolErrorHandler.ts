@@ -11,7 +11,7 @@ import {
   isRetryable,
   ERROR_DEFINITIONS
 } from './ErrorCodes.js'
-import { logger } from './logger.js'
+import { logger } from '@office-mcp/shared'
 
 /**
  * 工具错误接口
@@ -219,8 +219,8 @@ export class ToolErrorHandler {
 
     const code = codeMap[resourceType] || ErrorCode.RESOURCE_NOT_FOUND
     const paramKey = resourceType === 'bookmark' ? 'name' :
-                     resourceType === 'contentControl' ? 'tag' :
-                     resourceType === 'image' ? 'name' : 'resource'
+      resourceType === 'contentControl' ? 'tag' :
+        resourceType === 'image' ? 'name' : 'resource'
 
     return this.createError(code, { [paramKey]: identifier })
   }
@@ -356,8 +356,8 @@ export class ToolErrorHandler {
 
         // 检查是否是桌面版
         const isDesktop = platform === Office.PlatformType.PC ||
-                         platform === Office.PlatformType.Mac ||
-                         platform === Office.PlatformType.OfficeOnline === false
+          platform === Office.PlatformType.Mac ||
+          platform === Office.PlatformType.OfficeOnline === false
 
         // 检查是否是 Web 版
         const isWeb = platform === Office.PlatformType.OfficeOnline

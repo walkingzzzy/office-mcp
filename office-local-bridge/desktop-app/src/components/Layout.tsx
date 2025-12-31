@@ -98,31 +98,31 @@ export default function Layout({ children }: LayoutProps) {
         </div>
 
         {/* 主题切换 */}
-        <div className="px-4 py-3 border-b border-theme-primary">
-          <div className="flex items-center justify-between">
+        <div className="px-4 py-3 border-b border-theme-primary overflow-hidden">
+          <div className="flex items-center justify-between gap-2">
             {/* 明暗模式切换 */}
             <button
               onClick={toggleMode}
               className={clsx(
-                'p-2.5 rounded-xl transition-all duration-200',
+                'p-2 rounded-xl transition-all duration-200 flex-shrink-0',
                 'hover:bg-white/10 hover:scale-105 active:scale-95',
                 theme.mode === 'light' ? 'bg-amber-500/10' : ''
               )}
               style={{ color: `rgb(var(--color-text-secondary))` }}
               title={theme.mode === 'dark' ? '切换到浅色模式' : '切换到深色模式'}
             >
-              {theme.mode === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              {theme.mode === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
 
-            {/* 主题色选择 - 增大点击区域 */}
-            <div className="flex items-center space-x-1.5">
-              <Palette className="w-4 h-4 mr-1" style={{ color: `rgb(var(--color-text-muted))` }} />
+            {/* 主题色选择 */}
+            <div className="flex items-center gap-1 flex-shrink-0">
+              <Palette className="w-3.5 h-3.5 flex-shrink-0" style={{ color: `rgb(var(--color-text-muted))` }} />
               {themeColorOptions.map((color) => (
                 <button
                   key={color.value}
                   onClick={() => setTheme({ color: color.value })}
                   className={clsx(
-                    'w-7 h-7 rounded-full transition-all duration-200 border-2',
+                    'w-5 h-5 rounded-full transition-all duration-200 border-2 flex-shrink-0',
                     theme.color === color.value
                       ? 'scale-110 border-white shadow-lg ring-2 ring-white/30'
                       : 'border-transparent hover:scale-110 opacity-70 hover:opacity-100'

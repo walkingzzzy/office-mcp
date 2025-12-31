@@ -83,6 +83,11 @@ export class IntentExtractor {
   private detectIntent(input: string): IntentType {
     const lowerInput = input.toLowerCase()
 
+    // 🆕 首先检查是否是简单问候/闲聊 - 不需要文档操作工具
+    if (this.isSimpleGreetingOrChat(lowerInput)) {
+      return 'query' as IntentType
+    }
+
     // 多任务检测（优先级最高）
     const actionWords = ['居中', '加粗', '颜色', '边框', '对齐', '插入', '删除', '格式', '替换', '查找']
     const actionCount = actionWords.filter(word => lowerInput.includes(word)).length

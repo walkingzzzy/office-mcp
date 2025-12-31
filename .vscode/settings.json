@@ -1,0 +1,52 @@
+{
+    "mcp.servers": {
+        "playwright": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-playwright",
+                "run"
+            ]
+        },
+        "thinking": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-sequential-thinking"
+            ]
+        },
+        "filesystem": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-filesystem",
+                "c:\\Users\\zywal\\Desktop\\office工具"
+            ]
+        }
+    },
+    "mcpServers": {
+        "playwright": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-playwright",
+                "run"
+            ]
+        },
+        "thinking": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-sequential-thinking"
+            ]
+        },
+        "filesystem": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-filesystem",
+                "c:\\Users\\zywal\\Desktop\\office工具"
+            ]
+        }
+    }
+}

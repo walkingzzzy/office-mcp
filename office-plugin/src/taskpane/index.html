@@ -17,6 +17,21 @@
     console.log('📄 HTML 已加载')
     console.log('🌐 User Agent:', navigator.userAgent)
 
+    // 立即注册 Office.onReady，防止超时错误
+    // 这必须在 Office.js 加载后立即执行，不能等待模块加载
+    window.__officeReadyPromise = null
+    window.__officeInfo = null
+    
+    if (typeof Office !== 'undefined' && Office.onReady) {
+      console.log('📌 立即注册 Office.onReady...')
+      window.__officeReadyPromise = Office.onReady(function(info) {
+        console.log('✅ Office.onReady 回调已触发', info)
+        window.__officeInfo = info
+        // 触发自定义事件，通知 React 应用
+        window.dispatchEvent(new CustomEvent('office-ready', { detail: info }))
+      })
+    }
+
     function handleOfficeJsLoadError() {
       console.error('❌ Office.js 本地文件加载失败')
       const root = document.getElementById('root')

@@ -3,7 +3,7 @@
  * 记录最近使用的工具,用于在下一轮候选工具中提高命中率
  */
 
-import Logger from '../../utils/logger'
+import Logger from '../../../utils/logger'
 
 export interface ToolUsageEntry {
   name: string

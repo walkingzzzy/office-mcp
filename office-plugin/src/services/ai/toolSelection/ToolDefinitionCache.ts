@@ -10,7 +10,7 @@
  */
 
 import type { ToolDefinition } from './DynamicToolDiscovery'
-import Logger from '../../utils/logger'
+import Logger from '../../../utils/logger'
 
 const logger = new Logger('ToolDefinitionCache')
 
@@ -48,10 +48,10 @@ const CACHE_STORAGE_KEY = 'mcp_tool_definitions_cache'
 class ToolDefinitionCacheImpl {
   /** 内存缓存（优先使用，比 localStorage 更快） */
   private memoryCache: ToolCacheEntry | null = null
-  
+
   /** 缓存 TTL（毫秒）- 默认 30 分钟（工具定义变化不频繁） */
   private readonly cacheTTL: number = 30 * 60 * 1000
-  
+
   /** 缓存统计 */
   private stats: CacheStats = {
     hits: 0,

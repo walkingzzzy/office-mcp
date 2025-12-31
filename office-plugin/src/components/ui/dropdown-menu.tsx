@@ -14,11 +14,15 @@ import { cn } from '@/lib/utils'
 interface DropdownMenuContextValue {
   open: boolean
   setOpen: (open: boolean) => void
+  triggerRef: React.RefObject<HTMLElement> | null
+  setTriggerRef: (ref: React.RefObject<HTMLElement>) => void
 }
 
 const DropdownMenuContext = React.createContext<DropdownMenuContextValue>({
   open: false,
   setOpen: () => {},
+  triggerRef: null,
+  setTriggerRef: () => {},
 })
 
 // ==================== Root ====================
@@ -37,6 +41,7 @@ function DropdownMenu({
   defaultOpen = false,
 }: DropdownMenuProps) {
   const [internalOpen, setInternalOpen] = React.useState(defaultOpen)
+  const [triggerRef, setTriggerRef] = React.useState<React.RefObject<HTMLElement> | null>(null)
   const open = controlledOpen !== undefined ? controlledOpen : internalOpen
 
   const setOpen = React.useCallback((value: boolean) => {
@@ -52,7 +57,7 @@ function DropdownMenu({
 
     const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as HTMLElement
-      if (!target.closest('[data-dropdown-menu]')) {
+      if (!target.closest('[data-dropdown-menu]') && !target.closest('[data-dropdown-content]')) {
         setOpen(false)
       }
     }
@@ -73,7 +78,7 @@ function DropdownMenu({
   }, [open, setOpen])
 
   return (
-    <DropdownMenuContext.Provider value={{ open, setOpen }}>
+    <DropdownMenuContext.Provider value={{ open, setOpen, triggerRef, setTriggerRef }}>
       <div data-dropdown-menu className="relative inline-block">
         {children}
       </div>
@@ -89,15 +94,21 @@ interface DropdownMenuTriggerProps {
 }
 
 function DropdownMenuTrigger({ children, asChild }: DropdownMenuTriggerProps) {
-  const { open, setOpen } = React.useContext(DropdownMenuContext)
+  const { open, setOpen, setTriggerRef } = React.useContext(DropdownMenuContext)
+  const triggerRef = React.useRef<HTMLElement>(null)
+
+  React.useEffect(() => {
+    setTriggerRef(triggerRef)
+  }, [setTriggerRef])
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation()
     setOpen(!open)
   }
 
-  // Clone the child element and add click handler
+  // Clone the child element and add click handler and ref
   return React.cloneElement(children, {
+    ref: triggerRef,
     onClick: (e: React.MouseEvent) => {
       handleClick(e)
       // Call the original onClick if it exists
@@ -110,10 +121,22 @@ function DropdownMenuTrigger({ children, asChild }: DropdownMenuTriggerProps) {
   })
 }
 
-// ==================== Portal (no-op) ====================
+// ==================== Portal ====================
+
+import { createPortal } from 'react-dom'
 
 function DropdownMenuPortal({ children }: { children: React.ReactNode }) {
-  return <>{children}</>
+  const [mounted, setMounted] = React.useState(false)
+  
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
+  
+  if (!mounted) return null
+  
+  // 渲染到 portal-root 或 body
+  const portalRoot = document.getElementById('portal-root') || document.body
+  return createPortal(children, portalRoot)
 }
 
 // ==================== Content ====================
@@ -130,33 +153,90 @@ function DropdownMenuContent({
   children,
   className,
   align = 'start',
-  sideOffset = 4,
+  sideOffset = 8,
   ...props
 }: DropdownMenuContentProps) {
-  const { open } = React.useContext(DropdownMenuContext)
+  const { open, triggerRef } = React.useContext(DropdownMenuContext)
+  const contentRef = React.useRef<HTMLDivElement>(null)
+  const [style, setStyle] = React.useState<React.CSSProperties>({})
+  const [isPositioned, setIsPositioned] = React.useState(false)
+
+  // 计算下拉菜单位置
+  React.useEffect(() => {
+    if (!open || !triggerRef?.current) {
+      setIsPositioned(false)
+      return
+    }
+
+    const updatePosition = () => {
+      const triggerRect = triggerRef.current!.getBoundingClientRect()
+      const contentEl = contentRef.current
+      
+      // 获取内容尺寸
+      const contentWidth = contentEl?.offsetWidth || 288
+      const contentHeight = contentEl?.offsetHeight || 200
+
+      // 计算水平位置
+      let left = triggerRect.left
+      if (align === 'end') {
+        left = triggerRect.right - contentWidth
+      } else if (align === 'center') {
+        left = triggerRect.left + (triggerRect.width - contentWidth) / 2
+      }
+
+      // 确保不超出视口边界
+      const maxLeft = window.innerWidth - contentWidth - 8
+      left = Math.min(left, maxLeft)
+      left = Math.max(8, left)
+
+      // 直接向上弹出：菜单底部对齐到触发器顶部
+      const bottom = window.innerHeight - triggerRect.top + sideOffset
+      setStyle({ bottom, left, top: 'auto' })
+      
+      setIsPositioned(true)
+    }
+
+    // 使用 RAF 确保 DOM 渲染后再计算
+    let rafId1: number
+    let rafId2: number
+    
+    rafId1 = requestAnimationFrame(() => {
+      updatePosition()
+      // 再次计算以获取准确的内容尺寸
+      rafId2 = requestAnimationFrame(updatePosition)
+    })
+
+    window.addEventListener('resize', updatePosition)
+    window.addEventListener('scroll', updatePosition, true)
+
+    return () => {
+      cancelAnimationFrame(rafId1)
+      cancelAnimationFrame(rafId2)
+      window.removeEventListener('resize', updatePosition)
+      window.removeEventListener('scroll', updatePosition, true)
+    }
+  }, [open, align, sideOffset, triggerRef])
 
   if (!open) return null
 
-  const alignmentClass = {
-    start: 'left-0',
-    center: 'left-1/2 -translate-x-1/2',
-    end: 'right-0',
-  }[align]
-
   return (
-    <div
-      data-state={open ? 'open' : 'closed'}
-      className={cn(
-        'absolute z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md',
-        'animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95',
-        alignmentClass,
-        className,
-      )}
-      style={{ top: `calc(100% + ${sideOffset}px)` }}
-      {...props}
-    >
-      {children}
-    </div>
+    <DropdownMenuPortal>
+      <div
+        ref={contentRef}
+        data-state={open ? 'open' : 'closed'}
+        data-dropdown-content
+        className={cn(
+          'fixed z-[9999] min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md',
+          'animate-in fade-in-0 slide-in-from-bottom-2',
+          !isPositioned && 'opacity-0 pointer-events-none',
+          className,
+        )}
+        style={style}
+        {...props}
+      >
+        {children}
+      </div>
+    </DropdownMenuPortal>
   )
 }
 

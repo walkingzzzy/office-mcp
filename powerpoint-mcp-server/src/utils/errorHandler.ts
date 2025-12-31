@@ -5,7 +5,7 @@
  * 避免与 MCP 的 stdio transport 冲突。
  */
 
-import { logger } from './logger.js'
+import { logger } from '@office-mcp/shared'
 import { sendIPCCommand } from './ipc.js'
 
 export interface ErrorContext {

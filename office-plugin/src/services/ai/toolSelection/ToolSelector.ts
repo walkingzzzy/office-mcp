@@ -8,20 +8,20 @@
  * - 权重配置已拆分到 ./toolWeights.ts
  */
 
-import Logger from '../../utils/logger'
-import { getAdapter, adapterRegistry } from '../adapters'
-import type { IOfficeAppAdapter, ToolFilterCriteria } from '../adapters/types'
+import Logger from '../../../utils/logger'
+import { getAdapter, adapterRegistry } from '../../adapters'
+import type { IOfficeAppAdapter, ToolFilterCriteria } from '../../adapters/types'
 import {
   detectToolCombinationPatterns,
   getRecommendedToolsFromPatterns
-} from './toolCombinationPatterns'
+} from './combinationPatterns'
 import {
   FormattingFunction,
   FunctionCategory,
   SelectionContext
-} from './types'
-import { KEYWORD_TO_TOOLS_MAPPING } from './toolMappings'
-import { CATEGORY_WEIGHTS } from './toolWeights'
+} from '../types'
+import { KEYWORD_TO_TOOLS_MAPPING } from '../toolMappings'
+import { CATEGORY_WEIGHTS } from './weights'
 
 const logger = new Logger('ToolSelector')
 
@@ -165,9 +165,9 @@ export class ToolSelector {
         // 图片选区时，排除不相关的工具
         if (context.selectionType === 'image') {
           if (tool.category === FunctionCategory.LIST ||
-              tool.category === FunctionCategory.PARAGRAPH ||
-              tool.category === FunctionCategory.FONT ||
-              tool.category === FunctionCategory.STYLE) {
+            tool.category === FunctionCategory.PARAGRAPH ||
+            tool.category === FunctionCategory.FONT ||
+            tool.category === FunctionCategory.STYLE) {
             continue // 跳过不适用于图片的工具
           }
         }
@@ -251,8 +251,8 @@ export class ToolSelector {
     if (context.selectionType === 'image') {
       const imageTools = this.allFunctions.filter((tool) =>
         (tool.name === 'align_images' ||
-        tool.name === 'adjust_images_size' ||
-        tool.name === 'format_image_border') &&
+          tool.name === 'adjust_images_size' ||
+          tool.name === 'format_image_border') &&
         this.matchesDocumentType(tool, context.documentType) // 🆕 确保图片工具也匹配文档类型
       )
 
@@ -374,7 +374,7 @@ export class ToolSelector {
       'excel_read_sheet',
       'ppt_get_slides'
     ]
-    const p0Tools = this.allFunctions.filter(f => 
+    const p0Tools = this.allFunctions.filter(f =>
       f.priority === 0 && !excludedFromFallback.includes(f.name)
     )
     fallbackTools.push(...p0Tools.slice(0, 5))
@@ -482,9 +482,9 @@ export class ToolSelector {
       if (hasRowColumnRef || hasCellWriteIntent) {
         // 检查工具是否有 rowIndex/columnIndex 参数
         const schemaProps = tool.inputSchema?.properties || {}
-        const hasRowColParams = 'rowIndex' in schemaProps || 'columnIndex' in schemaProps || 
-                                'row' in schemaProps || 'column' in schemaProps
-        
+        const hasRowColParams = 'rowIndex' in schemaProps || 'columnIndex' in schemaProps ||
+          'row' in schemaProps || 'column' in schemaProps
+
         // word_set_cell_value 强制加分
         if (tool.name === 'word_set_cell_value') {
           score += 10  // 强制优先
@@ -492,7 +492,7 @@ export class ToolSelector {
         } else if (hasRowColParams && tool.metadata?.applicableSelection?.includes('table')) {
           score += 5
         }
-        
+
         // word_insert_table 在有行列写入意图时降分
         if (tool.name === 'word_insert_table' && (hasRowColumnRef || hasCellWriteIntent)) {
           score -= 5  // 惩罚，避免误选
@@ -518,13 +518,13 @@ export class ToolSelector {
     intentScores: Map<string, number>
   ): FormattingFunction[] {
     const conflicts = this.detectAllConflicts(userInput, tools)
-    
+
     if (conflicts.length === 0) {
       return tools
     }
-    
+
     let filteredTools = [...tools]
-    
+
     for (const conflict of conflicts) {
       logger.info('[TOOL CONFLICT RESOLUTION] Resolving conflict', {
         type: conflict.type,
@@ -532,10 +532,10 @@ export class ToolSelector {
         losers: conflict.losers,
         reason: conflict.reason
       })
-      
+
       // 移除冲突中的失败者
       filteredTools = filteredTools.filter(t => !conflict.losers.includes(t.name))
-      
+
       // 确保胜出者在列表中
       if (conflict.winner && !filteredTools.some(t => t.name === conflict.winner)) {
         const winnerTool = this.allFunctions.find(t => t.name === conflict.winner)
@@ -545,7 +545,7 @@ export class ToolSelector {
         }
       }
     }
-    
+
     return filteredTools
   }
 
@@ -555,7 +555,7 @@ export class ToolSelector {
   private detectAllConflicts(userInput: string, tools: FormattingFunction[]): ConflictInfo[] {
     const conflicts: ConflictInfo[] = []
     const toolNames = new Set(tools.map(t => t.name))
-    
+
     // ========== 冲突1: 表格插入 vs 单元格写入 ==========
     if (toolNames.has('word_insert_table') || toolNames.has('word_set_cell_value')) {
       const cellWritePatterns = [
@@ -574,10 +574,10 @@ export class ToolSelector {
         /insert.*table/i,
         /create.*table/i
       ]
-      
+
       const hasCellWriteIntent = cellWritePatterns.some(p => p.test(userInput))
       const hasTableCreateIntent = tableCreatePatterns.some(p => p.test(userInput))
-      
+
       if (hasCellWriteIntent && !hasTableCreateIntent) {
         conflicts.push({
           type: 'table_vs_cell',
@@ -594,15 +594,15 @@ export class ToolSelector {
         })
       }
     }
-    
+
     // ========== 冲突2: 文本插入 vs 文本替换 ==========
     if (toolNames.has('word_insert_text') && toolNames.has('word_replace_text')) {
       const replacePatterns = [/替换/, /换成/, /改为/, /把.*改/, /将.*改/]
       const insertOnlyPatterns = [/^插入/, /^添加/, /^写入/]
-      
+
       const hasReplaceIntent = replacePatterns.some(p => p.test(userInput))
       const hasInsertOnlyIntent = insertOnlyPatterns.some(p => p.test(userInput)) && !hasReplaceIntent
-      
+
       if (hasReplaceIntent) {
         conflicts.push({
           type: 'insert_vs_replace',
@@ -619,20 +619,20 @@ export class ToolSelector {
         })
       }
     }
-    
+
     // ========== 冲突3: 读取文档 vs 修改文档 ==========
     const readTools = ['word_read_document', 'word_get_paragraphs', 'word_get_selected_text']
     const writeTools = ['word_insert_text', 'word_replace_text', 'word_format_text']
     const hasReadTool = readTools.some(t => toolNames.has(t))
     const hasWriteTool = writeTools.some(t => toolNames.has(t))
-    
+
     if (hasReadTool && hasWriteTool) {
       const readOnlyPatterns = [/^查看/, /^读取/, /^获取/, /^显示/, /有什么/, /是什么/]
       const writePatterns = [/修改/, /编辑/, /格式化/, /插入/, /删除/, /替换/]
-      
-      const isReadOnly = readOnlyPatterns.some(p => p.test(userInput)) && 
-                         !writePatterns.some(p => p.test(userInput))
-      
+
+      const isReadOnly = readOnlyPatterns.some(p => p.test(userInput)) &&
+        !writePatterns.some(p => p.test(userInput))
+
       if (isReadOnly) {
         conflicts.push({
           type: 'read_vs_write',
@@ -642,13 +642,13 @@ export class ToolSelector {
         })
       }
     }
-    
+
     logger.info('[TOOL CONFLICT RESOLUTION] Detected conflicts', {
       userInput: userInput.substring(0, 50),
       conflictCount: conflicts.length,
       conflicts: conflicts.map(c => ({ type: c.type, winner: c.winner }))
     })
-    
+
     return conflicts
   }
 
@@ -770,8 +770,8 @@ export class ToolSelector {
       // 检查工具是否属于当前应用或是通用工具
       const isForThisApp = adapter.isToolForThisApp(tool.name)
       const isCommonTool = !tool.name.startsWith('word_') &&
-                          !tool.name.startsWith('excel_') &&
-                          !tool.name.startsWith('ppt_')
+        !tool.name.startsWith('excel_') &&
+        !tool.name.startsWith('ppt_')
 
       return isForThisApp || isCommonTool
     })

@@ -3,7 +3,7 @@
  */
 
 import { describe, expect, it } from 'vitest'
-import { ToolCategory, ToolCategoryFilter } from '../ToolCategoryFilter'
+import { ToolCategory, ToolCategoryFilter } from '../toolSelection'
 
 describe('ToolCategoryFilter', () => {
   const filter = new ToolCategoryFilter()

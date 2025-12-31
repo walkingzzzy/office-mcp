@@ -6,7 +6,7 @@
 
 import { describe, expect, it, beforeEach } from 'vitest'
 
-import { ToolSelector } from '../ToolSelector'
+import { ToolSelector } from '../toolSelection'
 import type { FormattingFunction, SelectionContext } from '../types'
 import { FunctionCategory } from '../types'
 
@@ -99,7 +99,7 @@ describe('ToolSelector Excel/PPT Support', () => {
       }
 
       const result = toolSelector.selectCandidateTools('插入文本', context, 10)
-      
+
       // 应该只包含 Word 工具
       const toolNames = result.map(t => t.name)
       expect(toolNames).toContain('word_insert_text')
@@ -115,7 +115,7 @@ describe('ToolSelector Excel/PPT Support', () => {
       }
 
       const result = toolSelector.selectCandidateTools('设置单元格值', context, 10)
-      
+
       // 应该只包含 Excel 工具
       const toolNames = result.map(t => t.name)
       expect(toolNames).toContain('excel_set_cell_value')
@@ -131,7 +131,7 @@ describe('ToolSelector Excel/PPT Support', () => {
       }
 
       const result = toolSelector.selectCandidateTools('添加幻灯片', context, 10)
-      
+
       // 应该只包含 PPT 工具
       const toolNames = result.map(t => t.name)
       expect(toolNames).toContain('ppt_add_slide')
@@ -150,7 +150,7 @@ describe('ToolSelector Excel/PPT Support', () => {
 
       const result = toolSelector.selectCandidateTools('在单元格A1写入数据', context, 10)
       const toolNames = result.map(t => t.name)
-      
+
       expect(toolNames).toContain('excel_set_cell_value')
     })
 
@@ -163,7 +163,7 @@ describe('ToolSelector Excel/PPT Support', () => {
 
       const result = toolSelector.selectCandidateTools('插入一个柱状图', context, 10)
       const toolNames = result.map(t => t.name)
-      
+
       expect(toolNames).toContain('excel_insert_chart')
     })
   })
@@ -178,7 +178,7 @@ describe('ToolSelector Excel/PPT Support', () => {
 
       const result = toolSelector.selectCandidateTools('添加一张新幻灯片', context, 10)
       const toolNames = result.map(t => t.name)
-      
+
       expect(toolNames).toContain('ppt_add_slide')
     })
 
@@ -191,7 +191,7 @@ describe('ToolSelector Excel/PPT Support', () => {
 
       const result = toolSelector.selectCandidateTools('添加文本框', context, 10)
       const toolNames = result.map(t => t.name)
-      
+
       expect(toolNames).toContain('ppt_add_text_box')
     })
   })
@@ -215,7 +215,7 @@ describe('ToolSelector Excel/PPT Support', () => {
       ]
 
       const selector = new ToolSelector(toolsWithGeneric)
-      
+
       // Excel 文档中应该能选到通用工具
       const excelContext: SelectionContext = {
         hasSelection: false,
@@ -247,7 +247,7 @@ describe('ToolSelector Excel/PPT Support', () => {
       // 即使用户输入了 Word 相关的关键词
       const result = toolSelector.selectCandidateTools('设置标题', context, 10)
       const toolNames = result.map(t => t.name)
-      
+
       // Word 的 heading 工具不应该被选中
       expect(toolNames).not.toContain('word_set_heading')
     })
@@ -261,7 +261,7 @@ describe('ToolSelector Excel/PPT Support', () => {
 
       const result = toolSelector.selectCandidateTools('设置单元格', context, 10)
       const toolNames = result.map(t => t.name)
-      
+
       // Excel 工具不应该被选中
       expect(toolNames).not.toContain('excel_set_cell_value')
     })

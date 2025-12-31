@@ -9,7 +9,7 @@
  */
 
 import Logger from '../../utils/logger'
-import { ToolCategory, toolCategoryFilter } from './ToolCategoryFilter'
+import { ToolCategory, toolCategoryFilter } from './toolSelection'
 
 const logger = new Logger('DynamicSystemPromptGenerator')
 

@@ -6,10 +6,10 @@
 import Logger from '../../utils/logger'
 import { useAppStore } from '../../store/appStore'
 import type { OperationRecord, UndoManager } from '../UndoManager'
-import { DynamicToolDiscovery } from './DynamicToolDiscovery'
+import { DynamicToolDiscovery } from './toolSelection'
 import { FormattingFunctionRegistry } from './FormattingFunctionRegistry'
 import { McpToolExecutor } from './McpToolExecutor'
-import { toolCallValidator } from './ToolCallValidator'
+import { toolCallValidator } from './toolSelection'
 import {
   BatchConfirmCallback,
   BatchConfirmResult,
@@ -123,14 +123,14 @@ export class FunctionCallHandler {
       // 🆕 验证并自动修复工具调用参数
       if (func) {
         const { result: validation, fixedToolCall } = toolCallValidator.validateAndFix(toolCall, func)
-        
+
         if (validation.warnings.length > 0) {
           logger.warn('[TOOL_VALIDATION] 参数警告', {
             functionName,
             warnings: validation.warnings
           })
         }
-        
+
         if (!validation.valid) {
           if (fixedToolCall) {
             // 使用修复后的参数
@@ -192,9 +192,9 @@ export class FunctionCallHandler {
         executionTime: result.executionTime,
         error: result.error
           ? {
-              message: (result.error as Error).message,
-              name: (result.error as Error).name
-            }
+            message: (result.error as Error).message,
+            name: (result.error as Error).name
+          }
           : undefined
       })
 
@@ -253,7 +253,7 @@ export class FunctionCallHandler {
 
       // 生成参数摘要
       const paramsSummary = this.generateParametersSummary(toolCall.function.name, args)
-      
+
       // 计算预估时间
       let estimatedTime = 1000
       switch (func?.category) {
@@ -293,7 +293,7 @@ export class FunctionCallHandler {
    */
   private generateParametersSummary(toolName: string, args: Record<string, any>): string {
     const summaryParts: string[] = []
-    
+
     // 根据工具类型生成友好的参数描述
     if (args.text) {
       const text = String(args.text)
@@ -343,7 +343,7 @@ export class FunctionCallHandler {
    * 参考：https://learn.microsoft.com/en-us/office/dev/add-ins/develop/application-specific-api-model#concurrent-operations
    */
   async handleToolCalls(
-    toolCalls: ToolCall[], 
+    toolCalls: ToolCall[],
     context?: ToolCallContext,
     options?: {
       onProgress?: ProgressCallback
@@ -374,7 +374,7 @@ export class FunctionCallHandler {
     if (this.onBatchConfirm && !options?.skipBatchConfirm && sortedToolCalls.length > 0) {
       const previews = this.generateOperationPreviews(sortedToolCalls)
       const estimate = this.getFunctionEstimate(sortedToolCalls)
-      
+
       const confirmResult = await this.onBatchConfirm({
         title: `即将执行 ${sortedToolCalls.length} 个操作`,
         operations: previews,
@@ -731,12 +731,12 @@ export class FunctionCallHandler {
    * 记录表格、图片等元素的创建/修改，供后续工具选择使用
    */
   private trackDocumentContextChange(
-    functionName: string, 
-    args: Record<string, any>, 
+    functionName: string,
+    args: Record<string, any>,
     result: FunctionResult
   ): void {
     const store = useAppStore.getState()
-    
+
     try {
       // 追踪表格插入
       if (functionName === 'word_insert_table' && result.success) {
@@ -747,14 +747,14 @@ export class FunctionCallHandler {
         store.recordTableInsert(tableIndex, rowCount, columnCount)
         logger.debug('[DocumentContext] Tracked table insert', { tableIndex, rowCount, columnCount })
       }
-      
+
       // 追踪单元格写入
       if (functionName === 'word_set_cell_value' && result.success) {
         const tableIndex = args.tableIndex ?? 0
         store.recordCellWrite(tableIndex)
         logger.debug('[DocumentContext] Tracked cell write', { tableIndex })
       }
-      
+
       // 追踪表格删除
       if (functionName === 'word_delete_table' && result.success) {
         const tableIndex = args.tableIndex ?? 0

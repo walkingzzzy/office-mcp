@@ -146,7 +146,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
           <ChevronDownRegular className="h-4 w-4 text-gray-400" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-72 rounded-2xl p-2">
+      <DropdownMenuContent align="end" className="w-80 rounded-2xl p-2 max-h-[70vh] overflow-y-auto">
         {Object.entries(groupedModels).map(([provider, providerModels], index) => (
           <div key={provider} className="space-y-1">
             <DropdownMenuLabel className="text-xs text-muted-foreground">{provider}</DropdownMenuLabel>
@@ -164,12 +164,12 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
                     'flex items-center justify-between rounded-xl px-3 py-2 text-sm',
                     isSelected && 'bg-primary/10 text-primary'
                   )}>
-                  <div className="flex flex-col">
-                    <span className="font-medium">{model.name}</span>
+                  <div className="flex flex-col min-w-0 flex-1">
+                    <span className="font-medium truncate">{model.name}</span>
                     <span className="text-xs text-muted-foreground">{model.capabilities?.tools ? '支持工具' : '纯对话'}</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    {isDefault && <span className="rounded-full bg-primary/10 px-2 text-[11px] text-primary">默认</span>}
+                  <div className="flex items-center gap-2 flex-shrink-0 ml-2">
+                    {isDefault && <span className="rounded-full bg-primary/10 px-2 text-[11px] text-primary whitespace-nowrap">默认</span>}
                     {isSelected && <CheckmarkRegular className="h-4 w-4 text-primary" />}
                     {onSetDefault && !isDefault && (
                       <button

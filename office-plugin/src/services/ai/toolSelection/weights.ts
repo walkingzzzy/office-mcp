@@ -4,7 +4,7 @@
  * 用于在工具选择时根据类别调整优先级
  */
 
-import { FunctionCategory } from './types'
+import { FunctionCategory } from '../types'
 
 /**
  * 类别权重配置

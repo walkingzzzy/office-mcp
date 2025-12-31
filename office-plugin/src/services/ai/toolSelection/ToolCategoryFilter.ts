@@ -5,7 +5,7 @@
  * 目标: 减少 60-80% token 消耗,同时保持 AI 功能完整性
  */
 
-import Logger from '../../utils/logger'
+import Logger from '../../../utils/logger'
 
 const logger = new Logger('ToolCategoryFilter')
 

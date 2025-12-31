@@ -12,7 +12,7 @@
 
 import { ConfigManager } from '../config/ConfigManager.js'
 import type { ToolExecutionResult } from '../types/index.js'
-import { logger } from './logger.js'
+import { logger } from '@office-mcp/shared'
 
 // 获取 IPC 配置
 function getIPCConfig() {
@@ -163,11 +163,11 @@ export async function sendIPCCommand(
       }
     } catch (error: any) {
       lastError = error
-      
+
       // 检查是否是超时错误
       const isTimeout = error.name === 'AbortError'
-      const isRetryable = isTimeout || 
-        error.message.includes('ECONNREFUSED') || 
+      const isRetryable = isTimeout ||
+        error.message.includes('ECONNREFUSED') ||
         error.message.includes('ETIMEDOUT') ||
         error.message.includes('fetch failed')
 

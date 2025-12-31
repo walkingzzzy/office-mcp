@@ -7,7 +7,7 @@
 
 import { clearTimeout, setTimeout } from 'node:timers'
 
-import { logger } from '../../utils/logger.js'
+import { logger } from '@office-mcp/shared'
 import type { ToolExecutionResult } from '../types.js'
 
 export interface IPCBridge {

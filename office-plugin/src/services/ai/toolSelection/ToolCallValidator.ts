@@ -3,8 +3,8 @@
  * 在执行前验证工具调用参数，并尝试自动修复常见错误
  */
 
-import type { FormattingFunction, ToolCall, ToolInputSchema } from './types'
-import Logger from '../../utils/logger'
+import type { FormattingFunction, ToolCall, ToolInputSchema } from '../types'
+import Logger from '../../../utils/logger'
 
 const logger = new Logger('ToolCallValidator')
 
@@ -33,11 +33,11 @@ export class ToolCallValidator {
   validate(toolCall: ToolCall, tool: FormattingFunction): ValidationResult {
     const errors: string[] = []
     const warnings: string[] = []
-    
+
     try {
       const args = JSON.parse(toolCall.function.arguments)
       const schema = tool.inputSchema
-      
+
       // 1. 检查必填参数
       const required = schema?.required || []
       for (const param of required) {
@@ -45,7 +45,7 @@ export class ToolCallValidator {
           errors.push(`缺少必填参数: ${param}`)
         }
       }
-      
+
       // 2. 检查参数类型
       for (const [key, value] of Object.entries(args)) {
         const propSchema = schema?.properties?.[key] as PropertySchema | undefined
@@ -67,17 +67,17 @@ export class ToolCallValidator {
 
       // 4. 特殊验证：索引参数
       this.validateIndexParams(args, schema, warnings)
-      
-      return { 
-        valid: errors.length === 0, 
-        errors, 
-        warnings 
+
+      return {
+        valid: errors.length === 0,
+        errors,
+        warnings
       }
     } catch (e) {
-      return { 
-        valid: false, 
-        errors: [`参数解析失败: ${(e as Error).message}`], 
-        warnings: [] 
+      return {
+        valid: false,
+        errors: [`参数解析失败: ${(e as Error).message}`],
+        warnings: []
       }
     }
   }
@@ -90,13 +90,13 @@ export class ToolCallValidator {
       const args = JSON.parse(toolCall.function.arguments)
       const schema = tool.inputSchema
       let modified = false
-      
+
       // 1. 填充缺失的必填参数
       for (const param of schema?.required || []) {
         if (!(param in args) || args[param] === undefined) {
           const propSchema = schema?.properties?.[param] as PropertySchema | undefined
           const defaultValue = this.getDefaultValue(propSchema, param)
-          
+
           if (defaultValue !== undefined) {
             args[param] = defaultValue
             modified = true
@@ -104,7 +104,7 @@ export class ToolCallValidator {
           }
         }
       }
-      
+
       // 2. 修复类型错误
       for (const [key, value] of Object.entries(args)) {
         const propSchema = schema?.properties?.[key] as PropertySchema | undefined
@@ -117,17 +117,17 @@ export class ToolCallValidator {
           }
         }
       }
-      
+
       // 3. 修复索引偏移（用户说"第1行"，实际应该是 index=0）
       const indexFixResult = this.fixIndexOffset(args, schema)
       if (indexFixResult.modified) {
         modified = true
       }
-      
+
       if (!modified) {
         return toolCall
       }
-      
+
       return {
         ...toolCall,
         function: {
@@ -149,20 +149,20 @@ export class ToolCallValidator {
     fixedToolCall: ToolCall | null
   } {
     const result = this.validate(toolCall, tool)
-    
+
     if (result.valid) {
       return { result, fixedToolCall: toolCall }
     }
-    
+
     // 尝试自动修复
     const fixedToolCall = this.autoFix(toolCall, tool)
-    
+
     if (fixedToolCall) {
       // 重新验证修复后的调用
       const revalidation = this.validate(fixedToolCall, tool)
       return { result: revalidation, fixedToolCall }
     }
-    
+
     return { result, fixedToolCall: null }
   }
 
@@ -255,7 +255,7 @@ export class ToolCallValidator {
     // 注意：这个修复比较危险，因为我们不确定用户是否已经使用了 0-based 索引
     // 目前只记录警告，不自动修复
     // 如果需要启用自动修复，可以取消下面的注释
-    
+
     /*
     const indexParams = ['rowIndex', 'columnIndex']
     let modified = false
@@ -271,7 +271,7 @@ export class ToolCallValidator {
     
     return { modified }
     */
-    
+
     return { modified: false }
   }
 }

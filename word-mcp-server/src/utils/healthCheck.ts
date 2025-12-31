@@ -3,7 +3,7 @@
  * Word MCP Server 健康检查模块
  */
 
-import { logger } from './logger.js'
+import { logger } from '@office-mcp/shared'
 import { sendIPCCommand } from './ipc.js'
 
 export interface HealthStatus {

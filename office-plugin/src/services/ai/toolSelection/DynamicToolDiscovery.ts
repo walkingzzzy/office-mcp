@@ -5,7 +5,7 @@
  * 替代硬编码的 MCP_POC_TOOLS 列表
  */
 
-import Logger from '../../utils/logger'
+import Logger from '../../../utils/logger'
 
 const logger = new Logger('DynamicToolDiscovery')
 

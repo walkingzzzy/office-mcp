@@ -1,11 +1,19 @@
 /**
  * excel_data - 数据导入导出与分析
  * 合并 15 个原工具
+ * 
+ * 使用工具工厂创建，包含：
+ * - 参数验证
+ * - 路径安全验证
+ * - 敏感信息过滤
  */
 
-import { sendIPCCommand } from '@office-mcp/shared'
-import type { ToolDefinition } from './types.js'
-import { validateAction, unsupportedActionError } from './types.js'
+import {
+  createActionTool,
+  required,
+  sanitizeForLogging,
+  logger
+} from '@office-mcp/shared'
 
 const SUPPORTED_ACTIONS = [
   'importCsv', 'exportCsv', 'importJson', 'exportJson',
@@ -14,9 +22,7 @@ const SUPPORTED_ACTIONS = [
   'forecast', 'pivot', 'tTest'
 ] as const
 
-type DataAction = typeof SUPPORTED_ACTIONS[number]
-
-export const excelDataTool: ToolDefinition = {
+export const excelDataTool = createActionTool({
   name: 'excel_data',
   description: `数据导入导出与分析工具。支持的操作(action):
 - importCsv: 导入CSV (需要 filePath, 可选 range, delimiter)
@@ -36,60 +42,127 @@ export const excelDataTool: ToolDefinition = {
 - tTest: T检验 (需要 range1, range2)`,
   category: 'data',
   application: 'excel',
-  inputSchema: {
-    type: 'object',
-    properties: {
-      action: {
+  actions: SUPPORTED_ACTIONS,
+  commandMap: {
+    importCsv: 'excel_import_csv',
+    exportCsv: 'excel_export_csv',
+    importJson: 'excel_import_json',
+    exportJson: 'excel_export_json',
+    importXml: 'excel_import_xml',
+    exportXml: 'excel_export_xml',
+    connectDatabase: 'excel_connect_database',
+    refresh: 'excel_refresh_data',
+    group: 'excel_group_data',
+    correlation: 'excel_correlation',
+    regression: 'excel_regression',
+    histogram: 'excel_histogram',
+    forecast: 'excel_forecast',
+    pivot: 'excel_pivot_data',
+    tTest: 'excel_t_test'
+  },
+  // 参数验证规则
+  paramRules: {
+    importCsv: [{ name: 'filePath', required: true, type: 'string' }],
+    exportCsv: [
+      { name: 'range', required: true, type: 'string' },
+      { name: 'filePath', required: true, type: 'string' }
+    ],
+    importJson: [{ name: 'filePath', required: true, type: 'string' }],
+    exportJson: [
+      { name: 'range', required: true, type: 'string' },
+      { name: 'filePath', required: true, type: 'string' }
+    ],
+    importXml: [{ name: 'filePath', required: true, type: 'string' }],
+    exportXml: [
+      { name: 'range', required: true, type: 'string' },
+      { name: 'filePath', required: true, type: 'string' }
+    ],
+    connectDatabase: [
+      { 
+        name: 'connectionString', 
+        required: true, 
         type: 'string',
-        enum: SUPPORTED_ACTIONS,
-        description: '要执行的操作'
-      },
-      filePath: {
-        type: 'string',
-        description: '[import/export] 文件路径'
-      },
-      range: {
-        type: 'string',
-        description: '[多个操作] 数据区域'
-      },
-      delimiter: {
-        type: 'string',
-        description: '[importCsv] 分隔符',
-        default: ','
-      },
-      connectionString: {
-        type: 'string',
-        description: '[connectDatabase] 连接字符串'
-      },
-      groupBy: {
-        type: 'string',
-        description: '[group] 分组字段'
-      },
-      range1: {
-        type: 'string',
-        description: '[correlation/tTest] 第一个数据区域'
-      },
-      range2: {
-        type: 'string',
-        description: '[correlation/tTest] 第二个数据区域'
-      },
-      xRange: {
-        type: 'string',
-        description: '[regression] X数据区域'
-      },
-      yRange: {
-        type: 'string',
-        description: '[regression] Y数据区域'
-      },
-      periods: {
-        type: 'number',
-        description: '[forecast] 预测期数'
+        // 自定义验证：记录时过滤敏感信息
+        validate: (value: string) => {
+          // 只记录已过滤的连接信息
+          logger.debug('Database connection requested', sanitizeForLogging({ connectionString: value }))
+          return true
+        }
       }
+    ],
+    refresh: [],
+    group: [
+      { name: 'range', required: true, type: 'string' },
+      { name: 'groupBy', required: true, type: 'string' }
+    ],
+    correlation: [
+      { name: 'range1', required: true, type: 'string' },
+      { name: 'range2', required: true, type: 'string' }
+    ],
+    regression: [
+      { name: 'xRange', required: true, type: 'string' },
+      { name: 'yRange', required: true, type: 'string' }
+    ],
+    histogram: [{ name: 'range', required: true, type: 'string' }],
+    forecast: [
+      { name: 'range', required: true, type: 'string' },
+      { name: 'periods', required: true, type: 'number', min: 1 }
+    ],
+    pivot: [{ name: 'range', required: true, type: 'string' }],
+    tTest: [
+      { name: 'range1', required: true, type: 'string' },
+      { name: 'range2', required: true, type: 'string' }
+    ]
+  },
+  // 路径验证
+  pathParams: {
+    dataFilePath: ['filePath']
+  },
+  properties: {
+    filePath: {
+      type: 'string',
+      description: '[import/export] 文件路径'
     },
-    required: ['action']
+    range: {
+      type: 'string',
+      description: '[多个操作] 数据区域'
+    },
+    delimiter: {
+      type: 'string',
+      description: '[importCsv] 分隔符',
+      default: ','
+    },
+    connectionString: {
+      type: 'string',
+      description: '[connectDatabase] 连接字符串'
+    },
+    groupBy: {
+      type: 'string',
+      description: '[group] 分组字段'
+    },
+    range1: {
+      type: 'string',
+      description: '[correlation/tTest] 第一个数据区域'
+    },
+    range2: {
+      type: 'string',
+      description: '[correlation/tTest] 第二个数据区域'
+    },
+    xRange: {
+      type: 'string',
+      description: '[regression] X数据区域'
+    },
+    yRange: {
+      type: 'string',
+      description: '[regression] Y数据区域'
+    },
+    periods: {
+      type: 'number',
+      description: '[forecast] 预测期数'
+    }
   },
   metadata: {
-    version: '2.0.0',
+    version: '2.1.0',
     priority: 'P0',
     intentKeywords: [
       '导入', '导出', 'CSV', 'JSON', 'XML', '数据库',
@@ -101,38 +174,7 @@ export const excelDataTool: ToolDefinition = {
       'excel_connect_database', 'excel_refresh_data', 'excel_group_data',
       'excel_correlation', 'excel_regression', 'excel_histogram',
       'excel_forecast', 'excel_pivot_data', 'excel_t_test'
-    ],
-    supportedActions: [...SUPPORTED_ACTIONS]
-  },
-  handler: async (args: Record<string, any>) => {
-    const { action, ...params } = args
-
-    if (!validateAction(action, [...SUPPORTED_ACTIONS])) {
-      return unsupportedActionError(action, [...SUPPORTED_ACTIONS])
-    }
-
-    const commandMap: Record<DataAction, string> = {
-      importCsv: 'excel_import_csv',
-      exportCsv: 'excel_export_csv',
-      importJson: 'excel_import_json',
-      exportJson: 'excel_export_json',
-      importXml: 'excel_import_xml',
-      exportXml: 'excel_export_xml',
-      connectDatabase: 'excel_connect_database',
-      refresh: 'excel_refresh_data',
-      group: 'excel_group_data',
-      correlation: 'excel_correlation',
-      regression: 'excel_regression',
-      histogram: 'excel_histogram',
-      forecast: 'excel_forecast',
-      pivot: 'excel_pivot_data',
-      tTest: 'excel_t_test'
-    }
-
-    const command = commandMap[action as DataAction]
-    const result = await sendIPCCommand(command, params)
-
-    return { ...result, action }
+    ]
   },
   examples: [
     {
@@ -146,4 +188,4 @@ export const excelDataTool: ToolDefinition = {
       output: { success: true, action: 'correlation', data: { coefficient: 0.85 } }
     }
   ]
-}
+})

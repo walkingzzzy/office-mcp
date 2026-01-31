@@ -3,18 +3,14 @@
  * 合并 7 个原工具：getConflicts, getDetail, acceptLocal, acceptServer, merge, acceptAllLocal, acceptAllServer
  */
 
-import { sendIPCCommand } from '@office-mcp/shared'
-import type { ToolDefinition } from './types.js'
-import { validateAction, unsupportedActionError } from './types.js'
+import { createActionTool, required } from '@office-mcp/shared'
 
 const SUPPORTED_ACTIONS = [
   'list', 'getDetail', 'acceptLocal', 'acceptServer',
   'merge', 'acceptAllLocal', 'acceptAllServer'
 ] as const
 
-type ConflictAction = typeof SUPPORTED_ACTIONS[number]
-
-export const wordConflictTool: ToolDefinition = {
+export const wordConflictTool = createActionTool({
   name: 'word_conflict',
   description: `冲突解决工具。支持的操作(action):
 - list: 列出所有冲突
@@ -26,24 +22,31 @@ export const wordConflictTool: ToolDefinition = {
 - acceptAllServer: 接受所有服务器版本`,
   category: 'collaboration',
   application: 'word',
-  inputSchema: {
-    type: 'object',
-    properties: {
-      action: {
-        type: 'string',
-        enum: SUPPORTED_ACTIONS,
-        description: '要执行的操作'
-      },
-      conflictId: {
-        type: 'string',
-        description: '[多个操作] 冲突 ID'
-      },
-      mergedContent: {
-        type: 'string',
-        description: '[merge] 合并后的内容'
-      }
+  actions: SUPPORTED_ACTIONS,
+  commandMap: {
+    list: 'word_get_conflicts',
+    getDetail: 'word_get_conflict_detail',
+    acceptLocal: 'word_accept_local_version',
+    acceptServer: 'word_accept_server_version',
+    merge: 'word_merge_conflict',
+    acceptAllLocal: 'word_accept_all_local_versions',
+    acceptAllServer: 'word_accept_all_server_versions'
+  },
+  paramRules: {
+    getDetail: [required('conflictId', 'string')],
+    acceptLocal: [required('conflictId', 'string')],
+    acceptServer: [required('conflictId', 'string')],
+    merge: [required('conflictId', 'string'), required('mergedContent', 'string')]
+  },
+  properties: {
+    conflictId: {
+      type: 'string',
+      description: '[多个操作] 冲突 ID'
     },
-    required: ['action']
+    mergedContent: {
+      type: 'string',
+      description: '[merge] 合并后的内容'
+    }
   },
   metadata: {
     version: '2.0.0',
@@ -54,30 +57,7 @@ export const wordConflictTool: ToolDefinition = {
       'word_accept_local_version', 'word_accept_server_version',
       'word_merge_conflict', 'word_accept_all_local_versions',
       'word_accept_all_server_versions'
-    ],
-    supportedActions: [...SUPPORTED_ACTIONS]
-  },
-  handler: async (args: Record<string, any>) => {
-    const { action, ...params } = args
-
-    if (!validateAction(action, [...SUPPORTED_ACTIONS])) {
-      return unsupportedActionError(action, [...SUPPORTED_ACTIONS])
-    }
-
-    const commandMap: Record<ConflictAction, string> = {
-      list: 'word_get_conflicts',
-      getDetail: 'word_get_conflict_detail',
-      acceptLocal: 'word_accept_local_version',
-      acceptServer: 'word_accept_server_version',
-      merge: 'word_merge_conflict',
-      acceptAllLocal: 'word_accept_all_local_versions',
-      acceptAllServer: 'word_accept_all_server_versions'
-    }
-
-    const command = commandMap[action as ConflictAction]
-    const result = await sendIPCCommand(command, params)
-
-    return { ...result, action }
+    ]
   },
   examples: [
     {
@@ -86,4 +66,4 @@ export const wordConflictTool: ToolDefinition = {
       output: { success: true, action: 'list', data: { conflicts: [] } }
     }
   ]
-}
+})

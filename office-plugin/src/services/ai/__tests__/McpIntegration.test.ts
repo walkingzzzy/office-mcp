@@ -2,7 +2,7 @@
  * MCP 集成测试
  * 
  * 验证 MCP 工具执行链路：
- * POST /api/office-plugin/execute-tool → McpCommandPoller → McpToolExecutor → MCP Server → 回传结果
+ * POST /api/execute-tool → McpCommandPoller → McpToolExecutor → MCP Server → 回传结果
  * 
  * @see MCP_FULL_INTEGRATION_PLAN.md 步骤5
  */

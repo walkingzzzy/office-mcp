@@ -140,9 +140,9 @@ export class PerformanceMonitor {
   recordToolCall(metric: ToolCallMetric): void {
     this.toolCallMetrics.push(metric)
 
-    // 限制数组大小
+    // 限制数组大小 - 使用 splice 原地修改避免创建新数组
     if (this.toolCallMetrics.length > this.MAX_METRICS) {
-      this.toolCallMetrics = this.toolCallMetrics.slice(-this.MAX_METRICS)
+      this.toolCallMetrics.splice(0, this.toolCallMetrics.length - this.MAX_METRICS)
     }
 
     // 如果失败，记录错误
@@ -162,7 +162,7 @@ export class PerformanceMonitor {
     this.metrics.push(metric)
 
     if (this.metrics.length > this.MAX_METRICS) {
-      this.metrics = this.metrics.slice(-this.MAX_METRICS)
+      this.metrics.splice(0, this.metrics.length - this.MAX_METRICS)
     }
   }
 
@@ -173,7 +173,7 @@ export class PerformanceMonitor {
     this.errors.push(error)
 
     if (this.errors.length > this.MAX_ERRORS) {
-      this.errors = this.errors.slice(-this.MAX_ERRORS)
+      this.errors.splice(0, this.errors.length - this.MAX_ERRORS)
     }
   }
 
@@ -198,9 +198,9 @@ export class PerformanceMonitor {
 
     this.systemMetrics.push(systemMetric)
 
-    // 限制系统指标数量（保留最近1000条）
+    // 限制系统指标数量（保留最近1000条）- 使用 splice 原地修改
     if (this.systemMetrics.length > 1000) {
-      this.systemMetrics = this.systemMetrics.slice(-1000)
+      this.systemMetrics.splice(0, this.systemMetrics.length - 1000)
     }
   }
 

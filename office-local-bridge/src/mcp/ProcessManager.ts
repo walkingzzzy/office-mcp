@@ -7,12 +7,14 @@
  * - 可配置的重启参数
  * - 错误类型感知重启决策
  * - 健康检查支持
+ * - 命令注入防护
  */
 
 import { spawn, type ChildProcess } from 'node:child_process'
 import { EventEmitter } from 'node:events'
 import type { McpServerConfig, McpProcessStatus } from '../types/index.js'
 import { createLogger } from '../utils/logger.js'
+import { validateCommandWithArgs, validateEnv } from '../utils/commandValidator.js'
 
 const logger = createLogger('ProcessManager')
 
@@ -126,14 +128,38 @@ export class ProcessManager extends EventEmitter {
 
     const { config } = mcpProcess
 
+    // 验证命令和参数，防止命令注入
+    const commandValidation = validateCommandWithArgs(config.command, config.args)
+    if (!commandValidation.valid) {
+      logger.error('命令验证失败', { id, error: commandValidation.error })
+      mcpProcess.status = 'error'
+      mcpProcess.lastError = commandValidation.error
+      this.emit('validationError', id, commandValidation.error)
+      return false
+    }
+
+    // 验证环境变量
+    const envValidation = validateEnv(config.env)
+    if (!envValidation.valid) {
+      logger.error('环境变量验证失败', { id, error: envValidation.error })
+      mcpProcess.status = 'error'
+      mcpProcess.lastError = envValidation.error
+      this.emit('validationError', id, envValidation.error)
+      return false
+    }
+
     try {
       logger.info('启动 MCP 服务器', { id, command: config.command, args: config.args })
 
-      const child = spawn(config.command, config.args || [], {
-        cwd: config.cwd,
-        env: { ...process.env, ...config.env },
-        stdio: ['pipe', 'pipe', 'pipe']
-      })
+      const child = spawn(
+        commandValidation.sanitizedCommand!,
+        commandValidation.sanitizedArgs || [],
+        {
+          cwd: config.cwd,
+          env: { ...process.env, ...config.env },
+          stdio: ['pipe', 'pipe', 'pipe']
+        }
+      )
 
       mcpProcess.process = child
       mcpProcess.status = 'running'
@@ -424,17 +450,10 @@ export class ProcessManager extends EventEmitter {
       ? Math.floor((Date.now() - mcpProcess.startTime) / 1000)
       : undefined
 
-    // 获取进程内存使用（如果可用）
-    let memoryUsage: number | undefined
-    if (mcpProcess.process?.pid) {
-      try {
-        // 使用 process.memoryUsage() 获取当前进程内存
-        // 注意：这只是估算，实际子进程内存需要通过 OS API 获取
-        memoryUsage = process.memoryUsage().heapUsed
-      } catch {
-        // 忽略错误
-      }
-    }
+    // 注意：Node.js 无法直接获取子进程的内存使用情况
+    // process.memoryUsage() 只能获取当前进程的内存，不是子进程的
+    // 如需获取子进程内存，需要使用 pidusage 等第三方库或 OS API
+    const memoryUsage: number | undefined = undefined
 
     return {
       id: mcpProcess.config.id,

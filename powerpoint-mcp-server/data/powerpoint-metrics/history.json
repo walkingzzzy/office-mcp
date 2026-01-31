@@ -1,0 +1,32 @@
+{
+  "snapshots": [
+    {
+      "timestamp": 1767587770056,
+      "stats": {
+        "totalRequests": 10,
+        "successfulRequests": 9,
+        "failedRequests": 1,
+        "averageResponseTime": 150,
+        "requestsPerSecond": 2.5,
+        "errorRate": 0.1,
+        "uptime": 3600,
+        "memoryUsage": {
+          "heapUsed": 52428800,
+          "heapTotal": 104857600,
+          "external": 5242880,
+          "rss": 125829120
+        },
+        "cpuUsage": {
+          "user": 1000000,
+          "system": 500000
+        }
+      },
+      "serverInfo": {
+        "version": "1.0.0",
+        "uptime": 3600,
+        "startTime": 1767584170056
+      }
+    }
+  ],
+  "lastUpdated": 1767587770056
+}

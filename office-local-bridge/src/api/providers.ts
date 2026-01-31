@@ -20,6 +20,7 @@ import { aiProxy } from '../proxy/AIProxy.js'
 
 const logger = createLogger('ProvidersAPI')
 const router = Router()
+const MASKED_VALUE = '******'
 
 /**
  * GET /api/config/providers
@@ -68,6 +69,15 @@ router.post('/', async (req: Request, res: Response) => {
         error: {
           code: 'INVALID_REQUEST',
           message: '缺少必填字段: type, name, apiKey'
+        }
+      })
+    }
+    if (providerData.apiKey === MASKED_VALUE) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'INVALID_REQUEST',
+          message: 'apiKey 不能为占位符，请提供真实的密钥'
         }
       })
     }
@@ -352,6 +362,12 @@ router.post('/validate', async (req: Request, res: Response) => {
         error: { code: 'INVALID_REQUEST', message: '缺少必填字段: type, apiKey' }
       })
     }
+    if (data.apiKey === MASKED_VALUE) {
+      return res.status(400).json({
+        success: false,
+        error: { code: 'INVALID_REQUEST', message: 'apiKey 不能为占位符' }
+      })
+    }
 
     logger.info('验证供应商配置', { type: data.type })
 
@@ -393,6 +409,12 @@ router.post('/validate/test-model', async (req: Request, res: Response) => {
       return res.status(400).json({
         success: false,
         error: { code: 'INVALID_REQUEST', message: '缺少必填字段: type, apiKey, modelId' }
+      })
+    }
+    if (apiKey === MASKED_VALUE) {
+      return res.status(400).json({
+        success: false,
+        error: { code: 'INVALID_REQUEST', message: 'apiKey 不能为占位符' }
       })
     }
 

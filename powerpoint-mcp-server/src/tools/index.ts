@@ -44,26 +44,26 @@ import type { ToolDefinition } from './types.js'
 export function getPowerPointTools(): ToolDefinition[] {
   return [
     // 核心幻灯片操作
-    pptSlideTool,      // 幻灯片管理 (10 actions)
-    pptShapeTool,      // 形状与文本 (12 actions)
-    pptMediaTool,      // 图片与媒体 (10 actions)
-    pptAnimationTool,  // 动画与放映 (8 actions)
+    pptSlideTool as ToolDefinition,      // 幻灯片管理 (10 actions)
+    pptShapeTool as ToolDefinition,      // 形状与文本 (12 actions)
+    pptMediaTool as ToolDefinition,      // 图片与媒体 (10 actions)
+    pptAnimationTool as ToolDefinition,  // 动画与放映 (8 actions)
 
     // 母版与布局
-    pptMasterTool,       // 母版管理 (6 actions)
-    pptCustomLayoutTool, // 自定义布局 (7 actions)
+    pptMasterTool as ToolDefinition,       // 母版管理 (6 actions)
+    pptCustomLayoutTool as ToolDefinition, // 自定义布局 (7 actions)
 
     // 内容与导航
-    pptNotesTool,     // 备注管理 (5 actions)
-    pptHyperlinkTool, // 超链接 (5 actions)
-    pptExportTool,    // 导出功能 (3 actions)
+    pptNotesTool as ToolDefinition,     // 备注管理 (5 actions)
+    pptHyperlinkTool as ToolDefinition, // 超链接 (5 actions)
+    pptExportTool as ToolDefinition,    // 导出功能 (3 actions)
 
     // 协作与设置
-    pptCommentTool,          // 批注管理 (9 actions)
-    pptSlideshowSettingsTool, // 放映设置 (10 actions)
+    pptCommentTool as ToolDefinition,          // 批注管理 (9 actions)
+    pptSlideshowSettingsTool as ToolDefinition, // 放映设置 (10 actions)
 
     // 教育场景
-    pptEducationTool  // 教育工具 (2 actions)
+    pptEducationTool as ToolDefinition  // 教育工具 (2 actions)
   ]
 }
 
@@ -164,26 +164,26 @@ export const toolCompressionMap: Record<string, { newTool: string; action: strin
  */
 export const compressedPowerPointTools: ToolDefinition[] = [
   // 核心幻灯片操作
-  pptSlideTool,      // 幻灯片管理 (10 actions)
-  pptShapeTool,      // 形状与文本 (12 actions)
-  pptMediaTool,      // 图片与媒体 (10 actions)
-  pptAnimationTool,  // 动画与放映 (8 actions)
+  pptSlideTool as ToolDefinition,      // 幻灯片管理 (10 actions)
+  pptShapeTool as ToolDefinition,      // 形状与文本 (12 actions)
+  pptMediaTool as ToolDefinition,      // 图片与媒体 (10 actions)
+  pptAnimationTool as ToolDefinition,  // 动画与放映 (8 actions)
 
   // 母版与布局
-  pptMasterTool,       // 母版管理 (6 actions)
-  pptCustomLayoutTool, // 自定义布局 (7 actions)
+  pptMasterTool as ToolDefinition,       // 母版管理 (6 actions)
+  pptCustomLayoutTool as ToolDefinition, // 自定义布局 (7 actions)
 
   // 内容与导航
-  pptNotesTool,     // 备注管理 (5 actions)
-  pptHyperlinkTool, // 超链接 (5 actions)
-  pptExportTool,    // 导出功能 (3 actions)
+  pptNotesTool as ToolDefinition,     // 备注管理 (5 actions)
+  pptHyperlinkTool as ToolDefinition, // 超链接 (5 actions)
+  pptExportTool as ToolDefinition,    // 导出功能 (3 actions)
 
   // 协作与设置
-  pptCommentTool,          // 批注管理 (9 actions)
-  pptSlideshowSettingsTool, // 放映设置 (10 actions)
+  pptCommentTool as ToolDefinition,          // 批注管理 (9 actions)
+  pptSlideshowSettingsTool as ToolDefinition, // 放映设置 (10 actions)
 
   // 教育场景
-  pptEducationTool  // 教育工具 (2 actions)
+  pptEducationTool as ToolDefinition  // 教育工具 (2 actions)
 ]
 
 /**

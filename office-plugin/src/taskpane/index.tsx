@@ -13,8 +13,8 @@ import { logger } from '../utils/logger'
 // 声明全局变量类型
 declare global {
   interface Window {
-    __officeReadyPromise: Promise<Office.Info> | null
-    __officeInfo: Office.Info | null
+    __officeReadyPromise: Promise<{ host: Office.HostType; platform: Office.PlatformType }> | null
+    __officeInfo: { host: Office.HostType; platform: Office.PlatformType } | null
   }
 }
 
@@ -26,7 +26,7 @@ logger.info(`📍 当前 URL: ${window.location.href}`)
 logger.info(`🔍 Office 对象: ${typeof Office !== 'undefined' ? '已加载' : '未加载'}`)
 
 // 渲染 React 应用的函数
-function renderApp(officeInfo: Office.Info) {
+function renderApp(officeInfo: { host: Office.HostType; platform: Office.PlatformType }) {
   logger.info('✅ 开始渲染 React 应用')
   logger.info(`📱 Office 应用: ${officeInfo.host}`)
   logger.info(`💻 平台: ${officeInfo.platform}`)

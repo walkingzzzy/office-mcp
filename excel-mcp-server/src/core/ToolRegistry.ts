@@ -15,12 +15,13 @@ export class ToolRegistry {
   register(tool: ToolDefinition): void {
     this.tools.set(tool.name, tool)
 
-    if (!this.categories.has(tool.category)) {
-      this.categories.set(tool.category, new Set())
+    const category = tool.category || 'common'
+    if (!this.categories.has(category)) {
+      this.categories.set(category, new Set())
     }
-    this.categories.get(tool.category)!.add(tool.name)
+    this.categories.get(category)!.add(tool.name)
 
-    logger.info(`Tool registered: ${tool.name} (${tool.category})`)
+    logger.info(`Tool registered: ${tool.name} (${category})`)
   }
 
   /**
@@ -85,7 +86,8 @@ export class ToolRegistry {
     if (!tool) return false
 
     this.tools.delete(name)
-    this.categories.get(tool.category)?.delete(name)
+    const category = tool.category || 'common'
+    this.categories.get(category)?.delete(name)
 
     logger.info(`Tool unregistered: ${name}`)
     return true

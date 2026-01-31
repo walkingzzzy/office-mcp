@@ -12,6 +12,7 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
+    "typecheck:strict": "tsc -p tsconfig.strict.json --noEmit",
     "test:perf": "vitest run src/tests/performance.test.ts",
     "test:word": "vitest run src/services/WordService.test.ts src/utils/diffUtils.test.ts src/hooks/useWordEdit.test.ts",
     "e2e:install": "pwsh -ExecutionPolicy Bypass -File ./scripts/Test-OfficePluginInstall.ps1",

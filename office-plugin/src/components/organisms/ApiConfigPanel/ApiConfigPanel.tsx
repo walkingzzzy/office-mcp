@@ -21,6 +21,9 @@ import { FC, useEffect,useState } from 'react'
 
 import { aiService } from '../../../services/ai'
 import { apiClient } from '../../../services/api/client'
+import { secureStorage } from '../../../services/storage/SecureStorage'
+
+const API_CONFIG_STORAGE_KEY = 'office-plugin-api-config'
 
 export interface ApiConfigPanelProps {
   open: boolean
@@ -129,6 +132,7 @@ export const ApiConfigPanel: FC<ApiConfigPanelProps> = ({
 
       aiService.updateConfig(tempConfig)
       apiClient.setConfig({ baseUrl: config.baseUrl })
+      apiClient.setAuthToken(tempConfig.apiKey || undefined)
 
       const result = await aiService.testConnection()
       setTestResult(result)
@@ -158,12 +162,13 @@ export const ApiConfigPanel: FC<ApiConfigPanelProps> = ({
     // 更新服务配置
     aiService.updateConfig(newConfig)
     apiClient.setConfig({ baseUrl: config.baseUrl })
+    apiClient.setAuthToken(newConfig.apiKey || undefined)
 
     // 保存到本地存储
     try {
-      localStorage.setItem('office-plugin-api-config', JSON.stringify(newConfig))
+      await secureStorage.setItem(API_CONFIG_STORAGE_KEY, JSON.stringify(newConfig))
     } catch (error) {
-      console.warn('Failed to save config to localStorage:', error)
+      console.warn('Failed to save config to secureStorage:', error)
     }
 
     onSave?.(newConfig)
@@ -172,17 +177,37 @@ export const ApiConfigPanel: FC<ApiConfigPanelProps> = ({
 
   // 从本地存储加载配置
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem('office-plugin-api-config')
-      if (saved) {
+    let cancelled = false
+
+    const loadStoredConfig = async () => {
+      try {
+        let saved = await secureStorage.getItem(API_CONFIG_STORAGE_KEY)
+
+        if (!saved) {
+          const legacy = localStorage.getItem(API_CONFIG_STORAGE_KEY)
+          if (legacy) {
+            await secureStorage.setItem(API_CONFIG_STORAGE_KEY, legacy)
+            localStorage.removeItem(API_CONFIG_STORAGE_KEY)
+            saved = legacy
+          }
+        }
+
+        if (!saved || cancelled) return
+
         const savedConfig = JSON.parse(saved)
         if (savedConfig.baseUrl) {
           aiService.updateConfig(savedConfig)
           apiClient.setConfig({ baseUrl: savedConfig.baseUrl })
+          apiClient.setAuthToken(savedConfig.apiKey || undefined)
         }
+      } catch (error) {
+        console.warn('Failed to load config from secureStorage:', error)
       }
-    } catch (error) {
-      console.warn('Failed to load config from localStorage:', error)
+    }
+
+    void loadStoredConfig()
+    return () => {
+      cancelled = true
     }
   }, [])
 
@@ -345,7 +370,7 @@ export const ApiConfigPanel: FC<ApiConfigPanelProps> = ({
         </div>
 
         <Text size={200} style={{ color: '#605e5c', marginTop: '12px' }}>
-          💡 配置将保存到本地存储，下次启动时自动加载
+          💡 配置将安全保存到本地，下次启动时自动加载
         </Text>
       </div>
     </Card>

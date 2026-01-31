@@ -9,9 +9,9 @@ import {
   formatErrorMessage,
   getErrorSuggestion,
   isRetryable,
-  ERROR_DEFINITIONS
-} from './ErrorCodes.js'
-import { logger } from '@office-mcp/shared'
+  ERROR_DEFINITIONS,
+  logger
+} from '@office-mcp/shared'
 
 /**
  * 工具错误接口

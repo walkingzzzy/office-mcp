@@ -37,12 +37,14 @@ export class WebSocketServer {
   private pingInterval: NodeJS.Timeout | null = null
   private logBuffer: LogEntry[] = []
   private logFlushInterval: NodeJS.Timeout | null = null
+  private rateLimitCleanupInterval: NodeJS.Timeout | null = null
   private readonly LOG_BUFFER_TIME = 100 // 100ms 缓冲时间
 
   // 连接限制配置
   private readonly MAX_CONNECTIONS = 100 // 最大连接数
   private readonly RATE_LIMIT_WINDOW = 1000 // 速率限制窗口（1秒）
   private readonly MAX_CONNECTIONS_PER_IP = 5 // 每个IP每秒最多5个新连接
+  private readonly RATE_LIMIT_CLEANUP_INTERVAL = 60000 // 每分钟清理一次过期记录
   private rateLimitMap: Map<string, RateLimitRecord> = new Map()
 
   constructor(server: Server) {
@@ -50,6 +52,7 @@ export class WebSocketServer {
     this.setupServer()
     this.startPingInterval()
     this.startLogFlushInterval()
+    this.startRateLimitCleanupInterval()
     logger.info('WebSocket 服务器已创建')
   }
 
@@ -101,11 +104,28 @@ export class WebSocketServer {
    */
   private cleanupRateLimitRecords(): void {
     const now = Date.now()
+    let cleanedCount = 0
     for (const [ip, record] of this.rateLimitMap.entries()) {
       if (now >= record.resetTime) {
         this.rateLimitMap.delete(ip)
+        cleanedCount++
       }
     }
+    if (cleanedCount > 0) {
+      logger.debug('清理过期速率限制记录', { 
+        cleaned: cleanedCount, 
+        remaining: this.rateLimitMap.size 
+      })
+    }
+  }
+
+  /**
+   * 启动速率限制记录清理定时器
+   */
+  private startRateLimitCleanupInterval(): void {
+    this.rateLimitCleanupInterval = setInterval(() => {
+      this.cleanupRateLimitRecords()
+    }, this.RATE_LIMIT_CLEANUP_INTERVAL)
   }
 
   /**
@@ -373,6 +393,14 @@ export class WebSocketServer {
       clearInterval(this.logFlushInterval)
       this.logFlushInterval = null
     }
+
+    if (this.rateLimitCleanupInterval) {
+      clearInterval(this.rateLimitCleanupInterval)
+      this.rateLimitCleanupInterval = null
+    }
+
+    // 清理速率限制记录
+    this.rateLimitMap.clear()
 
     // 刷新剩余的日志
     this.flushLogBuffer()

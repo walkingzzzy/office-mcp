@@ -7,7 +7,7 @@
     "version": "1.0.0"
   },
   "ipc": {
-    "apiBaseUrl": "http://localhost:3001",
+    "apiBaseUrl": "http://localhost:3001/api",
     "timeout": 30000,
     "maxRetries": 3,
     "retryDelay": 1000

@@ -10,7 +10,7 @@ import { FunctionCallHandler } from '../../../../../services/ai/FunctionCallHand
 import { IntentExtractor, PromptBuilder, PromptSelector } from '../../../../../services/ai/prompts'
 import { ResponseAnalyzer } from '../../../../../services/ai/ResponseAnalyzer'
 import { StreamToolCallAccumulator } from '../../../../../services/ai/StreamToolCallAccumulator'
-import { ToolSelector } from '../../../../../services/ai/ToolSelector'
+import { ToolSelector } from '../../../../../services/ai/toolSelection/ToolSelector'
 import type { BatchConfirmCallback, ConfirmRequestCallback, ProgressCallback, ToolCall } from '../../../../../services/ai/types'
 import type { UndoManager } from '../../../../../services/UndoManager'
 import type { ChatMessage } from '../../../../../types/ai'

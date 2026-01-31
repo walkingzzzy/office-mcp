@@ -3,17 +3,13 @@
  * 合并 6 个原工具：create, delete, get, goTo, update, check
  */
 
-import { sendIPCCommand } from '@office-mcp/shared'
-import type { ToolDefinition } from './types.js'
-import { validateAction, unsupportedActionError } from './types.js'
+import { createActionTool, required } from '@office-mcp/shared'
 
 const SUPPORTED_ACTIONS = [
   'create', 'delete', 'list', 'goTo', 'update', 'check'
 ] as const
 
-type BookmarkAction = typeof SUPPORTED_ACTIONS[number]
-
-export const wordBookmarkTool: ToolDefinition = {
+export const wordBookmarkTool = createActionTool({
   name: 'word_bookmark',
   description: `书签管理工具。支持的操作(action):
 - create: 创建书签 (需要 name)
@@ -24,24 +20,31 @@ export const wordBookmarkTool: ToolDefinition = {
 - check: 检查书签是否存在 (需要 name)`,
   category: 'reference',
   application: 'word',
-  inputSchema: {
-    type: 'object',
-    properties: {
-      action: {
-        type: 'string',
-        enum: SUPPORTED_ACTIONS,
-        description: '要执行的操作'
-      },
-      name: {
-        type: 'string',
-        description: '[多个操作] 书签名称'
-      },
-      content: {
-        type: 'string',
-        description: '[update] 新内容'
-      }
+  actions: SUPPORTED_ACTIONS,
+  commandMap: {
+    create: 'word_create_bookmark',
+    delete: 'word_delete_bookmark',
+    list: 'word_get_bookmarks',
+    goTo: 'word_go_to_bookmark',
+    update: 'word_update_bookmark',
+    check: 'word_check_bookmark'
+  },
+  paramRules: {
+    create: [required('name', 'string')],
+    delete: [required('name', 'string')],
+    goTo: [required('name', 'string')],
+    update: [required('name', 'string'), required('content', 'string')],
+    check: [required('name', 'string')]
+  },
+  properties: {
+    name: {
+      type: 'string',
+      description: '[多个操作] 书签名称'
     },
-    required: ['action']
+    content: {
+      type: 'string',
+      description: '[update] 新内容'
+    }
   },
   metadata: {
     version: '2.0.0',
@@ -50,29 +53,7 @@ export const wordBookmarkTool: ToolDefinition = {
     mergedTools: [
       'word_create_bookmark', 'word_delete_bookmark', 'word_get_bookmarks',
       'word_go_to_bookmark', 'word_update_bookmark', 'word_check_bookmark'
-    ],
-    supportedActions: [...SUPPORTED_ACTIONS]
-  },
-  handler: async (args: Record<string, any>) => {
-    const { action, ...params } = args
-
-    if (!validateAction(action, [...SUPPORTED_ACTIONS])) {
-      return unsupportedActionError(action, [...SUPPORTED_ACTIONS])
-    }
-
-    const commandMap: Record<BookmarkAction, string> = {
-      create: 'word_create_bookmark',
-      delete: 'word_delete_bookmark',
-      list: 'word_get_bookmarks',
-      goTo: 'word_go_to_bookmark',
-      update: 'word_update_bookmark',
-      check: 'word_check_bookmark'
-    }
-
-    const command = commandMap[action as BookmarkAction]
-    const result = await sendIPCCommand(command, params)
-
-    return { ...result, action }
+    ]
   },
   examples: [
     {
@@ -86,4 +67,4 @@ export const wordBookmarkTool: ToolDefinition = {
       output: { success: true, action: 'list', data: ['chapter1', 'chapter2'] }
     }
   ]
-}
+})

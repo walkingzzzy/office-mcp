@@ -3,18 +3,14 @@
  * 合并 8 个原工具：insert, get, update, updateAll, delete, lock, unlock, getResult
  */
 
-import { sendIPCCommand } from '@office-mcp/shared'
-import type { ToolDefinition } from './types.js'
-import { validateAction, unsupportedActionError } from './types.js'
+import { createActionTool, required } from '@office-mcp/shared'
 
 const SUPPORTED_ACTIONS = [
   'insert', 'list', 'update', 'updateAll',
   'delete', 'lock', 'unlock', 'getResult'
 ] as const
 
-type FieldAction = typeof SUPPORTED_ACTIONS[number]
-
-export const wordFieldTool: ToolDefinition = {
+export const wordFieldTool = createActionTool({
   name: 'word_field',
   description: `域操作工具。支持的操作(action):
 - insert: 插入域 (需要 fieldType, 可选 fieldCode)
@@ -27,29 +23,39 @@ export const wordFieldTool: ToolDefinition = {
 - getResult: 获取域结果 (需要 fieldIndex)`,
   category: 'reference',
   application: 'word',
-  inputSchema: {
-    type: 'object',
-    properties: {
-      action: {
-        type: 'string',
-        enum: SUPPORTED_ACTIONS,
-        description: '要执行的操作'
-      },
-      fieldIndex: {
-        type: 'number',
-        description: '[多个操作] 域索引'
-      },
-      fieldType: {
-        type: 'string',
-        enum: ['DATE', 'TIME', 'PAGE', 'NUMPAGES', 'AUTHOR', 'TITLE', 'FILENAME', 'TOC', 'REF', 'SEQ'],
-        description: '[insert] 域类型'
-      },
-      fieldCode: {
-        type: 'string',
-        description: '[insert] 域代码'
-      }
+  actions: SUPPORTED_ACTIONS,
+  commandMap: {
+    insert: 'word_insert_field',
+    list: 'word_get_fields',
+    update: 'word_update_field',
+    updateAll: 'word_update_all_fields',
+    delete: 'word_delete_field',
+    lock: 'word_lock_field',
+    unlock: 'word_unlock_field',
+    getResult: 'word_get_field_result'
+  },
+  paramRules: {
+    insert: [required('fieldType', 'string')],
+    update: [required('fieldIndex', 'number')],
+    delete: [required('fieldIndex', 'number')],
+    lock: [required('fieldIndex', 'number')],
+    unlock: [required('fieldIndex', 'number')],
+    getResult: [required('fieldIndex', 'number')]
+  },
+  properties: {
+    fieldIndex: {
+      type: 'number',
+      description: '[多个操作] 域索引'
     },
-    required: ['action']
+    fieldType: {
+      type: 'string',
+      enum: ['DATE', 'TIME', 'PAGE', 'NUMPAGES', 'AUTHOR', 'TITLE', 'FILENAME', 'TOC', 'REF', 'SEQ'],
+      description: '[insert] 域类型'
+    },
+    fieldCode: {
+      type: 'string',
+      description: '[insert] 域代码'
+    }
   },
   metadata: {
     version: '2.0.0',
@@ -59,31 +65,7 @@ export const wordFieldTool: ToolDefinition = {
       'word_insert_field', 'word_get_fields', 'word_update_field',
       'word_update_all_fields', 'word_delete_field', 'word_lock_field',
       'word_unlock_field', 'word_get_field_result'
-    ],
-    supportedActions: [...SUPPORTED_ACTIONS]
-  },
-  handler: async (args: Record<string, any>) => {
-    const { action, ...params } = args
-
-    if (!validateAction(action, [...SUPPORTED_ACTIONS])) {
-      return unsupportedActionError(action, [...SUPPORTED_ACTIONS])
-    }
-
-    const commandMap: Record<FieldAction, string> = {
-      insert: 'word_insert_field',
-      list: 'word_get_fields',
-      update: 'word_update_field',
-      updateAll: 'word_update_all_fields',
-      delete: 'word_delete_field',
-      lock: 'word_lock_field',
-      unlock: 'word_unlock_field',
-      getResult: 'word_get_field_result'
-    }
-
-    const command = commandMap[action as FieldAction]
-    const result = await sendIPCCommand(command, params)
-
-    return { ...result, action }
+    ]
   },
   examples: [
     {
@@ -97,4 +79,4 @@ export const wordFieldTool: ToolDefinition = {
       output: { success: true, message: '成功更新所有域', action: 'updateAll' }
     }
   ]
-}
+})

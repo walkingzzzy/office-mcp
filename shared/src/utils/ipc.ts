@@ -19,6 +19,7 @@ export interface IPCConfig {
   timeout: number
   maxRetries: number
   retryDelay: number
+  authToken?: string
 }
 
 /**
@@ -40,6 +41,39 @@ const DEFAULT_IPC_CONFIG: IPCConfig = {
 
 // 全局配置（可通过 setIPCConfig 修改）
 let globalIPCConfig: IPCConfig = { ...DEFAULT_IPC_CONFIG }
+
+const AUTH_TOKEN_ENV_KEYS = [
+  'OFFICE_MCP_API_TOKEN',
+  'OFFICE_BRIDGE_API_TOKEN',
+  'OFFICE_PLUGIN_API_TOKEN',
+  'OFFICE_API_TOKEN'
+]
+
+/**
+ * 从环境变量获取认证 token
+ */
+function getEnvAuthToken(): string | undefined {
+  for (const key of AUTH_TOKEN_ENV_KEYS) {
+    const token = process.env[key]
+    if (token) return token
+  }
+  return undefined
+}
+
+/**
+ * 规范化 API Base URL，确保指向 /api
+ */
+function normalizeApiBaseUrl(baseUrl: string): string {
+  if (!baseUrl) return baseUrl
+  const trimmed = baseUrl.replace(/\/+$/, '')
+  if (trimmed.endsWith('/api/office-plugin')) {
+    return trimmed.replace(/\/api\/office-plugin$/, '/api')
+  }
+  if (trimmed.endsWith('/api')) {
+    return trimmed
+  }
+  return `${trimmed}/api`
+}
 
 /**
  * 设置 IPC 配置
@@ -102,6 +136,8 @@ export async function sendIPCCommand(
   config?: Partial<IPCConfig>
 ): Promise<IPCToolExecutionResult> {
   const ipcConfig = { ...globalIPCConfig, ...config }
+  const apiBaseUrl = normalizeApiBaseUrl(ipcConfig.apiBaseUrl)
+  const authToken = config?.authToken ?? ipcConfig.authToken ?? getEnvAuthToken()
   const callId = `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`
   const startTime = Date.now()
 
@@ -109,7 +145,7 @@ export async function sendIPCCommand(
     toolName,
     callId,
     args: JSON.stringify(args).substring(0, 200),
-    apiUrl: `${ipcConfig.apiBaseUrl}/execute-tool`,
+    apiUrl: `${apiBaseUrl}/execute-tool`,
     timeout: ipcConfig.timeout,
     maxRetries: ipcConfig.maxRetries
   })
@@ -129,11 +165,12 @@ export async function sendIPCCommand(
       }
 
       const response = await fetchWithTimeout(
-        `${ipcConfig.apiBaseUrl}/execute-tool`,
+        `${apiBaseUrl}/execute-tool`,
         {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            ...(authToken ? { Authorization: `Bearer ${authToken}` } : {})
           },
           body: JSON.stringify({
             toolName,

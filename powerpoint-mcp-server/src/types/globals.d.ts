@@ -4,7 +4,7 @@
  */
 
 // 声明 window 对象（在 Node.js 环境中可能不存在）
-declare const window: any | undefined
+declare const window: (Window & typeof globalThis) | undefined
 
 // 声明 Office 对象（Office.js 全局对象）
-declare const Office: any | undefined
+declare const Office: typeof import('@microsoft/office-js').Office | undefined

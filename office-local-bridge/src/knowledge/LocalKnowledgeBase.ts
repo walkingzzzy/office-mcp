@@ -27,6 +27,7 @@ const __dirname = dirname(__filename)
 interface CacheEntry {
   results: SearchResult[]
   timestamp: number
+  lastAccessed: number  // 最后访问时间，用于 LRU
 }
 
 /**
@@ -41,6 +42,8 @@ export class LocalKnowledgeBase {
   private searchCache: Map<string, CacheEntry> = new Map()
   private readonly CACHE_TTL = 5 * 60 * 1000 // 5分钟缓存
   private readonly MAX_CACHE_SIZE = 100 // 最多缓存100个查询
+  private readonly MAX_MEMORY_MB = 500 // 最大内存使用 500MB
+  private cacheCleanupInterval: NodeJS.Timeout | null = null
 
   constructor(storageDir?: string) {
     this.storageDir = storageDir || join(__dirname, '../../data/knowledge')
@@ -49,6 +52,7 @@ export class LocalKnowledgeBase {
 
     this.ensureDirectories()
     this.loadDocuments()
+    this.startCacheCleanupInterval()
   }
 
   /**
@@ -350,25 +354,86 @@ export class LocalKnowledgeBase {
 
   /**
    * 清理缓存（LRU策略）
+   * 基于 lastAccessed 时间戳淘汰最久未访问的缓存项
    */
   private evictCache(): void {
     if (this.searchCache.size <= this.MAX_CACHE_SIZE) {
       return
     }
 
-    // 找到最旧的缓存项并删除
-    let oldestKey: string | null = null
-    let oldestTime = Date.now()
+    // 按 lastAccessed 排序，删除最久未访问的项
+    const entries = Array.from(this.searchCache.entries())
+      .sort((a, b) => a[1].lastAccessed - b[1].lastAccessed)
 
-    for (const [key, entry] of this.searchCache.entries()) {
-      if (entry.timestamp < oldestTime) {
-        oldestTime = entry.timestamp
-        oldestKey = key
+    // 删除超出限制的缓存项
+    const toDelete = entries.slice(0, this.searchCache.size - this.MAX_CACHE_SIZE)
+    for (const [key] of toDelete) {
+      this.searchCache.delete(key)
+      logger.debug('LRU淘汰缓存项', { key })
+    }
+  }
+
+  /**
+   * 估算缓存内存使用量（MB）
+   */
+  private estimateCacheMemoryMB(): number {
+    let totalBytes = 0
+    for (const entry of this.searchCache.values()) {
+      // 估算每个结果的大小
+      for (const result of entry.results) {
+        totalBytes += (result.content?.length || 0) * 2 // UTF-16
+        totalBytes += (result.title?.length || 0) * 2
+        totalBytes += 100 // 其他字段估算
       }
     }
+    return totalBytes / (1024 * 1024)
+  }
 
-    if (oldestKey) {
-      this.searchCache.delete(oldestKey)
+  /**
+   * 基于内存使用量清理缓存
+   */
+  private evictCacheByMemory(): void {
+    const memoryMB = this.estimateCacheMemoryMB()
+    if (memoryMB <= this.MAX_MEMORY_MB) {
+      return
+    }
+
+    logger.warn('缓存内存超限，执行清理', { currentMB: memoryMB, maxMB: this.MAX_MEMORY_MB })
+
+    // 按 lastAccessed 排序，逐个删除直到内存降到阈值以下
+    const entries = Array.from(this.searchCache.entries())
+      .sort((a, b) => a[1].lastAccessed - b[1].lastAccessed)
+
+    for (const [key] of entries) {
+      this.searchCache.delete(key)
+      if (this.estimateCacheMemoryMB() <= this.MAX_MEMORY_MB * 0.8) {
+        break
+      }
+    }
+  }
+
+  /**
+   * 启动缓存清理定时器
+   */
+  private startCacheCleanupInterval(): void {
+    // 每分钟执行一次清理
+    this.cacheCleanupInterval = setInterval(() => {
+      this.cleanExpiredCache()
+      this.evictCache()
+      this.evictCacheByMemory()
+    }, 60 * 1000)
+
+    // 确保不阻止进程退出
+    this.cacheCleanupInterval.unref()
+  }
+
+  /**
+   * 停止缓存清理定时器
+   */
+  public stopCacheCleanup(): void {
+    if (this.cacheCleanupInterval) {
+      clearInterval(this.cacheCleanupInterval)
+      this.cacheCleanupInterval = null
     }
   }
 
@@ -386,6 +451,8 @@ export class LocalKnowledgeBase {
     if (cached) {
       const now = Date.now()
       if (now - cached.timestamp < this.CACHE_TTL) {
+        // 更新 lastAccessed 时间
+        cached.lastAccessed = now
         logger.info('使用缓存的搜索结果', { query })
         return cached.results
       } else {
@@ -439,9 +506,11 @@ export class LocalKnowledgeBase {
       .slice(0, limit)
 
     // 缓存结果
+    const now = Date.now()
     this.searchCache.set(cacheKey, {
       results: finalResults,
-      timestamp: Date.now()
+      timestamp: now,
+      lastAccessed: now
     })
 
     // 清理过期缓存和执行LRU淘汰

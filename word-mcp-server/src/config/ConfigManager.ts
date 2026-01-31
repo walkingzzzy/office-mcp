@@ -7,6 +7,17 @@ import process from 'node:process'
 import { readFileSync } from 'fs'
 import { join } from 'path'
 
+function normalizeApiBaseUrl(baseUrl: string): string {
+  const trimmed = baseUrl.replace(/\/+$/, '')
+  if (trimmed.endsWith('/api/office-plugin')) {
+    return trimmed.replace(/\/api\/office-plugin$/, '/api')
+  }
+  if (trimmed.endsWith('/api')) {
+    return trimmed
+  }
+  return `${trimmed}/api`
+}
+
 export interface AppConfig {
   server: {
     port: number
@@ -125,7 +136,7 @@ export class ConfigManager {
     // IPC API Base URL 环境变量覆盖
     if (process.env.WENJIN_API_BASE_URL || process.env.OFFICE_MCP_IPC_URL) {
       const baseUrl = process.env.WENJIN_API_BASE_URL || process.env.OFFICE_MCP_IPC_URL
-      this.config.ipc.apiBaseUrl = `${baseUrl}/api/office-plugin`
+      this.config.ipc.apiBaseUrl = normalizeApiBaseUrl(baseUrl || 'http://localhost:3001')
     }
   }
 
@@ -174,7 +185,7 @@ export class ConfigManager {
         retryDelay: 1000
       },
       ipc: {
-        apiBaseUrl: 'http://localhost:3001/api/office-plugin',
+        apiBaseUrl: 'http://localhost:3001/api',
         timeout: 30000,
         maxRetries: 3,
         retryDelay: 1000

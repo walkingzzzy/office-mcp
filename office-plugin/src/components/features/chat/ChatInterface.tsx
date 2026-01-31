@@ -1667,20 +1667,12 @@ ${documentContextPrompt}`
 
         await wordService.undo()
         // Note: undo() no longer returns a value after refactoring
-        {
-          logger.info('Word undo executed successfully', {
-            messageId,
-            undoCount,
-            toolNames: successfulToolCalls.map((b) => (b as any).toolName)
-          })
-          return true
-        }
-
-        logger.error('Word undo failed', {
+        logger.info('Word undo executed successfully', {
           messageId,
-          undoCount
+          undoCount,
+          toolNames: successfulToolCalls.map((b) => (b as any).toolName)
         })
-        return false
+        return true
       } catch (error) {
         logger.error('Failed to undo command operations', {
           messageId,

@@ -104,6 +104,9 @@ export const DEFAULT_PAGE_LIMIT = 100;
 /** 最大导出日志数 */
 export const MAX_EXPORT_LOGS = 10000;
 
+/** 最大待执行命令数量 */
+export const MAX_PENDING_COMMANDS = 1000;
+
 // =====================
 // 服务版本
 // =====================

@@ -68,33 +68,66 @@ describe('MetricsStorage', () => {
 })
 
 describe('PerformanceMonitor', () => {
-  it('应该记录请求', () => {
+  beforeEach(() => {
+    const monitor = PerformanceMonitor.getInstance()
+    monitor.reset()
+  })
+
+  it('应该记录工具调用', () => {
     const monitor = PerformanceMonitor.getInstance()
 
-    monitor.recordRequest('test-tool', 100, true)
+    monitor.recordToolCall({
+      toolName: 'test-tool',
+      duration: 100,
+      success: true,
+      timestamp: Date.now()
+    })
 
     const stats = monitor.getStats()
-    expect(stats.totalRequests).toBeGreaterThan(0)
+    expect(stats.toolCalls.total).toBe(1)
+    expect(stats.toolCalls.successful).toBe(1)
   })
 
   it('应该计算平均响应时间', () => {
     const monitor = PerformanceMonitor.getInstance()
 
-    monitor.recordRequest('test-tool-1', 100, true)
-    monitor.recordRequest('test-tool-2', 200, true)
+    monitor.recordToolCall({
+      toolName: 'test-tool-1',
+      duration: 100,
+      success: true,
+      timestamp: Date.now()
+    })
+    monitor.recordToolCall({
+      toolName: 'test-tool-2',
+      duration: 200,
+      success: true,
+      timestamp: Date.now()
+    })
 
     const stats = monitor.getStats()
-    expect(stats.averageResponseTime).toBeGreaterThan(0)
+    expect(stats.toolCalls.averageDuration).toBe(150)
   })
 
   it('应该计算错误率', () => {
     const monitor = PerformanceMonitor.getInstance()
 
-    monitor.recordRequest('test-tool-1', 100, true)
-    monitor.recordRequest('test-tool-2', 100, false)
+    monitor.recordToolCall({
+      toolName: 'test-tool-1',
+      duration: 100,
+      success: true,
+      timestamp: Date.now()
+    })
+    monitor.recordToolCall({
+      toolName: 'test-tool-2',
+      duration: 100,
+      success: false,
+      timestamp: Date.now(),
+      error: 'Test error'
+    })
 
     const stats = monitor.getStats()
-    expect(stats.errorRate).toBeGreaterThan(0)
-    expect(stats.errorRate).toBeLessThanOrEqual(1)
+    const errorRate = stats.toolCalls.failed / stats.toolCalls.total
+    expect(errorRate).toBe(0.5)
+    expect(stats.errors.total).toBe(1)
   })
 })

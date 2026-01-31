@@ -4,18 +4,14 @@
  * getFooter, clearHeader, clearFooter
  */
 
-import { sendIPCCommand } from '@office-mcp/shared'
-import type { ToolDefinition } from './types.js'
-import { validateAction, unsupportedActionError } from './types.js'
+import { createActionTool, required } from '@office-mcp/shared'
 
 const SUPPORTED_ACTIONS = [
   'insertHeader', 'insertFooter', 'getHeader',
   'getFooter', 'clearHeader', 'clearFooter'
 ] as const
 
-type HeaderFooterAction = typeof SUPPORTED_ACTIONS[number]
-
-export const wordHeaderFooterTool: ToolDefinition = {
+export const wordHeaderFooterTool = createActionTool({
   name: 'word_header_footer',
   description: `页眉页脚工具。支持的操作(action):
 - insertHeader: 插入页眉 (需要 text, 可选 alignment/type)
@@ -31,56 +27,57 @@ type 参数说明：
 - evenPages: 偶数页页眉/页脚`,
   category: 'page',
   application: 'word',
-  inputSchema: {
-    type: 'object',
-    properties: {
-      action: {
-        type: 'string',
-        enum: SUPPORTED_ACTIONS,
-        description: '要执行的操作'
-      },
-      // insert 参数
-      text: {
-        type: 'string',
-        description: '[insertHeader/insertFooter] 页眉/页脚文本'
-      },
-      alignment: {
-        type: 'string',
-        enum: ['left', 'center', 'right'],
-        description: '[insertHeader/insertFooter] 对齐方式',
-        default: 'center'
-      },
-      // 通用参数
-      type: {
-        type: 'string',
-        enum: ['primary', 'firstPage', 'evenPages'],
-        description: '页眉/页脚类型',
-        default: 'primary'
-      },
-      // 高级参数
-      includePageNumber: {
-        type: 'boolean',
-        description: '[insertHeader/insertFooter] 包含页码',
-        default: false
-      },
-      pageNumberFormat: {
-        type: 'string',
-        enum: ['arabic', 'roman', 'romanUpper', 'letter', 'letterUpper'],
-        description: '[insertHeader/insertFooter] 页码格式',
-        default: 'arabic'
-      },
-      differentFirstPage: {
-        type: 'boolean',
-        description: '首页不同',
-        default: false
-      },
-      differentOddAndEvenPages: {
-        type: 'boolean',
-        description: '奇偶页不同',
-        default: false
-      }
+  actions: SUPPORTED_ACTIONS,
+  commandMap: {
+    insertHeader: 'word_insert_header',
+    insertFooter: 'word_insert_footer',
+    getHeader: 'word_get_header',
+    getFooter: 'word_get_footer',
+    clearHeader: 'word_clear_header',
+    clearFooter: 'word_clear_footer'
+  },
+  paramRules: {
+    insertHeader: [required('text', 'string')],
+    insertFooter: [required('text', 'string')]
+  },
+  properties: {
+    text: {
+      type: 'string',
+      description: '[insertHeader/insertFooter] 页眉/页脚文本'
     },
-    required: ['action']
+    alignment: {
+      type: 'string',
+      enum: ['left', 'center', 'right'],
+      description: '[insertHeader/insertFooter] 对齐方式',
+      default: 'center'
+    },
+    type: {
+      type: 'string',
+      enum: ['primary', 'firstPage', 'evenPages'],
+      description: '页眉/页脚类型',
+      default: 'primary'
+    },
+    includePageNumber: {
+      type: 'boolean',
+      description: '[insertHeader/insertFooter] 包含页码',
+      default: false
+    },
+    pageNumberFormat: {
+      type: 'string',
+      enum: ['arabic', 'roman', 'romanUpper', 'letter', 'letterUpper'],
+      description: '[insertHeader/insertFooter] 页码格式',
+      default: 'arabic'
+    },
+    differentFirstPage: {
+      type: 'boolean',
+      description: '首页不同',
+      default: false
+    },
+    differentOddAndEvenPages: {
+      type: 'boolean',
+      description: '奇偶页不同',
+      default: false
+    }
   },
   metadata: {
     version: '2.0.0',
@@ -93,33 +90,7 @@ type 参数说明：
       'word_insert_header', 'word_insert_footer',
       'word_get_header', 'word_get_footer',
       'word_clear_header', 'word_clear_footer'
-    ],
-    supportedActions: [...SUPPORTED_ACTIONS]
-  },
-  handler: async (args: Record<string, any>) => {
-    const { action, ...params } = args
-
-    if (!validateAction(action, [...SUPPORTED_ACTIONS])) {
-      return unsupportedActionError(action, [...SUPPORTED_ACTIONS])
-    }
-
-    // 根据 action 映射到原始命令
-    const commandMap: Record<HeaderFooterAction, string> = {
-      insertHeader: 'word_insert_header',
-      insertFooter: 'word_insert_footer',
-      getHeader: 'word_get_header',
-      getFooter: 'word_get_footer',
-      clearHeader: 'word_clear_header',
-      clearFooter: 'word_clear_footer'
-    }
-
-    const command = commandMap[action as HeaderFooterAction]
-    const result = await sendIPCCommand(command, params)
-
-    return {
-      ...result,
-      action
-    }
+    ]
   },
   examples: [
     {
@@ -138,4 +109,4 @@ type 参数说明：
       output: { success: true, message: '成功清除页眉', action: 'clearHeader' }
     }
   ]
-}
+})

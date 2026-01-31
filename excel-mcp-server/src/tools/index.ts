@@ -16,10 +16,10 @@ import { excelFormatTool } from './format.js'
 import { excelFormulaTool } from './formula.js'
 import { excelWorksheetTool } from './worksheet.js'
 import { excelWorkbookTool } from './workbook.js'
-import { excelDataTool } from './data.js'
+import { excelDataTool as excelDataToolRaw } from './data.js'
 import { excelChartTool } from './chart.js'
 import { excelConditionalFormatTool } from './conditionalFormat.js'
-import { excelImageTool } from './image.js'
+import { excelImageTool as excelImageToolRaw } from './image.js'
 import { excelTableTool } from './table.js'
 import { excelPivotTableTool } from './pivotTable.js'
 import { excelPivotHierarchyTool } from './pivotHierarchy.js'
@@ -31,6 +31,10 @@ import { excelPrintTool } from './print.js'
 import { excelDataValidationTool } from './dataValidation.js'
 import { excelEducationTool } from './education.js'
 
+// 类型转换：将工厂创建的工具转换为本地 ToolDefinition 类型
+const excelDataTool = excelDataToolRaw as unknown as ToolDefinition
+const excelImageTool = excelImageToolRaw as unknown as ToolDefinition
+
 /**
  * 获取所有 Excel 工具（压缩版）
  * 总计 19 个工具（原 162 个）
@@ -40,15 +44,15 @@ import { excelEducationTool } from './education.js'
 export function getExcelTools(): ToolDefinition[] {
   return [
     // 核心操作工具 (6个) - 合并约 90 个原工具
-    excelCellTool,        // 单元格操作 (20 actions)
-    excelFormatTool,      // 格式设置 (15 actions)
-    excelFormulaTool,     // 公式与计算 (15 actions)
+    excelCellTool as ToolDefinition,        // 单元格操作 (20 actions)
+    excelFormatTool as ToolDefinition,      // 格式设置 (15 actions)
+    excelFormulaTool as ToolDefinition,     // 公式与计算 (15 actions)
     excelWorksheetTool,   // 工作表管理 (14 actions)
     excelWorkbookTool,    // 工作簿操作 (8 actions)
     excelDataTool,        // 数据导入导出与分析 (15 actions)
 
     // 图表与可视化 (3个) - 合并约 25 个原工具
-    excelChartTool,              // 图表操作 (10 actions)
+    excelChartTool as ToolDefinition,              // 图表操作 (10 actions)
     excelConditionalFormatTool,  // 条件格式 (9 actions)
     excelImageTool,              // 图片操作 (6 actions)
 
@@ -60,7 +64,7 @@ export function getExcelTools(): ToolDefinition[] {
 
     // 数据验证与批注 (2个) - 合并约 16 个原工具
     excelDataValidationTool, // 数据验证 (8 actions)
-    excelCommentTool,        // 批注操作 (8 actions)
+    excelCommentTool as ToolDefinition,        // 批注操作 (8 actions)
 
     // 其他功能 (4个) - 合并约 27 个原工具
     excelShapeTool,       // 形状操作 (8 actions)

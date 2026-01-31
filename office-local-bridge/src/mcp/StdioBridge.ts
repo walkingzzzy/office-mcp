@@ -4,6 +4,7 @@
  */
 
 import { EventEmitter } from 'node:events'
+import { StringDecoder } from 'node:string_decoder'
 import type { JsonRpcRequest, JsonRpcResponse } from '../types/index.js'
 import { createLogger } from '../utils/logger.js'
 import { processManager } from './ProcessManager.js'
@@ -29,6 +30,7 @@ const MAX_BUFFER_SIZE = 1024 * 1024
 export class StdioBridge extends EventEmitter {
   private pendingRequests: Map<string | number, PendingRequest> = new Map()
   private buffers: Map<string, string> = new Map()
+  private decoders: Map<string, StringDecoder> = new Map()
   private requestTimeout: number
 
   constructor() {
@@ -48,6 +50,7 @@ export class StdioBridge extends EventEmitter {
     }
 
     this.buffers.set(serverId, '')
+    this.decoders.set(serverId, new StringDecoder('utf8'))
 
     stdio.stdout.on('data', (data: Buffer) => {
       this.handleStdoutData(serverId, data)
@@ -61,7 +64,8 @@ export class StdioBridge extends EventEmitter {
    */
   private handleStdoutData(serverId: string, data: Buffer): void {
     let buffer = this.buffers.get(serverId) || ''
-    buffer += data.toString()
+    const decoder = this.decoders.get(serverId) || new StringDecoder('utf8')
+    buffer += decoder.write(data)
 
     // 检查缓冲区大小，防止内存泄漏
     if (buffer.length > MAX_BUFFER_SIZE) {
@@ -225,6 +229,7 @@ export class StdioBridge extends EventEmitter {
     }
     this.pendingRequests.clear()
     this.buffers.clear()
+    this.decoders.clear()
   }
 }
 

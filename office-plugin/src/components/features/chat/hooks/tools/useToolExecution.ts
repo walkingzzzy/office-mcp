@@ -411,7 +411,7 @@ export function useToolExecution(
         userMessage,
         selectionContext,
         candidateCount: candidateTools.length,
-        candidateToolNames: candidateTools.map((t) => t.name),
+        candidateToolNames: candidateTools.map((t: FormattingFunction) => t.name),
         totalAvailableTools,
         estimatedTokenSaved,
         tokenSavingPercentage: `${tokenSavingPercentage}%`,

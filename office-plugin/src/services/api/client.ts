@@ -30,6 +30,10 @@ function getDefaultConfig(): ApiClientConfig {
   const baseUrl = isDev
     ? '' // 开发模式：使用相对路径，通过 Vite 代理
     : (import.meta.env?.VITE_API_BASE_URL || 'http://localhost:3001')
+  const apiToken =
+    import.meta.env?.VITE_API_KEY ||
+    (typeof process !== 'undefined' && process.env?.REACT_APP_API_KEY) ||
+    ''
 
   return {
     baseUrl,
@@ -38,6 +42,7 @@ function getDefaultConfig(): ApiClientConfig {
       30000,
     headers: {
       'Content-Type': 'application/json',
+      ...(apiToken ? { Authorization: `Bearer ${apiToken}` } : {})
     },
   }
 }
@@ -206,7 +211,27 @@ export class ApiClient {
    * 更新配置
    */
   setConfig(config: Partial<ApiClientConfig>) {
-    this.config = { ...this.config, ...config }
+    this.config = {
+      ...this.config,
+      ...config,
+      headers: {
+        ...this.config.headers,
+        ...config.headers
+      }
+    }
+  }
+
+  /**
+   * 设置或清除认证 token
+   */
+  setAuthToken(token?: string): void {
+    const headers = { ...this.config.headers }
+    if (token) {
+      headers.Authorization = `Bearer ${token}`
+    } else {
+      delete headers.Authorization
+    }
+    this.config = { ...this.config, headers }
   }
 
   /**
@@ -241,6 +266,7 @@ export class ApiClient {
       const response = await fetch(`${this.config.baseUrl}/health`, {
         method: 'GET',
         headers: {
+          ...this.config.headers,
           'Content-Type': 'application/json'
         },
         signal: AbortSignal.timeout(5000)

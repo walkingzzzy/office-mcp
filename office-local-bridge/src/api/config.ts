@@ -12,6 +12,60 @@ import { createLogger } from '../utils/logger.js'
 
 const logger = createLogger('ConfigAPI')
 const router = Router()
+const MASKED_VALUE = '******'
+
+function sanitizeProviders(providers?: BridgeConfig['providers']): BridgeConfig['providers'] {
+  if (!providers) return providers
+  return providers.map(provider => ({
+    ...provider,
+    apiKey: provider.apiKey ? MASKED_VALUE : ''
+  }))
+}
+
+function sanitizeConfig(config: BridgeConfig): BridgeConfig {
+  return {
+    ...config,
+    apiToken: config.apiToken ? MASKED_VALUE : '',
+    providers: sanitizeProviders(config.providers)
+  }
+}
+
+function normalizeConfigUpdates(current: BridgeConfig, updates: Partial<BridgeConfig>): Partial<BridgeConfig> {
+  const normalized = { ...updates }
+
+  if (normalized.apiToken === MASKED_VALUE) {
+    delete normalized.apiToken
+  }
+
+  if (normalized.providers) {
+    normalized.providers = normalized.providers.map(provider => {
+      if (provider.apiKey !== MASKED_VALUE) {
+        return provider
+      }
+      const existing = current.providers?.find(p => p.id === provider.id)
+      return {
+        ...provider,
+        apiKey: existing?.apiKey || ''
+      }
+    })
+  }
+
+  return normalized
+}
+
+function normalizeImportedConfig(config: BridgeConfig): BridgeConfig {
+  const normalized = { ...config }
+  if (normalized.apiToken === MASKED_VALUE) {
+    delete normalized.apiToken
+  }
+  if (normalized.providers) {
+    normalized.providers = normalized.providers.map(provider => ({
+      ...provider,
+      apiKey: provider.apiKey === MASKED_VALUE ? '' : provider.apiKey
+    }))
+  }
+  return normalized
+}
 
 /**
  * 验证 MCP 服务器配置项
@@ -83,7 +137,7 @@ router.get('/', (_req, res) => {
     const config = loadConfig()
     res.json({
       success: true,
-      data: config
+      data: sanitizeConfig(config)
     })
   } catch (error) {
     logger.error('获取配置失败', { error })
@@ -104,7 +158,7 @@ router.get('/', (_req, res) => {
 router.post('/', (req, res) => {
   try {
     const currentConfig = loadConfig()
-    const updates = req.body as Partial<BridgeConfig>
+    const updates = normalizeConfigUpdates(currentConfig, req.body as Partial<BridgeConfig>)
 
     // 合并配置
     const newConfig: BridgeConfig = {
@@ -116,7 +170,7 @@ router.post('/', (req, res) => {
 
     res.json({
       success: true,
-      data: newConfig
+      data: sanitizeConfig(newConfig)
     })
   } catch (error) {
     logger.error('保存配置失败', { error })
@@ -147,7 +201,7 @@ router.post('/reset', (_req, res) => {
 
     res.json({
       success: true,
-      data: defaultConfig
+      data: sanitizeConfig(defaultConfig)
     })
   } catch (error) {
     logger.error('重置配置失败', { error })
@@ -168,13 +222,14 @@ router.post('/reset', (_req, res) => {
 router.post('/export', (_req, res) => {
   try {
     const config = loadConfig()
+    const safeConfig = sanitizeConfig(config)
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5)
     const filename = `config-export-${timestamp}.json`
 
     res.json({
       success: true,
       data: {
-        content: JSON.stringify(config, null, 2),
+        content: JSON.stringify(safeConfig, null, 2),
         filename
       }
     })
@@ -236,11 +291,12 @@ router.post('/import', (req, res) => {
       })
     }
 
-    saveConfig(importedConfig as BridgeConfig)
+    const normalizedConfig = normalizeImportedConfig(importedConfig as BridgeConfig)
+    saveConfig(normalizedConfig)
 
     res.json({
       success: true,
-      data: importedConfig
+      data: sanitizeConfig(normalizedConfig)
     })
   } catch (error) {
     logger.error('导入配置失败', { error })

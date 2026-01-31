@@ -11,21 +11,7 @@ import { create } from 'zustand'
 import { type Conversation,conversationService } from '../services/conversation'
 import type { Message } from '../types/messageBlock'
 import Logger from '../utils/logger'
-import { ErrorHandler, ErrorCode, OfficePluginError, ErrorSeverity } from '../shared/errors'
-
 const logger = new Logger('ConversationStore')
-
-/**
- * 创建存储错误
- */
-function createStorageError(message: string, originalError?: Error): OfficePluginError {
-  return new OfficePluginError(
-    message,
-    ErrorCode.STORAGE_ERROR,
-    ErrorSeverity.ERROR,
-    originalError
-  )
-}
 
 /**
  * 对话 Store 状态接口

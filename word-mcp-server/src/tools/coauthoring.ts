@@ -3,18 +3,14 @@
  * 合并 6 个原工具：getStatus, getCoauthors, getLocks, requestLock, releaseLock, syncChanges
  */
 
-import { sendIPCCommand } from '@office-mcp/shared'
-import type { ToolDefinition } from './types.js'
-import { validateAction, unsupportedActionError } from './types.js'
+import { createActionTool, required } from '@office-mcp/shared'
 
 const SUPPORTED_ACTIONS = [
   'getStatus', 'getCoauthors', 'getLocks',
   'requestLock', 'releaseLock', 'syncChanges'
 ] as const
 
-type CoauthoringAction = typeof SUPPORTED_ACTIONS[number]
-
-export const wordCoauthoringTool: ToolDefinition = {
+export const wordCoauthoringTool = createActionTool({
   name: 'word_coauthoring',
   description: `协作编辑工具。支持的操作(action):
 - getStatus: 获取协作状态
@@ -25,28 +21,32 @@ export const wordCoauthoringTool: ToolDefinition = {
 - syncChanges: 同步更改`,
   category: 'collaboration',
   application: 'word',
-  inputSchema: {
-    type: 'object',
-    properties: {
-      action: {
-        type: 'string',
-        enum: SUPPORTED_ACTIONS,
-        description: '要执行的操作'
-      },
-      range: {
-        type: 'object',
-        description: '[requestLock] 要锁定的范围',
-        properties: {
-          start: { type: 'number' },
-          end: { type: 'number' }
-        }
-      },
-      lockId: {
-        type: 'string',
-        description: '[releaseLock] 锁定 ID'
+  actions: SUPPORTED_ACTIONS,
+  commandMap: {
+    getStatus: 'word_get_coauthoring_status',
+    getCoauthors: 'word_get_coauthors',
+    getLocks: 'word_get_coauthoring_locks',
+    requestLock: 'word_request_coauthoring_lock',
+    releaseLock: 'word_release_coauthoring_lock',
+    syncChanges: 'word_sync_coauthoring_changes'
+  },
+  paramRules: {
+    requestLock: [required('range', 'object')],
+    releaseLock: [required('lockId', 'string')]
+  },
+  properties: {
+    range: {
+      type: 'object',
+      description: '[requestLock] 要锁定的范围',
+      properties: {
+        start: { type: 'number' },
+        end: { type: 'number' }
       }
     },
-    required: ['action']
+    lockId: {
+      type: 'string',
+      description: '[releaseLock] 锁定 ID'
+    }
   },
   metadata: {
     version: '2.0.0',
@@ -56,29 +56,7 @@ export const wordCoauthoringTool: ToolDefinition = {
       'word_get_coauthoring_status', 'word_get_coauthors',
       'word_get_coauthoring_locks', 'word_request_coauthoring_lock',
       'word_release_coauthoring_lock', 'word_sync_coauthoring_changes'
-    ],
-    supportedActions: [...SUPPORTED_ACTIONS]
-  },
-  handler: async (args: Record<string, any>) => {
-    const { action, ...params } = args
-
-    if (!validateAction(action, [...SUPPORTED_ACTIONS])) {
-      return unsupportedActionError(action, [...SUPPORTED_ACTIONS])
-    }
-
-    const commandMap: Record<CoauthoringAction, string> = {
-      getStatus: 'word_get_coauthoring_status',
-      getCoauthors: 'word_get_coauthors',
-      getLocks: 'word_get_coauthoring_locks',
-      requestLock: 'word_request_coauthoring_lock',
-      releaseLock: 'word_release_coauthoring_lock',
-      syncChanges: 'word_sync_coauthoring_changes'
-    }
-
-    const command = commandMap[action as CoauthoringAction]
-    const result = await sendIPCCommand(command, params)
-
-    return { ...result, action }
+    ]
   },
   examples: [
     {
@@ -87,4 +65,4 @@ export const wordCoauthoringTool: ToolDefinition = {
       output: { success: true, action: 'getStatus', data: { isCoauthoring: true, coauthorCount: 2 } }
     }
   ]
-}
+})

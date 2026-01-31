@@ -38,3 +38,11 @@ export type { ChatInputStateReturn } from './useChatInputState'
 export { useChatInputState } from './useChatInputState'
 export type { ChatUIStateReturn } from './useChatUIState'
 export { useChatUIState } from './useChatUIState'
+
+// P7 修复：从 ChatInterface.tsx 提取的处理器 Hooks
+export type { UseMessageHandlersOptions, UseMessageHandlersReturn } from './useMessageHandlers'
+export { useMessageHandlers } from './useMessageHandlers'
+export type { UseMultiTurnHandlersOptions, UseMultiTurnHandlersReturn } from './useMultiTurnHandlers'
+export { useMultiTurnHandlers } from './useMultiTurnHandlers'
+export type { UsePendingChangesOptions, UsePendingChangesReturn } from './usePendingChanges'
+export { usePendingChanges } from './usePendingChanges'

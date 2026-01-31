@@ -4,6 +4,8 @@
  */
 
 import type { Tool } from '@modelcontextprotocol/sdk/types.js'
+// 从 shared 包导入工具工厂函数
+export { validateAction, unsupportedActionError } from '@office-mcp/shared'
 
 export type ToolCategory =
   // 应用级类别
@@ -62,7 +64,7 @@ export interface ToolMetadata {
   documentTypes?: ToolCategory[]
   priority?: 'P0' | 'P1' | 'P2' | 'P3'
   mergedTools?: string[]
-  supportedActions?: string[]
+  supportedActions?: readonly string[]
 }
 
 export interface ToolExample {
@@ -72,7 +74,7 @@ export interface ToolExample {
 }
 
 export interface ToolDefinition extends Tool {
-  category: ToolCategory
+  category?: ToolCategory
   application?: ApplicationType
   handler: (args: Record<string, any>) => Promise<any>
   metadata?: ToolMetadata
@@ -90,35 +92,5 @@ export interface ToolExecutionResult {
     executionTime?: number
     memoryUsage?: number
     timestamp?: number
-  }
-}
-
-export interface ToolValidationError {
-  field: string
-  message: string
-  value?: any
-}
-
-export interface ToolValidationResult {
-  valid: boolean
-  errors: ToolValidationError[]
-}
-
-/**
- * 验证 action 是否在支持列表中
- */
-export function validateAction(action: string, supportedActions: string[]): boolean {
-  return supportedActions.includes(action)
-}
-
-/**
- * 生成不支持的 action 错误响应
- */
-export function unsupportedActionError(action: string, supportedActions: string[]): ToolExecutionResult {
-  return {
-    success: false,
-    error: `不支持的操作: ${action}`,
-    message: `支持的操作: ${supportedActions.join(', ')}`,
-    action
   }
 }

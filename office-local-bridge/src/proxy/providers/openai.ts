@@ -37,7 +37,7 @@ export class OpenAIAdapter implements AIProviderAdapter {
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), 60000)
 
-    let response: Response
+    let response: Response | undefined
     try {
       response = await fetch(url, {
         method: 'POST',
@@ -85,7 +85,7 @@ export class OpenAIAdapter implements AIProviderAdapter {
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), 120000) // 120秒超时（流式请求需要更长时间）
 
-    let response: Response
+    let response: Response | undefined
     let lastError: Error | null = null
     const maxRetries = 2
     
@@ -135,13 +135,20 @@ export class OpenAIAdapter implements AIProviderAdapter {
       }
     }
 
-    if (!response!.ok) {
-      const error = await response!.text()
-      logger.error('OpenAI 流式请求失败', { status: response!.status, error })
-      throw new Error(`OpenAI API 错误: ${response!.status} - ${error}`)
+    // 确保 response 已定义（重试循环后）
+    if (!response) {
+      clearTimeout(timeoutId)
+      throw new Error('请求失败：无法获取响应')
     }
 
-    const reader = response!.body?.getReader()
+    if (!response.ok) {
+      clearTimeout(timeoutId)
+      const error = await response.text()
+      logger.error('OpenAI 流式请求失败', { status: response.status, error })
+      throw new Error(`OpenAI API 错误: ${response.status} - ${error}`)
+    }
+
+    const reader = response.body?.getReader()
     if (!reader) {
       throw new Error('无法获取响应流')
     }

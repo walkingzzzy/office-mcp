@@ -22,6 +22,9 @@
   ],
   "author": "WuhanWenjin",
   "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.17.5",
     "@office-mcp/shared": "file:../shared"

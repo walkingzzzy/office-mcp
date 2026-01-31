@@ -3,6 +3,8 @@
  */
 
 import type { Tool } from '@modelcontextprotocol/sdk/types.js'
+// 从统一类型定义导入并重新导出
+export type { ToolExecutionResult } from '../types/index.js'
 
 export type ToolCategory =
   | 'word'
@@ -58,18 +60,7 @@ export interface ToolMetadata {
   priority?: 'P0' | 'P1' | 'P2'
 }
 
-export interface ToolExecutionResult {
-  success: boolean
-  message?: string
-  data?: any
-  error?: string
-  stack?: string
-  metadata?: {
-    executionTime?: number
-    memoryUsage?: number
-    timestamp?: number
-  }
-}
+// ToolExecutionResult 已从 ../types/index.js 导入并重新导出
 
 export interface ToolValidationError {
   field: string

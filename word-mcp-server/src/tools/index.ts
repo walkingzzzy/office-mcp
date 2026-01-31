@@ -63,39 +63,39 @@ import {
 export function getWordTools(): ToolDefinition[] {
   return [
     // 核心文档操作 (5个) - 合并 51 个原工具
-    wordDocumentTool,      // 合并 12 个
-    wordReadTool,          // 合并 7 个
-    wordTextTool,          // 合并 10 个
-    wordParagraphTool,     // 合并 10 个
+    wordDocumentTool as ToolDefinition,      // 合并 12 个
+    wordReadTool as ToolDefinition,          // 合并 7 个
+    wordTextTool as ToolDefinition,          // 合并 10 个
+    wordParagraphTool as ToolDefinition,     // 合并 10 个
     wordFormattingTool,    // 合并 12 个
 
     // 内容与样式 (5个) - 合并 45 个原工具
-    wordStyleTool,         // 合并 10 个
-    wordTableTool,         // 合并 15 个
-    wordImageTool,         // 合并 10 个
-    wordShapeTool,         // 合并 8 个
-    wordChartTool,         // 合并 2 个
+    wordStyleTool as ToolDefinition,         // 合并 10 个
+    wordTableTool as ToolDefinition,         // 合并 15 个
+    wordImageTool as ToolDefinition,         // 合并 10 个
+    wordShapeTool as ToolDefinition,         // 合并 8 个
+    wordChartTool as ToolDefinition,         // 合并 2 个
 
     // 页面与布局 (3个) - 合并 16 个原工具
     wordPageSetupTool,     // 合并 6 个
-    wordHeaderFooterTool,  // 合并 6 个
-    wordAdvancedTool,      // 合并 4 个
+    wordHeaderFooterTool as ToolDefinition,  // 合并 6 个
+    wordAdvancedTool as ToolDefinition,      // 合并 4 个
 
     // 引用与导航 (3个) - 合并 22 个原工具
-    wordReferenceTool,     // 合并 8 个
-    wordBookmarkTool,      // 合并 6 个
-    wordFieldTool,         // 合并 8 个
+    wordReferenceTool as ToolDefinition,     // 合并 8 个
+    wordBookmarkTool as ToolDefinition,      // 合并 6 个
+    wordFieldTool as ToolDefinition,         // 合并 8 个
 
     // 协作与审阅 (4个) - 合并 27 个原工具
-    wordCommentTool,       // 合并 6 个
-    wordTrackChangesTool,  // 合并 8 个
-    wordCoauthoringTool,   // 合并 6 个
-    wordConflictTool,      // 合并 7 个
+    wordCommentTool as ToolDefinition,       // 合并 6 个
+    wordTrackChangesTool as ToolDefinition,  // 合并 8 个
+    wordCoauthoringTool as ToolDefinition,   // 合并 6 个
+    wordConflictTool as ToolDefinition,      // 合并 7 个
 
     // 高级功能 (3个) - 合并 18 个原工具
-    wordContentControlTool, // 合并 6 个
-    wordAnnotationTool,    // 合并 6 个
-    wordCanvasTool,        // 合并 6 个
+    wordContentControlTool as ToolDefinition, // 合并 6 个
+    wordAnnotationTool as ToolDefinition,    // 合并 6 个
+    wordCanvasTool as ToolDefinition,        // 合并 6 个
 
     // 教育场景 (5个，保持独立)
     wordMailMergeTool,

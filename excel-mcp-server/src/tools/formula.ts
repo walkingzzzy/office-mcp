@@ -3,9 +3,7 @@
  * 合并 15 个原工具
  */
 
-import { sendIPCCommand } from '@office-mcp/shared'
-import type { ToolDefinition } from './types.js'
-import { validateAction, unsupportedActionError } from './types.js'
+import { createActionTool, required } from '@office-mcp/shared'
 
 const SUPPORTED_ACTIONS = [
   'set', 'get', 'calculate', 'insertSum', 'insertAverage',
@@ -14,9 +12,7 @@ const SUPPORTED_ACTIONS = [
   'dataValidation', 'removeDuplicates'
 ] as const
 
-type FormulaAction = typeof SUPPORTED_ACTIONS[number]
-
-export const excelFormulaTool: ToolDefinition = {
+export const excelFormulaTool = createActionTool({
   name: 'excel_formula',
   description: `公式与计算工具。支持的操作(action):
 - set: 设置公式 (需要 cell, formula)
@@ -36,93 +32,117 @@ export const excelFormulaTool: ToolDefinition = {
 - removeDuplicates: 删除重复项 (需要 range)`,
   category: 'formula',
   application: 'excel',
-  inputSchema: {
-    type: 'object',
-    properties: {
-      action: {
-        type: 'string',
-        enum: SUPPORTED_ACTIONS,
-        description: '要执行的操作'
-      },
-      cell: {
-        type: 'string',
-        description: '[多个操作] 单元格地址'
-      },
-      range: {
-        type: 'string',
-        description: '[多个操作] 区域地址'
-      },
-      formula: {
-        type: 'string',
-        description: '[set/arrayFormula] 公式'
-      },
-      dataRange: {
-        type: 'string',
-        description: '[insertSum/insertAverage/insertCount] 数据区域'
-      },
-      resultCell: {
-        type: 'string',
-        description: '[insertSum/insertAverage/insertCount] 结果单元格'
-      },
-      condition: {
-        type: 'string',
-        description: '[insertIf] 条件'
-      },
-      trueValue: {
-        type: ['string', 'number'],
-        description: '[insertIf] 真值'
-      },
-      falseValue: {
-        type: ['string', 'number'],
-        description: '[insertIf] 假值'
-      },
-      lookupValue: {
-        type: 'string',
-        description: '[insertVlookup] 查找值'
-      },
-      tableArray: {
-        type: 'string',
-        description: '[insertVlookup] 表格区域'
-      },
-      colIndex: {
-        type: 'number',
-        description: '[insertVlookup] 列索引'
-      },
-      exactMatch: {
-        type: 'boolean',
-        description: '[insertVlookup] 精确匹配',
-        default: true
-      },
-      sourceRange: {
-        type: 'string',
-        description: '[insertPivot] 源数据区域'
-      },
-      destinationCell: {
-        type: 'string',
-        description: '[insertPivot] 目标单元格'
-      },
-      name: {
-        type: 'string',
-        description: '[defineName/useName] 名称'
-      },
-      refersTo: {
-        type: 'string',
-        description: '[defineName] 引用区域'
-      },
-      rule: {
-        type: 'object',
-        description: '[dataValidation] 验证规则'
-      },
-      columns: {
-        type: 'array',
-        items: { type: 'number' },
-        description: '[removeDuplicates] 要检查的列'
-      }
+  actions: SUPPORTED_ACTIONS,
+  commandMap: {
+    set: 'excel_set_formula',
+    get: 'excel_get_formula',
+    calculate: 'excel_calculate',
+    insertSum: 'excel_insert_sum',
+    insertAverage: 'excel_insert_average',
+    insertCount: 'excel_insert_count',
+    insertIf: 'excel_insert_if',
+    insertVlookup: 'excel_insert_vlookup',
+    insertPivot: 'excel_insert_pivot_table',
+    refreshPivot: 'excel_refresh_pivot',
+    defineName: 'excel_define_name',
+    useName: 'excel_use_named_range',
+    arrayFormula: 'excel_array_formula',
+    dataValidation: 'excel_data_validation',
+    removeDuplicates: 'excel_remove_duplicates'
+  },
+  paramRules: {
+    set: [required('cell', 'string'), required('formula', 'string')],
+    get: [required('cell', 'string')],
+    insertSum: [required('dataRange', 'string'), required('resultCell', 'string')],
+    insertAverage: [required('dataRange', 'string'), required('resultCell', 'string')],
+    insertCount: [required('dataRange', 'string'), required('resultCell', 'string')],
+    insertIf: [required('cell', 'string'), required('condition', 'string')],
+    insertVlookup: [required('cell', 'string'), required('lookupValue', 'string'), required('tableArray', 'string'), required('colIndex', 'number')],
+    insertPivot: [required('sourceRange', 'string'), required('destinationCell', 'string')],
+    defineName: [required('name', 'string'), required('refersTo', 'string')],
+    useName: [required('name', 'string')],
+    arrayFormula: [required('range', 'string'), required('formula', 'string')],
+    dataValidation: [required('range', 'string'), required('rule', 'object')],
+    removeDuplicates: [required('range', 'string')]
+  },
+  properties: {
+    cell: {
+      type: 'string',
+      description: '[多个操作] 单元格地址'
     },
-    required: ['action']
+    range: {
+      type: 'string',
+      description: '[多个操作] 区域地址'
+    },
+    formula: {
+      type: 'string',
+      description: '[set/arrayFormula] 公式'
+    },
+    dataRange: {
+      type: 'string',
+      description: '[insertSum/insertAverage/insertCount] 数据区域'
+    },
+    resultCell: {
+      type: 'string',
+      description: '[insertSum/insertAverage/insertCount] 结果单元格'
+    },
+    condition: {
+      type: 'string',
+      description: '[insertIf] 条件'
+    },
+    trueValue: {
+      type: 'string',
+      description: '[insertIf] 真值'
+    },
+    falseValue: {
+      type: 'string',
+      description: '[insertIf] 假值'
+    },
+    lookupValue: {
+      type: 'string',
+      description: '[insertVlookup] 查找值'
+    },
+    tableArray: {
+      type: 'string',
+      description: '[insertVlookup] 表格区域'
+    },
+    colIndex: {
+      type: 'number',
+      description: '[insertVlookup] 列索引'
+    },
+    exactMatch: {
+      type: 'boolean',
+      description: '[insertVlookup] 精确匹配',
+      default: true
+    },
+    sourceRange: {
+      type: 'string',
+      description: '[insertPivot] 源数据区域'
+    },
+    destinationCell: {
+      type: 'string',
+      description: '[insertPivot] 目标单元格'
+    },
+    name: {
+      type: 'string',
+      description: '[defineName/useName] 名称'
+    },
+    refersTo: {
+      type: 'string',
+      description: '[defineName] 引用区域'
+    },
+    rule: {
+      type: 'object',
+      description: '[dataValidation] 验证规则'
+    },
+    columns: {
+      type: 'array',
+      items: { type: 'number' },
+      description: '[removeDuplicates] 要检查的列'
+    }
   },
   metadata: {
-    version: '2.0.0',
+    version: '2.1.0',
     priority: 'P0',
     intentKeywords: [
       '公式', '求和', '平均值', '计数', 'VLOOKUP',
@@ -134,38 +154,7 @@ export const excelFormulaTool: ToolDefinition = {
       'excel_insert_if', 'excel_insert_vlookup', 'excel_insert_pivot_table',
       'excel_refresh_pivot', 'excel_define_name', 'excel_use_named_range',
       'excel_array_formula', 'excel_data_validation', 'excel_remove_duplicates'
-    ],
-    supportedActions: [...SUPPORTED_ACTIONS]
-  },
-  handler: async (args: Record<string, any>) => {
-    const { action, ...params } = args
-
-    if (!validateAction(action, [...SUPPORTED_ACTIONS])) {
-      return unsupportedActionError(action, [...SUPPORTED_ACTIONS])
-    }
-
-    const commandMap: Record<FormulaAction, string> = {
-      set: 'excel_set_formula',
-      get: 'excel_get_formula',
-      calculate: 'excel_calculate',
-      insertSum: 'excel_insert_sum',
-      insertAverage: 'excel_insert_average',
-      insertCount: 'excel_insert_count',
-      insertIf: 'excel_insert_if',
-      insertVlookup: 'excel_insert_vlookup',
-      insertPivot: 'excel_insert_pivot_table',
-      refreshPivot: 'excel_refresh_pivot',
-      defineName: 'excel_define_name',
-      useName: 'excel_use_named_range',
-      arrayFormula: 'excel_array_formula',
-      dataValidation: 'excel_data_validation',
-      removeDuplicates: 'excel_remove_duplicates'
-    }
-
-    const command = commandMap[action as FormulaAction]
-    const result = await sendIPCCommand(command, params)
-
-    return { ...result, action }
+    ]
   },
   examples: [
     {
@@ -179,4 +168,4 @@ export const excelFormulaTool: ToolDefinition = {
       output: { success: true, message: '成功插入求和公式', action: 'insertSum' }
     }
   ]
-}
+})

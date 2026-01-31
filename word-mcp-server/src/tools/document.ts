@@ -5,9 +5,7 @@
  * getStatistics, getPath
  */
 
-import { sendIPCCommand } from '@office-mcp/shared'
-import type { ToolDefinition } from './types.js'
-import { validateAction, unsupportedActionError } from './types.js'
+import { createActionTool, required } from '@office-mcp/shared'
 
 const SUPPORTED_ACTIONS = [
   'open', 'close', 'save', 'saveAs', 'getSaveStatus',
@@ -15,9 +13,7 @@ const SUPPORTED_ACTIONS = [
   'getProperties', 'setProperties', 'getStatistics', 'getPath'
 ] as const
 
-type DocumentAction = typeof SUPPORTED_ACTIONS[number]
-
-export const wordDocumentTool: ToolDefinition = {
+export const wordDocumentTool = createActionTool({
   name: 'word_document',
   description: `文档生命周期管理工具。支持的操作(action):
 - open: 打开文档 (需要 path)
@@ -34,72 +30,82 @@ export const wordDocumentTool: ToolDefinition = {
 - getPath: 获取文档路径`,
   category: 'document',
   application: 'word',
-  inputSchema: {
-    type: 'object',
-    properties: {
-      action: {
-        type: 'string',
-        enum: SUPPORTED_ACTIONS,
-        description: '要执行的操作'
-      },
-      // open 参数
-      path: {
-        type: 'string',
-        description: '[open] 文档路径（本地路径或 URL）'
-      },
-      readOnly: {
-        type: 'boolean',
-        description: '[open] 是否以只读模式打开',
-        default: false
-      },
-      // saveAs 参数
-      fileName: {
-        type: 'string',
-        description: '[saveAs] 新文件名'
-      },
-      format: {
-        type: 'string',
-        enum: ['docx', 'pdf', 'html', 'rtf', 'txt'],
-        description: '[saveAs] 保存格式'
-      },
-      // print 参数
-      copies: {
-        type: 'number',
-        description: '[print] 打印份数',
-        default: 1
-      },
-      pageRange: {
-        type: 'string',
-        description: '[print] 页面范围（如 "1-5,8,11-13"）'
-      },
-      collate: {
-        type: 'boolean',
-        description: '[print] 是否逐份打印',
-        default: true
-      },
-      duplex: {
-        type: 'string',
-        enum: ['none', 'vertical', 'horizontal'],
-        description: '[print] 双面打印模式',
-        default: 'none'
-      },
-      // setProperties 参数
-      properties: {
-        type: 'object',
-        description: '[setProperties] 文档属性',
-        properties: {
-          title: { type: 'string', description: '文档标题' },
-          author: { type: 'string', description: '作者' },
-          subject: { type: 'string', description: '主题' },
-          keywords: { type: 'string', description: '关键词（用逗号分隔）' },
-          comments: { type: 'string', description: '备注' },
-          category: { type: 'string', description: '类别' },
-          manager: { type: 'string', description: '管理者' },
-          company: { type: 'string', description: '公司' }
-        }
-      }
+  actions: SUPPORTED_ACTIONS,
+  commandMap: {
+    open: 'word_open_document',
+    close: 'word_close_document',
+    save: 'word_save_document',
+    saveAs: 'word_save_as_document',
+    getSaveStatus: 'word_get_save_status',
+    print: 'word_print_document',
+    printPreview: 'word_print_preview',
+    closePrintPreview: 'word_close_print_preview',
+    getProperties: 'word_get_document_properties',
+    setProperties: 'word_set_document_properties',
+    getStatistics: 'word_get_document_statistics',
+    getPath: 'word_get_document_path'
+  },
+  paramRules: {
+    open: [required('path', 'string')],
+    saveAs: [required('fileName', 'string')],
+    setProperties: [required('properties', 'object')]
+  },
+  pathParams: {
+    filePath: ['path']
+  },
+  properties: {
+    path: {
+      type: 'string',
+      description: '[open] 文档路径（本地路径或 URL）'
     },
-    required: ['action']
+    readOnly: {
+      type: 'boolean',
+      description: '[open] 是否以只读模式打开',
+      default: false
+    },
+    fileName: {
+      type: 'string',
+      description: '[saveAs] 新文件名'
+    },
+    format: {
+      type: 'string',
+      enum: ['docx', 'pdf', 'html', 'rtf', 'txt'],
+      description: '[saveAs] 保存格式'
+    },
+    copies: {
+      type: 'number',
+      description: '[print] 打印份数',
+      default: 1
+    },
+    pageRange: {
+      type: 'string',
+      description: '[print] 页面范围（如 "1-5,8,11-13"）'
+    },
+    collate: {
+      type: 'boolean',
+      description: '[print] 是否逐份打印',
+      default: true
+    },
+    duplex: {
+      type: 'string',
+      enum: ['none', 'vertical', 'horizontal'],
+      description: '[print] 双面打印模式',
+      default: 'none'
+    },
+    properties: {
+      type: 'object',
+      description: '[setProperties] 文档属性',
+      properties: {
+        title: { type: 'string', description: '文档标题' },
+        author: { type: 'string', description: '作者' },
+        subject: { type: 'string', description: '主题' },
+        keywords: { type: 'string', description: '关键词（用逗号分隔）' },
+        comments: { type: 'string', description: '备注' },
+        category: { type: 'string', description: '类别' },
+        manager: { type: 'string', description: '管理者' },
+        company: { type: 'string', description: '公司' }
+      }
+    }
   },
   metadata: {
     version: '2.0.0',
@@ -113,39 +119,7 @@ export const wordDocumentTool: ToolDefinition = {
       'word_save_as_document', 'word_get_save_status', 'word_print_document',
       'word_print_preview', 'word_close_print_preview', 'word_get_document_properties',
       'word_set_document_properties', 'word_get_document_statistics', 'word_get_document_path'
-    ],
-    supportedActions: [...SUPPORTED_ACTIONS]
-  },
-  handler: async (args: Record<string, any>) => {
-    const { action, ...params } = args
-
-    if (!validateAction(action, [...SUPPORTED_ACTIONS])) {
-      return unsupportedActionError(action, [...SUPPORTED_ACTIONS])
-    }
-
-    // 根据 action 映射到原始命令
-    const commandMap: Record<DocumentAction, string> = {
-      open: 'word_open_document',
-      close: 'word_close_document',
-      save: 'word_save_document',
-      saveAs: 'word_save_as_document',
-      getSaveStatus: 'word_get_save_status',
-      print: 'word_print_document',
-      printPreview: 'word_print_preview',
-      closePrintPreview: 'word_close_print_preview',
-      getProperties: 'word_get_document_properties',
-      setProperties: 'word_set_document_properties',
-      getStatistics: 'word_get_document_statistics',
-      getPath: 'word_get_document_path'
-    }
-
-    const command = commandMap[action as DocumentAction]
-    const result = await sendIPCCommand(command, params)
-
-    return {
-      ...result,
-      action
-    }
+    ]
   },
   examples: [
     {
@@ -168,4 +142,4 @@ export const wordDocumentTool: ToolDefinition = {
       }
     }
   ]
-}
+})

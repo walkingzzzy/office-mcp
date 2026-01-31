@@ -214,7 +214,8 @@ export class OfficeDetector {
     }
 
     try {
-      const { stdout } = await execAsync(`reg query "${path}" /s`, {
+      // 使用 chcp 65001 强制 UTF-8 输出，解决中文 Windows 下 GBK 编码问题
+      const { stdout } = await execAsync(`chcp 65001 >nul && reg query "${path}" /s`, {
         encoding: 'utf8',
         windowsHide: true
       });
@@ -336,8 +337,10 @@ export class OfficeDetector {
       const output = await this.queryRegistry(registryPath);
 
       if (output) {
-        const pathMatch = output.match(/\(默认\)\s+REG_SZ\s+(.+?)[\r\n]/i) ||
-                          output.match(/\(Default\)\s+REG_SZ\s+(.+?)[\r\n]/i);
+        // 使用通用正则匹配任何语言的默认值：(本地化名称) REG_SZ 值
+        // 支持：中文(默认)、英文(Default)、日文(既定)、韩文(기본값)、
+        // 德文(Standard)、法文(Par défaut)、西班牙文(Predeterminado) 等
+        const pathMatch = output.match(/^\s*\([^)]+\)\s+REG_SZ\s+(.+?)[\r\n]/im);
         const appPath = pathMatch ? pathMatch[1].trim() : undefined;
 
         if (appPath) {

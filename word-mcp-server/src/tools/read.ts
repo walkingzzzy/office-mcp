@@ -4,18 +4,14 @@
  * checkHasTables, getImages, formatText, setFontName
  */
 
-import { sendIPCCommand } from '@office-mcp/shared'
-import type { ToolDefinition } from './types.js'
-import { validateAction, unsupportedActionError } from './types.js'
+import { createActionTool, required } from '@office-mcp/shared'
 
 const SUPPORTED_ACTIONS = [
   'read', 'detectSelection', 'hasImages',
   'hasTables', 'getImages', 'formatText', 'setFontName'
 ] as const
 
-type ReadAction = typeof SUPPORTED_ACTIONS[number]
-
-export const wordReadTool: ToolDefinition = {
+export const wordReadTool = createActionTool({
   name: 'word_read',
   description: `文档内容读取工具。支持的操作(action):
 - read: 读取文档内容 (可选 includeFormatting)
@@ -27,33 +23,38 @@ export const wordReadTool: ToolDefinition = {
 - setFontName: 设置字体名称 (需要 fontName)`,
   category: 'document',
   application: 'word',
-  inputSchema: {
-    type: 'object',
-    properties: {
-      action: {
-        type: 'string',
-        enum: SUPPORTED_ACTIONS,
-        description: '要执行的操作'
-      },
-      includeFormatting: {
-        type: 'boolean',
-        description: '[read] 包含格式信息',
-        default: false
-      },
-      text: {
-        type: 'string',
-        description: '[formatText] 要格式化的文本'
-      },
-      format: {
-        type: 'object',
-        description: '[formatText] 格式设置'
-      },
-      fontName: {
-        type: 'string',
-        description: '[setFontName] 字体名称'
-      }
+  actions: SUPPORTED_ACTIONS,
+  commandMap: {
+    read: 'word_read_document',
+    detectSelection: 'word_detect_selection_type',
+    hasImages: 'word_check_document_has_images',
+    hasTables: 'word_check_document_has_tables',
+    getImages: 'word_get_images',
+    formatText: 'word_format_text',
+    setFontName: 'word_set_font_name'
+  },
+  paramRules: {
+    formatText: [required('text', 'string'), required('format', 'object')],
+    setFontName: [required('fontName', 'string')]
+  },
+  properties: {
+    includeFormatting: {
+      type: 'boolean',
+      description: '[read] 包含格式信息',
+      default: false
     },
-    required: ['action']
+    text: {
+      type: 'string',
+      description: '[formatText] 要格式化的文本'
+    },
+    format: {
+      type: 'object',
+      description: '[formatText] 格式设置'
+    },
+    fontName: {
+      type: 'string',
+      description: '[setFontName] 字体名称'
+    }
   },
   metadata: {
     version: '2.0.0',
@@ -63,30 +64,7 @@ export const wordReadTool: ToolDefinition = {
       'word_read_document', 'word_detect_selection_type',
       'word_check_document_has_images', 'word_check_document_has_tables',
       'word_get_images', 'word_format_text', 'word_set_font_name'
-    ],
-    supportedActions: [...SUPPORTED_ACTIONS]
-  },
-  handler: async (args: Record<string, any>) => {
-    const { action, ...params } = args
-
-    if (!validateAction(action, [...SUPPORTED_ACTIONS])) {
-      return unsupportedActionError(action, [...SUPPORTED_ACTIONS])
-    }
-
-    const commandMap: Record<ReadAction, string> = {
-      read: 'word_read_document',
-      detectSelection: 'word_detect_selection_type',
-      hasImages: 'word_check_document_has_images',
-      hasTables: 'word_check_document_has_tables',
-      getImages: 'word_get_images',
-      formatText: 'word_format_text',
-      setFontName: 'word_set_font_name'
-    }
-
-    const command = commandMap[action as ReadAction]
-    const result = await sendIPCCommand(command, params)
-
-    return { ...result, action }
+    ]
   },
   examples: [
     {
@@ -100,4 +78,4 @@ export const wordReadTool: ToolDefinition = {
       output: { success: true, action: 'hasTables', data: { hasTables: true, count: 2 } }
     }
   ]
-}
+})

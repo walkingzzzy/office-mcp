@@ -156,7 +156,7 @@ async function startServer(): Promise<void> {
   app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 
   // 健康检查端点 - 返回详细的系统健康信息
-  app.get('/health', (_req, res) => {
+  app.get('/health', tokenAuth, (_req, res) => {
     const memoryUsage = getMemoryUsage()
     const uptimeInfo = getUptimeInfo()
     const mcpServers = processManager.getAllStatus()
@@ -223,8 +223,24 @@ async function startServer(): Promise<void> {
   app.use('/api/logs', tokenAuth, logsRouter)
   app.use('/api/office', tokenAuth, officeRouter)
 
+  // ========== /v1/office/* 兼容路由 ==========
+  // 将旧版 /v1/office/* 路由转发到对应的 /api/* 处理器
+  app.get('/v1/office/health', (_req, res) => {
+    res.redirect(307, '/health')
+  })
+  app.get('/v1/office/status', (_req, res) => {
+    res.redirect(307, '/health')
+  })
+  app.use('/v1/office/config', tokenAuth, configRouter)
+  // /v1/office/tools -> toolsRouter (提供 /execute-tool, /pending-commands, /command-result)
+  app.use('/v1/office/tools', tokenAuth, toolsRouter)
+  // /v1/office/mcp -> mcpRouter (提供 /servers, /servers/:id/tools 等)
+  app.use('/v1/office/mcp', tokenAuth, mcpRouter)
+  app.use('/v1/office', tokenAuth, officeRouter)
+
   // 404 处理中间件（放在所有路由之后）
   app.use('/api/*', notFoundHandler)
+  app.use('/v1/office/*', notFoundHandler)
 
   // 统一错误处理中间件（必须放在最后）
   app.use(errorHandler)
@@ -289,6 +305,12 @@ async function initMcpServers(config: ReturnType<typeof loadConfig>, wsServer: W
 
   // 注册所有服务器
   for (const serverConfig of servers) {
+    if (config.apiToken) {
+      serverConfig.env = {
+        ...serverConfig.env,
+        OFFICE_MCP_API_TOKEN: config.apiToken
+      }
+    }
     processManager.register(serverConfig)
   }
 

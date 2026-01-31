@@ -145,7 +145,8 @@ export class AIService {
       const response = await fetch(`${this.config.baseUrl}/health`, {
         method: 'GET',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          ...(this.config.apiKey && { Authorization: `Bearer ${this.config.apiKey}` })
         },
         signal: AbortSignal.timeout(5000) // 5秒超时
       })

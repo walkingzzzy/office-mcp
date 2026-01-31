@@ -3,18 +3,14 @@
  * 合并 8 个原工具
  */
 
-import { sendIPCCommand } from '@office-mcp/shared'
-import type { ToolDefinition } from './types.js'
-import { validateAction, unsupportedActionError } from './types.js'
+import { createActionTool, required } from '@office-mcp/shared'
 
 const SUPPORTED_ACTIONS = [
   'create', 'open', 'save', 'saveAs', 'close',
   'getInfo', 'setProperties', 'protect'
 ] as const
 
-type WorkbookAction = typeof SUPPORTED_ACTIONS[number]
-
-export const excelWorkbookTool: ToolDefinition = {
+export const excelWorkbookTool = createActionTool({
   name: 'excel_workbook',
   description: `工作簿操作工具。支持的操作(action):
 - create: 创建工作簿 (可选 name)
@@ -27,57 +23,67 @@ export const excelWorkbookTool: ToolDefinition = {
 - protect: 保护工作簿 (可选 password, options)`,
   category: 'workbook',
   application: 'excel',
-  inputSchema: {
-    type: 'object',
+  actions: SUPPORTED_ACTIONS,
+  commandMap: {
+    create: 'excel_create_workbook',
+    open: 'excel_open_workbook',
+    save: 'excel_save_workbook',
+    saveAs: 'excel_save_workbook_as',
+    close: 'excel_close_workbook',
+    getInfo: 'excel_get_workbook_info',
+    setProperties: 'excel_set_workbook_properties',
+    protect: 'excel_protect_workbook'
+  },
+  paramRules: {
+    open: [required('path', 'string')],
+    saveAs: [required('path', 'string')],
+    setProperties: [required('properties', 'object')]
+  },
+  pathParams: {
+    filePath: ['path']
+  },
+  properties: {
+    name: {
+      type: 'string',
+      description: '[create] 工作簿名称'
+    },
+    path: {
+      type: 'string',
+      description: '[open/saveAs] 文件路径'
+    },
+    format: {
+      type: 'string',
+      enum: ['xlsx', 'xlsm', 'xlsb', 'xls', 'csv', 'pdf'],
+      description: '[saveAs] 保存格式'
+    },
+    save: {
+      type: 'boolean',
+      description: '[close] 关闭前是否保存',
+      default: true
+    },
     properties: {
-      action: {
-        type: 'string',
-        enum: SUPPORTED_ACTIONS,
-        description: '要执行的操作'
-      },
-      name: {
-        type: 'string',
-        description: '[create] 工作簿名称'
-      },
-      path: {
-        type: 'string',
-        description: '[open/saveAs] 文件路径'
-      },
-      format: {
-        type: 'string',
-        enum: ['xlsx', 'xlsm', 'xlsb', 'xls', 'csv', 'pdf'],
-        description: '[saveAs] 保存格式'
-      },
-      save: {
-        type: 'boolean',
-        description: '[close] 关闭前是否保存',
-        default: true
-      },
+      type: 'object',
+      description: '[setProperties] 工作簿属性',
       properties: {
-        type: 'object',
-        description: '[setProperties] 工作簿属性',
-        properties: {
-          title: { type: 'string' },
-          author: { type: 'string' },
-          subject: { type: 'string' },
-          keywords: { type: 'string' },
-          comments: { type: 'string' }
-        }
-      },
-      password: {
-        type: 'string',
-        description: '[protect] 保护密码'
-      },
-      options: {
-        type: 'object',
-        description: '[protect] 保护选项',
-        properties: {
-          structure: { type: 'boolean' },
-          windows: { type: 'boolean' }
-        }
+        title: { type: 'string' },
+        author: { type: 'string' },
+        subject: { type: 'string' },
+        keywords: { type: 'string' },
+        comments: { type: 'string' }
       }
     },
-    required: ['action']
+    password: {
+      type: 'string',
+      description: '[protect] 保护密码'
+    },
+    options: {
+      type: 'object',
+      description: '[protect] 保护选项',
+      properties: {
+        structure: { type: 'boolean' },
+        windows: { type: 'boolean' }
+      }
+    }
   },
   metadata: {
     version: '2.0.0',
@@ -94,29 +100,6 @@ export const excelWorkbookTool: ToolDefinition = {
     ],
     supportedActions: [...SUPPORTED_ACTIONS]
   },
-  handler: async (args: Record<string, any>) => {
-    const { action, ...params } = args
-
-    if (!validateAction(action, [...SUPPORTED_ACTIONS])) {
-      return unsupportedActionError(action, [...SUPPORTED_ACTIONS])
-    }
-
-    const commandMap: Record<WorkbookAction, string> = {
-      create: 'excel_create_workbook',
-      open: 'excel_open_workbook',
-      save: 'excel_save_workbook',
-      saveAs: 'excel_save_workbook_as',
-      close: 'excel_close_workbook',
-      getInfo: 'excel_get_workbook_info',
-      setProperties: 'excel_set_workbook_properties',
-      protect: 'excel_protect_workbook'
-    }
-
-    const command = commandMap[action as WorkbookAction]
-    const result = await sendIPCCommand(command, params)
-
-    return { ...result, action }
-  },
   examples: [
     {
       description: '创建工作簿',
@@ -124,4 +107,4 @@ export const excelWorkbookTool: ToolDefinition = {
       output: { success: true, message: '成功创建工作簿', action: 'create' }
     }
   ]
-}
+})

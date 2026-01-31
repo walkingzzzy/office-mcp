@@ -31,7 +31,10 @@ export class MonitoringSystem {
   }
 
   static getInstance(config?: MonitoringConfig): MonitoringSystem {
-    if (!MonitoringSystem.instance && config) {
+    if (!MonitoringSystem.instance) {
+      if (!config) {
+        throw new Error('MonitoringSystem must be initialized with config first')
+      }
       MonitoringSystem.instance = new MonitoringSystem(config)
     }
     return MonitoringSystem.instance

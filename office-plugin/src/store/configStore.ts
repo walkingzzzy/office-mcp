@@ -45,7 +45,7 @@ interface ConfigState {
   clearError: () => void
   reset: () => void
   enableOfflineMode: () => void
-  disableOfflineMode: () => void
+  disableOfflineMode: () => Promise<void>
   retryConnection: () => Promise<void>
 
   // Getters (便捷访问)
@@ -189,8 +189,7 @@ export const useConfigStore = create<ConfigState>((set, get) => ({
   /**
    * 禁用离线模式
    */
-  disableOfflineMode: () => {
-    const currentState = get()
+  disableOfflineMode: async () => {
     set({
       offlineMode: false,
       retryCount: 0,
@@ -198,7 +197,7 @@ export const useConfigStore = create<ConfigState>((set, get) => ({
     })
     logger.info('已禁用离线模式，正在尝试重新连接')
     // 自动尝试重新连接
-    currentState.syncConfig()
+    await get().syncConfig()
   },
 
   /**

@@ -4,18 +4,56 @@
  */
 
 import crypto from 'node:crypto'
+import fs from 'node:fs'
 import os from 'node:os'
+import path from 'node:path'
 
 // 加密值前缀，用于识别是否已加密
 const ENCRYPTED_PREFIX = 'enc:'
 
+// 密钥存储路径
+const KEY_DIR = path.join(os.homedir(), '.office-local-bridge')
+const KEY_FILE = path.join(KEY_DIR, 'encryption.key')
+
+// 缓存的密钥
+let cachedKey: Buffer | null = null
+
 /**
- * 获取基于机器特定信息的加密密钥
- * 使用主机名 + 用户名 + 固定盐值生成唯一密钥
+ * 获取加密密钥
+ * 首次运行时生成随机密钥并持久化存储，后续运行时读取已存储的密钥
  */
 function getEncryptionKey(): Buffer {
-  const machineId = `${os.hostname()}-${os.userInfo().username}-office-local-bridge`
-  return crypto.createHash('sha256').update(machineId).digest()
+  if (cachedKey) {
+    return cachedKey
+  }
+
+  try {
+    // 尝试读取已存储的密钥
+    if (fs.existsSync(KEY_FILE)) {
+      cachedKey = fs.readFileSync(KEY_FILE)
+      if (cachedKey.length === 32) {
+        return cachedKey
+      }
+    }
+  } catch {
+    // 读取失败，将生成新密钥
+  }
+
+  // 生成新的随机密钥
+  cachedKey = crypto.randomBytes(32)
+
+  try {
+    // 确保目录存在
+    if (!fs.existsSync(KEY_DIR)) {
+      fs.mkdirSync(KEY_DIR, { recursive: true, mode: 0o700 })
+    }
+    // 保存密钥，设置仅用户可读写权限
+    fs.writeFileSync(KEY_FILE, cachedKey, { mode: 0o600 })
+  } catch (error) {
+    console.error('保存加密密钥失败:', error)
+  }
+
+  return cachedKey
 }
 
 /**

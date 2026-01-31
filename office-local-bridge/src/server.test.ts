@@ -7,11 +7,19 @@ import type { HealthCheckResponse } from './types/index.js'
 
 describe('Server 集成测试', () => {
   const baseUrl = 'http://localhost:3001'
+  const authToken =
+    process.env.OFFICE_MCP_API_TOKEN ||
+    process.env.OFFICE_BRIDGE_API_TOKEN ||
+    process.env.OFFICE_PLUGIN_API_TOKEN ||
+    process.env.OFFICE_API_TOKEN
+  const authHeaders = authToken ? { Authorization: `Bearer ${authToken}` } : {}
 
   describe('健康检查', () => {
     it('应该返回健康状态', async () => {
       try {
-        const response = await fetch(`${baseUrl}/health`)
+        const response = await fetch(`${baseUrl}/health`, {
+          headers: authHeaders
+        })
         const data = await response.json() as HealthCheckResponse
 
         expect(response.status).toBe(200)
@@ -28,7 +36,9 @@ describe('Server 集成测试', () => {
   describe('MCP API', () => {
     it('应该返回 MCP 服务器列表', async () => {
       try {
-        const response = await fetch(`${baseUrl}/api/mcp/servers`)
+        const response = await fetch(`${baseUrl}/api/mcp/servers`, {
+          headers: authHeaders
+        })
         const data = await response.json()
 
         expect(response.status).toBe(200)
@@ -42,7 +52,9 @@ describe('Server 集成测试', () => {
   describe('AI API', () => {
     it('应该返回支持的 AI 提供商', async () => {
       try {
-        const response = await fetch(`${baseUrl}/api/ai/providers`)
+        const response = await fetch(`${baseUrl}/api/ai/providers`, {
+          headers: authHeaders
+        })
         const data = await response.json()
 
         expect(response.status).toBe(200)

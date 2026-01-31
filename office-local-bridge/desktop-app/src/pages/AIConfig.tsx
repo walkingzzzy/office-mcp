@@ -49,7 +49,7 @@ const DEFAULT_BASE_URLS: Record<AIProviderType, string> = {
 }
 
 function generateId(): string {
-  return `provider_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+  return `provider_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`
 }
 
 export default function AIConfig() {

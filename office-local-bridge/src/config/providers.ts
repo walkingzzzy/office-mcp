@@ -2,14 +2,16 @@
  * AI提供商配置管理
  */
 
-import { existsSync, mkdirSync } from 'node:fs'
+import { existsSync } from 'node:fs'
 import { readFile, writeFile, mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 import { homedir } from 'node:os'
 import type { AIProviderConfig } from '../types/index.js'
 import { createLogger } from '../utils/logger.js'
+import { decryptValue, encryptValue, isEncrypted } from '../utils/crypto.js'
 
 const logger = createLogger('ProvidersConfig')
+const MASKED_VALUE = '******'
 
 /**
  * 获取配置目录路径
@@ -25,13 +27,31 @@ function getProvidersConfigPath(): string {
   return join(getConfigDir(), 'providers.json')
 }
 
+function decryptProviders(providers: AIProviderConfig[]): AIProviderConfig[] {
+  return providers.map(provider => ({
+    ...provider,
+    apiKey: provider.apiKey && isEncrypted(provider.apiKey)
+      ? decryptValue(provider.apiKey)
+      : provider.apiKey
+  }))
+}
+
+function encryptProviders(providers: AIProviderConfig[]): AIProviderConfig[] {
+  return providers.map(provider => ({
+    ...provider,
+    apiKey: provider.apiKey && !isEncrypted(provider.apiKey)
+      ? encryptValue(provider.apiKey)
+      : provider.apiKey
+  }))
+}
+
 /**
  * 确保配置目录存在（异步版本）
  */
 async function ensureConfigDir(): Promise<void> {
   const configDir = getConfigDir()
   if (!existsSync(configDir)) {
-    await mkdir(configDir, { recursive: true })
+    await mkdir(configDir, { recursive: true, mode: 0o700 })
     logger.info('创建配置目录', { path: configDir })
   }
 }
@@ -46,8 +66,9 @@ export async function loadProvidersConfig(): Promise<AIProviderConfig[]> {
     try {
       const content = await readFile(configPath, 'utf-8')
       const data = JSON.parse(content) as { providers: AIProviderConfig[] }
-      logger.info('Providers配置已加载', { count: data.providers.length })
-      return data.providers
+      const providers = Array.isArray(data.providers) ? data.providers : []
+      logger.info('Providers配置已加载', { count: providers.length })
+      return decryptProviders(providers)
     } catch (error) {
       logger.error('Providers配置解析失败', { error })
       return []
@@ -70,8 +91,9 @@ export function loadProvidersConfigSync(): AIProviderConfig[] {
     try {
       const content = readFileSync(configPath, 'utf-8')
       const data = JSON.parse(content) as { providers: AIProviderConfig[] }
-      logger.info('Providers配置已加载（同步）', { count: data.providers.length })
-      return data.providers
+      const providers = Array.isArray(data.providers) ? data.providers : []
+      logger.info('Providers配置已加载（同步）', { count: providers.length })
+      return decryptProviders(providers)
     } catch (error) {
       logger.error('Providers配置解析失败', { error })
       return []
@@ -92,9 +114,12 @@ export async function saveProvidersConfig(providers: AIProviderConfig[]): Promis
   try {
     const data = {
       version: 1,
-      providers
+      providers: encryptProviders(providers)
     }
-    await writeFile(configPath, JSON.stringify(data, null, 2), 'utf-8')
+    await writeFile(configPath, JSON.stringify(data, null, 2), {
+      encoding: 'utf-8',
+      mode: 0o600
+    })
     logger.info('Providers配置已保存', { count: providers.length })
   } catch (error) {
     logger.error('Providers配置保存失败', { error })
@@ -142,6 +167,10 @@ export async function updateProvider(id: string, updates: Partial<AIProviderConf
 
   if (index === -1) {
     throw new Error(`Provider不存在: ${id}`)
+  }
+
+  if (updates.apiKey === undefined || updates.apiKey === '' || updates.apiKey === MASKED_VALUE) {
+    delete updates.apiKey
   }
 
   // 合并更新

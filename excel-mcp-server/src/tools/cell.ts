@@ -3,9 +3,7 @@
  * 合并 20 个原工具
  */
 
-import { sendIPCCommand } from '@office-mcp/shared'
-import type { ToolDefinition } from './types.js'
-import { validateAction, unsupportedActionError } from './types.js'
+import { createActionTool, required } from '@office-mcp/shared'
 
 const SUPPORTED_ACTIONS = [
   'setValue', 'getValue', 'setRange', 'getRange',
@@ -14,9 +12,7 @@ const SUPPORTED_ACTIONS = [
   'sort', 'filter', 'autofit', 'setWidth', 'setHeight', 'freeze'
 ] as const
 
-type CellAction = typeof SUPPORTED_ACTIONS[number]
-
-export const excelCellTool: ToolDefinition = {
+export const excelCellTool = createActionTool({
   name: 'excel_cell',
   description: `单元格与区域操作工具。支持的操作(action):
 - setValue: 设置单元格值 (需要 cell, value)
@@ -41,79 +37,115 @@ export const excelCellTool: ToolDefinition = {
 - freeze: 冻结窗格 (可选 rows, columns)`,
   category: 'cell',
   application: 'excel',
-  inputSchema: {
-    type: 'object',
-    properties: {
-      action: {
-        type: 'string',
-        enum: SUPPORTED_ACTIONS,
-        description: '要执行的操作'
-      },
-      cell: {
-        type: 'string',
-        description: '[setValue/getValue] 单元格地址 (如 "A1")'
-      },
-      range: {
-        type: 'string',
-        description: '[多个操作] 区域地址 (如 "A1:B10")'
-      },
-      value: {
-        type: ['string', 'number', 'boolean'],
-        description: '[setValue] 单元格值'
-      },
-      values: {
-        type: 'array',
-        items: { type: 'array' },
-        description: '[setRange] 二维数组值'
-      },
-      shift: {
-        type: 'string',
-        enum: ['right', 'down'],
-        description: '[insert/delete] 移动方向'
-      },
-      searchText: {
-        type: 'string',
-        description: '[find/replace] 搜索文本'
-      },
-      replaceText: {
-        type: 'string',
-        description: '[replace] 替换文本'
-      },
-      matchCase: {
-        type: 'boolean',
-        description: '[find/replace] 区分大小写',
-        default: false
-      },
-      sortBy: {
-        type: 'string',
-        description: '[sort] 排序列'
-      },
-      ascending: {
-        type: 'boolean',
-        description: '[sort] 升序排列',
-        default: true
-      },
-      criteria: {
-        type: 'object',
-        description: '[filter] 筛选条件'
-      },
-      size: {
-        type: 'number',
-        description: '[setWidth/setHeight] 尺寸'
-      },
-      rows: {
-        type: 'number',
-        description: '[freeze] 冻结行数'
-      },
-      columns: {
-        type: 'number',
-        description: '[freeze] 冻结列数'
-      }
+  actions: SUPPORTED_ACTIONS,
+  commandMap: {
+    setValue: 'excel_set_cell_value',
+    getValue: 'excel_get_cell_value',
+    setRange: 'excel_set_range_values',
+    getRange: 'excel_get_range_values',
+    clear: 'excel_clear_range',
+    insert: 'excel_insert_cells',
+    delete: 'excel_delete_cells',
+    merge: 'excel_merge_cells',
+    unmerge: 'excel_unmerge_cells',
+    copy: 'excel_copy_range',
+    cut: 'excel_cut_range',
+    paste: 'excel_paste_range',
+    find: 'excel_find_cell',
+    replace: 'excel_replace_cell',
+    sort: 'excel_sort_range',
+    filter: 'excel_filter_range',
+    autofit: 'excel_autofit_columns',
+    setWidth: 'excel_set_column_width',
+    setHeight: 'excel_set_row_height',
+    freeze: 'excel_freeze_panes'
+  },
+  paramRules: {
+    setValue: [required('cell', 'string'), required('value', 'string')],
+    getValue: [required('cell', 'string')],
+    setRange: [required('range', 'string'), required('values', 'array')],
+    getRange: [required('range', 'string')],
+    clear: [required('range', 'string')],
+    insert: [required('range', 'string')],
+    delete: [required('range', 'string')],
+    merge: [required('range', 'string')],
+    unmerge: [required('range', 'string')],
+    copy: [required('range', 'string')],
+    cut: [required('range', 'string')],
+    paste: [required('range', 'string')],
+    find: [required('searchText', 'string')],
+    replace: [required('searchText', 'string'), required('replaceText', 'string')],
+    sort: [required('range', 'string')],
+    filter: [required('range', 'string')],
+    autofit: [required('range', 'string')],
+    setWidth: [required('range', 'string'), required('size', 'number')],
+    setHeight: [required('range', 'string'), required('size', 'number')],
+    freeze: []
+  },
+  properties: {
+    cell: {
+      type: 'string',
+      description: '[setValue/getValue] 单元格地址 (如 "A1")'
     },
-    required: ['action']
+    range: {
+      type: 'string',
+      description: '[多个操作] 区域地址 (如 "A1:B10")'
+    },
+    value: {
+      type: ['string', 'number', 'boolean'],
+      description: '[setValue] 单元格值'
+    },
+    values: {
+      type: 'array',
+      items: { type: 'array' },
+      description: '[setRange] 二维数组值'
+    },
+    shift: {
+      type: 'string',
+      enum: ['right', 'down'],
+      description: '[insert/delete] 移动方向'
+    },
+    searchText: {
+      type: 'string',
+      description: '[find/replace] 搜索文本'
+    },
+    replaceText: {
+      type: 'string',
+      description: '[replace] 替换文本'
+    },
+    matchCase: {
+      type: 'boolean',
+      description: '[find/replace] 区分大小写',
+      default: false
+    },
+    sortBy: {
+      type: 'string',
+      description: '[sort] 排序列'
+    },
+    ascending: {
+      type: 'boolean',
+      description: '[sort] 升序排列',
+      default: true
+    },
+    criteria: {
+      type: 'object',
+      description: '[filter] 筛选条件'
+    },
+    size: {
+      type: 'number',
+      description: '[setWidth/setHeight] 尺寸'
+    },
+    rows: {
+      type: 'number',
+      description: '[freeze] 冻结行数'
+    },
+    columns: {
+      type: 'number',
+      description: '[freeze] 冻结列数'
+    }
   },
   metadata: {
-    version: '2.0.0',
+    version: '2.1.0',
     priority: 'P0',
     intentKeywords: [
       '单元格', '设置值', '获取值', '区域', '合并',
@@ -129,43 +161,7 @@ export const excelCellTool: ToolDefinition = {
       'excel_sort_range', 'excel_filter_range',
       'excel_autofit_columns', 'excel_set_column_width',
       'excel_set_row_height', 'excel_freeze_panes'
-    ],
-    supportedActions: [...SUPPORTED_ACTIONS]
-  },
-  handler: async (args: Record<string, any>) => {
-    const { action, ...params } = args
-
-    if (!validateAction(action, [...SUPPORTED_ACTIONS])) {
-      return unsupportedActionError(action, [...SUPPORTED_ACTIONS])
-    }
-
-    const commandMap: Record<CellAction, string> = {
-      setValue: 'excel_set_cell_value',
-      getValue: 'excel_get_cell_value',
-      setRange: 'excel_set_range_values',
-      getRange: 'excel_get_range_values',
-      clear: 'excel_clear_range',
-      insert: 'excel_insert_cells',
-      delete: 'excel_delete_cells',
-      merge: 'excel_merge_cells',
-      unmerge: 'excel_unmerge_cells',
-      copy: 'excel_copy_range',
-      cut: 'excel_cut_range',
-      paste: 'excel_paste_range',
-      find: 'excel_find_cell',
-      replace: 'excel_replace_cell',
-      sort: 'excel_sort_range',
-      filter: 'excel_filter_range',
-      autofit: 'excel_autofit_columns',
-      setWidth: 'excel_set_column_width',
-      setHeight: 'excel_set_row_height',
-      freeze: 'excel_freeze_panes'
-    }
-
-    const command = commandMap[action as CellAction]
-    const result = await sendIPCCommand(command, params)
-
-    return { ...result, action }
+    ]
   },
   examples: [
     {
@@ -179,4 +175,4 @@ export const excelCellTool: ToolDefinition = {
       output: { success: true, message: '成功合并单元格', action: 'merge' }
     }
   ]
-}
+})

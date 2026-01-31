@@ -31,12 +31,13 @@ export interface MetricsHistory {
  */
 export class MetricsStorage {
   private static instance: MetricsStorage
+  private static customStorageDir: string | null = null
   private storageDir: string
   private historyFile: string
   private readonly MAX_SNAPSHOTS = 288 // 24小时，每5分钟一个快照
 
   private constructor() {
-    this.storageDir = join(process.cwd(), 'data', 'excel-metrics')
+    this.storageDir = MetricsStorage.customStorageDir ?? join(process.cwd(), 'data', 'excel-metrics')
     this.historyFile = join(this.storageDir, 'history.json')
     this.ensureStorageDir()
   }
@@ -46,6 +47,14 @@ export class MetricsStorage {
       MetricsStorage.instance = new MetricsStorage()
     }
     return MetricsStorage.instance
+  }
+
+  /**
+   * 重置实例（仅用于测试）
+   */
+  static resetInstance(customDir?: string): void {
+    MetricsStorage.instance = undefined as any
+    MetricsStorage.customStorageDir = customDir ?? null
   }
 
   /**

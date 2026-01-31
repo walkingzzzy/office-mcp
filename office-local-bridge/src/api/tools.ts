@@ -8,6 +8,7 @@ import type { Request, Response } from 'express'
 import type { PendingCommand, CommandResult, ToolExecuteRequest } from '../types/index.js'
 import { createLogger } from '../utils/logger.js'
 import { loadConfig } from '../config/index.js'
+import { MAX_PENDING_COMMANDS } from '../utils/constants.js'
 
 const logger = createLogger('ToolsAPI')
 const router = Router()
@@ -41,6 +42,31 @@ function getCommandTimeout(): number {
 }
 
 /**
+ * 清理最旧的待执行命令，避免队列无限增长
+ */
+function evictOldestPendingCommands(maxSize: number): void {
+  if (pendingCommands.size < maxSize) return
+
+  const entries = Array.from(pendingCommands.values()).sort((a, b) => a.timestamp - b.timestamp)
+  const removeCount = pendingCommands.size - maxSize + 1
+
+  for (let i = 0; i < removeCount; i++) {
+    const entry = entries[i]
+    if (!entry) continue
+    pendingCommands.delete(entry.callId)
+
+    const waiter = resultWaiters.get(entry.callId)
+    if (waiter) {
+      clearTimeout(waiter.timeout)
+      waiter.resolve({ callId: entry.callId, success: false, error: '待执行队列已满' })
+      resultWaiters.delete(entry.callId)
+    }
+  }
+
+  logger.warn('待执行队列已满，已清理最旧命令', { removed: removeCount, maxSize })
+}
+
+/**
  * POST /execute-tool
  * MCP Server 调用此端点，将命令推送到队列
  * Office 插件通过轮询获取并执行
@@ -56,6 +82,7 @@ router.post('/execute-tool', async (req: Request, res: Response) => {
   logger.info('收到工具执行请求', { toolName, callId })
 
   // 添加到待执行队列
+  evictOldestPendingCommands(MAX_PENDING_COMMANDS)
   const command: PendingCommand = {
     callId,
     toolName,
